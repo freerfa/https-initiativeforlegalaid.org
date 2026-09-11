@@ -11,9 +11,30 @@
         <a class="primary-btn" href="#contact">{{ site.cta_text }}</a>
         <a class="secondary-btn" href="#about">Learn More</a>
       </div>
+      <div class="hero-meta">
+        <span>Trusted legal guidance</span>
+        <span>Community-first advocacy</span>
+      </div>
     </div>
     <div class="hero-visual">
       <img src="{{ site.hero_image }}" alt="{{ site.site_name }}" />
+    </div>
+  </div>
+</section>
+
+<section class="section stats-section">
+  <div class="container stats-grid">
+    <div class="stat-card">
+      <strong>24/7</strong>
+      <span>Legal guidance support</span>
+    </div>
+    <div class="stat-card">
+      <strong>3+</strong>
+      <span>Core community programs</span>
+    </div>
+    <div class="stat-card">
+      <strong>100%</strong>
+      <span>Committed to justice access</span>
     </div>
   </div>
 </section>
@@ -35,6 +56,30 @@
           </li>
         {% endfor %}
       </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section muted" id="mission">
+  <div class="container mission-grid">
+    <div class="mission-copy">
+      <span class="eyebrow">Why We Exist</span>
+      <h2>Justice should be within reach for every person.</h2>
+      <p>We work with vulnerable communities to improve access to legal information, practical support, and rights-based advocacy that promotes dignity, safety, and long-term resilience.</p>
+    </div>
+    <div class="info-row">
+      <div class="mini-card">
+        <h3>Legal Awareness</h3>
+        <p>Helping people understand their rights and the legal tools available to them.</p>
+      </div>
+      <div class="mini-card">
+        <h3>Advocacy</h3>
+        <p>Championing the voices of those often left out of formal justice systems.</p>
+      </div>
+      <div class="mini-card">
+        <h3>Community Support</h3>
+        <p>Building stronger local responses through dialogue, mediation, and outreach.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -101,6 +146,22 @@
       {% for image in site['gallery'] %}
       <img src="{{ image }}" alt="Community gallery" />
       {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section cta-section" id="contact">
+  <div class="container">
+    <div class="cta-banner">
+      <div>
+        <span class="eyebrow">Need help?</span>
+        <h2>Speak with our team today.</h2>
+      </div>
+      <div class="cta-banner-meta">
+        <p>{{ site.contact_phone }}</p>
+        <p>{{ site.contact_email }}</p>
+      </div>
+      <a class="primary-btn" href="mailto:{{ site.contact_email }}">Request Support</a>
     </div>
   </div>
 </section>
