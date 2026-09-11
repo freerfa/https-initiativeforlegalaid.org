@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section admin-layout">
+  <div class="container admin-grid">
+    <div class="admin-panel">
+      <div class="admin-header">
+        <h2>Manage Site Content</h2>
+        <a class="secondary-btn" href="/admin/logout">Logout</a>
+      </div>
+
+      <form method="post" action="/admin/update" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Site Name</label>
+          <input type="text" name="site_name" value="{{ site.site_name }}" />
+        </div>
+
+        <div class="form-group">
+          <label>Hero Tagline</label>
+          <input type="text" name="tagline" value="{{ site.tagline }}" />
+        </div>
+
+        <div class="form-group">
+          <label>CTA Text</label>
+          <input type="text" name="cta_text" value="{{ site.cta_text }}" />
+        </div>
+
+        <div class="form-group">
+          <label>About Title</label>
+          <input type="text" name="about_title" value="{{ site.about_title }}" />
+        </div>
+
+        <div class="form-group">
+          <label>About Story</label>
+          <textarea name="about_story" rows="4">{{ site.about_story }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Mission</label>
+          <textarea name="mission" rows="3">{{ site.mission }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Services (format: Title | Description, one per line)</label>
+          <textarea name="services_text" rows="8">{% for item in site['services'] %}{{ item.title }} | {{ item.text }}
+{% endfor %}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Projects (format: Title | Description, one per line)</label>
+          <textarea name="projects_text" rows="8">{% for item in site['projects'] %}{{ item.title }} | {{ item.text }}
+{% endfor %}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Testimonials (format: Quote | Name - Role, one per line)</label>
+          <textarea name="testimonials_text" rows="8">{% for item in site['testimonials'] %}{{ item.quote }} | {{ item.name }} - {{ item.role }}
+{% endfor %}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Address</label>
+          <textarea name="contact_address" rows="3">{{ site.contact_address }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" name="contact_phone" value="{{ site.contact_phone }}" />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="contact_email" value="{{ site.contact_email }}" />
+        </div>
+
+        <div class="form-group">
+          <label>Upload Hero Image</label>
+          <input type="file" name="hero_image" accept="image/*" />
+        </div>
+
+        <div class="form-group">
+          <label>Upload Gallery Images</label>
+          <input type="file" name="gallery_images" accept="image/*" multiple />
+        </div>
+
+        <button type="submit" class="primary-btn wide">Save Updates</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

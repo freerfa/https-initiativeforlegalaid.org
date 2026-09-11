@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Legal support for communities in need</span>
+      <h1>{{ site.tagline }}</h1>
+      <p>{{ site.mission }}</p>
+      <div class="cta-row">
+        <a class="primary-btn" href="#contact">{{ site.cta_text }}</a>
+        <a class="secondary-btn" href="#about">Learn More</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="{{ site.hero_image }}" alt="{{ site.site_name }}" />
+    </div>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="container split-layout">
+    <div>
+      <span class="eyebrow">About Us</span>
+      <h2>{{ site.about_title }}</h2>
+      <p>{{ site.about_story }}</p>
+    </div>
+    <div class="value-box">
+      <h3>Our Values</h3>
+      <ul>
+        {% for value in site['values'] %}
+          <li>
+            <strong>{{ value.title }}</strong>
+            <span>{{ value.text }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section muted" id="services">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Our Services</span>
+      <h2>What We Do</h2>
+    </div>
+    <div class="card-grid">
+      {% for service in site['services'] %}
+      <article class="info-card">
+        <h3>{{ service.title }}</h3>
+        <p>{{ service.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Our Projects</span>
+      <h2>Initiatives That Make a Difference</h2>
+    </div>
+    <div class="card-grid compact-grid">
+      {% for project in site['projects'] %}
+      <article class="project-card">
+        <h3>{{ project.title }}</h3>
+        <p>{{ project.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section muted testimonials">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Testimonials</span>
+      <h2>What People Say</h2>
+    </div>
+    <div class="card-grid">
+      {% for item in site['testimonials'] %}
+      <article class="testimonial-card">
+        <p>“{{ item.quote }}”</p>
+        <strong>{{ item.name }}</strong>
+        <span>{{ item.role }}</span>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section gallery-section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Gallery</span>
+      <h2>Community Impact</h2>
+    </div>
+    <div class="gallery-grid">
+      {% for image in site['gallery'] %}
+      <img src="{{ image }}" alt="Community gallery" />
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
