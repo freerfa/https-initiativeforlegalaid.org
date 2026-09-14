@@ -1,0 +1,15 @@
+[Unit]
+Description=Initiative for Legal Aid (gunicorn)
+After=network.target
+
+[Service]
+User=ila
+Group=ila
+WorkingDirectory=/opt/ila
+EnvironmentFile=/opt/ila/.env
+ExecStart=/opt/ila/.venv/bin/gunicorn -w 3 -b 127.0.0.1:8000 app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
