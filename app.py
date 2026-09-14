@@ -26,10 +26,14 @@ if not secret_key or secret_key in {"change-me-to-a-long-random-string", "replac
 app.secret_key = secret_key
 app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+# Persistent data lives outside the repo so redeploys/uploads survive.
+# Local dev: ./ (site.db next to app.py). Render: DATA_DIR=/opt/render/project/src/data (disk).
+DATA_DIR = os.environ.get("DATA_DIR", "")
+DB_FILE = os.path.join(DATA_DIR, "site.db") if DATA_DIR else "site.db"
+SEED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site_data.json")
 # Persistent login: keep users logged in for 30 days (survives browser close)
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
 app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=30)
-DB_FILE = "site.db"
 
 csrf = CSRFProtect(app)
 
@@ -42,9 +46,33 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 
 def get_db_connection():
+    if DATA_DIR:
+        os.makedirs(DATA_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def ensure_db() -> None:
+    """Create site_data table + seed from site_data.json on first boot (fresh Render disk)."""
+    if DATA_DIR:
+        os.makedirs(DATA_DIR, exist_ok=True)
+    conn = get_db_connection()
+    conn.execute("CREATE TABLE IF NOT EXISTS site_data (id INTEGER PRIMARY KEY, data JSON)")
+    row = conn.execute("SELECT data FROM site_data WHERE id = 1").fetchone()
+    if not row or not row["data"]:
+        seed = "{}"
+        try:
+            with open(SEED_FILE, "r", encoding="utf-8") as f:
+                seed = f.read()
+        except OSError:
+            pass
+        conn.execute("INSERT OR REPLACE INTO site_data (id, data) VALUES (1, ?)", (seed,))
+        conn.commit()
+    conn.close()
+
+
+ensure_db()
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and \
