@@ -85,6 +85,16 @@
       "title": "Peacebuilding",
       "text": "Our peacebuilding initiatives foster social cohesion, conflict resolution, and peaceful coexistence among communities affected by violence and displacement.",
       "image": "/static/uploads/gallery-6.jpg"
+    },
+    {
+      "title": "Civic and Legal Education",
+      "text": "We provide community education programs to raise awareness of legal rights and responsibilities, empowering citizens to actively participate in governance.",
+      "image": "/static/uploads/gallery-1.jpg"
+    },
+    {
+      "title": "Research and Advocacy",
+      "text": "Our ongoing research and advocacy work seeks to influence policy reforms and enhance legal frameworks, ensuring justice systems serve all citizens effectively.",
+      "image": "/static/uploads/gallery-2.jpg"
     }
   ],
   "projects": [
@@ -102,6 +112,11 @@
       "title": "Advocacy Campaigns",
       "text": "Targeted campaigns raising awareness about human rights issues affecting local communities.",
       "image": "/static/uploads/gallery-6.jpg"
+    },
+    {
+      "title": "Research Projects",
+      "text": "In-depth studies that inform our strategies and response to legal challenges in South Sudan.",
+      "image": "/static/uploads/gallery-3.jpg"
     }
   ],
   "projects_eyebrow": "Our Projects",
