@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card">
+    <span class="eyebrow">Member access</span>
+    <h2>{{ login_title|default('Log in') }}</h2>
+    <p>{{ login_subtitle|default('One login for everyone — admins go to the dashboard, members go to their account.') }}</p>
+    <form method="post" action="{{ request.path }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      {% if request.args.get('next') %}<input type="hidden" name="next" value="{{ request.args.get('next') }}"/>{% endif %}
+      <label>Username or email<input type="text" name="identifier" autocomplete="username" required /></label>
+      <label>Password<input type="password" name="password" autocomplete="current-password" required /></label>
+      <label class="remember-row"><input type="checkbox" name="remember" checked /> Keep me logged in</label>
+      <button type="submit" class="primary-btn wide">Log in</button>
+    </form>
+    <p class="auth-switch">Need an account? <a href="/register">Register here</a></p>
+  </div>
+</section>
+{% endblock %}

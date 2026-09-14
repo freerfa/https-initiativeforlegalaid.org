@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section account-wrap">
+  <div class="container account-panel">
+    <span class="eyebrow">Member account</span>
+    <h1>Welcome, {{ user.username }}</h1>
+    <p>Your account is separate from the administrator control panel.</p>
+    <div class="account-details">
+      <div><span>Username</span><strong>{{ user.username }}</strong></div>
+      <div><span>Email</span><strong>{{ user.email }}</strong></div>
+      <div><span>Access level</span><strong>Standard user</strong></div>
+    </div>
+    <div class="member-pages">
+      <div class="member-pages-heading">
+        <div>
+          <span class="eyebrow">Member library</span>
+          <h2>Available pages</h2>
+        </div>
+        <a class="secondary-btn" href="/">View homepage</a>
+      </div>
+      <div class="member-page-list">
+        <a class="member-page-link" href="/#about"><strong>About us</strong><span>Learn about our mission and values</span></a>
+        <a class="member-page-link" href="/#mission"><strong>Mission</strong><span>See what drives our work</span></a>
+        <a class="member-page-link" href="/#services"><strong>Services</strong><span>Explore available legal support</span></a>
+        <a class="member-page-link" href="/#contact"><strong>Contact</strong><span>Find ways to reach the team</span></a>
+        {% for page in site.pages %}
+        <a class="member-page-link" href="{{ url_for('custom_page', slug=page.slug) }}"><strong>{{ page.title }}</strong><span>Open public page</span></a>
+        {% endfor %}
+      </div>
+    </div>
+    <a class="secondary-btn" href="/logout">Log out</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,91 +1,256 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="section admin-layout">
-  <div class="container admin-grid">
-    <div class="admin-panel">
-      <div class="admin-header">
-        <h2>Manage Site Content</h2>
-        <a class="secondary-btn" href="/admin/logout">Logout</a>
+<section class="admin-layout">
+  <div class="container admin-shell">
+    <aside class="admin-sidebar" aria-label="Dashboard sections">
+      <div class="admin-sidebar-brand">
+        <span class="admin-kicker">Control panel</span>
+        <strong>{{ site.site_name }}</strong>
+      </div>
+      <nav class="admin-nav">
+        <a href="#general">General</a>
+        <a href="#hero">Hero</a>
+        <a href="#about">About</a>
+        <a href="#mission">Mission</a>
+        <a href="#programs">Programs</a>
+        <a href="#social-proof">Social proof</a>
+        <a href="#media">Media</a>
+        <a href="#custom-content">Custom content</a>
+        <a href="#security">Security</a>
+        <a href="#contact-details">Contact</a>
+      </nav>
+      <a class="admin-logout" href="/admin/logout">Log out</a>
+    </aside>
+
+    <main class="admin-content">
+      <div class="admin-page-heading">
+        <div>
+          <span class="admin-kicker">Website settings</span>
+          <h1>Manage your website</h1>
+          <p>Update the content shown across the public homepage.</p>
+        </div>
+        <a class="secondary-btn" href="/">View website</a>
       </div>
 
       <form method="post" action="/admin/update" enctype="multipart/form-data">
-        <div class="form-group">
-          <label>Site Name</label>
-          <input type="text" name="site_name" value="{{ site.site_name }}" />
-        </div>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <section class="admin-card" id="general">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">01</span><h2>General</h2></div>
+            <p>Set the site identity and primary action.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="site_name">Site name</label><input id="site_name" type="text" name="site_name" value="{{ site.site_name }}" /></div>
+            <div class="form-group"><label for="cta_text">Primary button text</label><input id="cta_text" type="text" name="cta_text" value="{{ site.cta_text }}" /></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>Hero Tagline</label>
-          <input type="text" name="tagline" value="{{ site.tagline }}" />
-        </div>
+        <section class="admin-card" id="hero">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">02</span><h2>Hero section</h2></div>
+            <p>The first message visitors see.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="hero_eyebrow">Eyebrow</label><input id="hero_eyebrow" type="text" name="hero_eyebrow" value="{{ site.hero_eyebrow }}" /></div>
+            <div class="form-group"><label for="tagline">Headline</label><input id="tagline" type="text" name="tagline" value="{{ site.tagline }}" /></div>
+            <div class="form-group full-width"><label for="hero_meta">Supporting badges <small>one per line</small></label><textarea id="hero_meta" name="hero_meta" rows="3">{% for item in site.hero_meta %}{{ item }}
+{% endfor %}</textarea></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>CTA Text</label>
-          <input type="text" name="cta_text" value="{{ site.cta_text }}" />
-        </div>
+        <section class="admin-card" id="about">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">03</span><h2>About section</h2></div>
+            <p>Tell visitors who you are and what guides the work.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="about_title">Section title</label><input id="about_title" type="text" name="about_title" value="{{ site.about_title }}" /></div>
+            <div class="form-group full-width"><label for="about_story">Story</label><textarea id="about_story" name="about_story" rows="4">{{ site.about_story }}</textarea></div>
+            <div class="form-group full-width"><label for="values_text">Values <small>Title | Description, one per line</small></label><textarea id="values_text" name="values_text" rows="5">{% for item in values %}{{ item.title }} | {{ item.text }}
+{% endfor %}</textarea></div>
+            <div class="form-group full-width"><label for="stats_text">Stats <small>Number | Label, one per line</small></label><textarea id="stats_text" name="stats_text" rows="4">{% for item in site.stats %}{{ item.value }} | {{ item.label }}
+{% endfor %}</textarea></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>About Title</label>
-          <input type="text" name="about_title" value="{{ site.about_title }}" />
-        </div>
+        <section class="admin-card" id="mission">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">04</span><h2>Mission section</h2></div>
+            <p>Shape the statement and supporting cards.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="mission_eyebrow">Eyebrow</label><input id="mission_eyebrow" type="text" name="mission_eyebrow" value="{{ site.mission_eyebrow }}" /></div>
+            <div class="form-group"><label for="mission_title">Title</label><input id="mission_title" type="text" name="mission_title" value="{{ site.mission_title }}" /></div>
+            <div class="form-group full-width"><label for="mission_text">Section text</label><textarea id="mission_text" name="mission_text" rows="3">{{ site.mission_text }}</textarea></div>
+            <div class="form-group full-width"><label for="mission_cards_text">Mission cards <small>Title | Description, one per line</small></label><textarea id="mission_cards_text" name="mission_cards_text" rows="5">{% for item in site.mission_cards %}{{ item.title }} | {{ item.text }}
+{% endfor %}</textarea></div>
+            <div class="form-group full-width"><label for="mission">Hero mission copy</label><textarea id="mission" name="mission" rows="3">{{ site.mission }}</textarea></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>About Story</label>
-          <textarea name="about_story" rows="4">{{ site.about_story }}</textarea>
-        </div>
+        <section class="admin-card" id="programs">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">05</span><h2>Programs and projects</h2></div>
+            <p>Manage the services and initiatives displayed publicly.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="services_eyebrow">Services eyebrow</label><input id="services_eyebrow" type="text" name="services_eyebrow" value="{{ site.services_eyebrow }}" /></div>
+            <div class="form-group"><label for="services_title">Services title</label><input id="services_title" type="text" name="services_title" value="{{ site.services_title }}" /></div>
+            <div class="form-group full-width"><label for="services_text">Services <small>Title | Description, one per line</small></label><textarea id="services_text" name="services_text" rows="8">{% for item in site.services %}{{ item.title }} | {{ item.text }}
+{% endfor %}</textarea></div>
+            <div class="form-group"><label for="projects_eyebrow">Projects eyebrow</label><input id="projects_eyebrow" type="text" name="projects_eyebrow" value="{{ site.projects_eyebrow }}" /></div>
+            <div class="form-group"><label for="projects_title">Projects title</label><input id="projects_title" type="text" name="projects_title" value="{{ site.projects_title }}" /></div>
+            <div class="form-group full-width"><label for="projects_text">Projects <small>Title | Description, one per line</small></label><textarea id="projects_text" name="projects_text" rows="8">{% for item in site.projects %}{{ item.title }} | {{ item.text }}
+{% endfor %}</textarea></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>Mission</label>
-          <textarea name="mission" rows="3">{{ site.mission }}</textarea>
-        </div>
+        <section class="admin-card" id="social-proof">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">06</span><h2>Social proof</h2></div>
+            <p>Control the testimonials and section presentation.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="testimonials_eyebrow">Eyebrow</label><input id="testimonials_eyebrow" type="text" name="testimonials_eyebrow" value="{{ site.testimonials_eyebrow }}" /></div>
+            <div class="form-group"><label for="testimonials_title">Section title</label><input id="testimonials_title" type="text" name="testimonials_title" value="{{ site.testimonials_title }}" /></div>
+            <div class="form-group full-width"><label for="testimonials_text">Testimonials <small>Quote | Name - Role, one per line</small></label><textarea id="testimonials_text" name="testimonials_text" rows="8">{% for item in site.testimonials %}{{ item.quote }} | {{ item.name }} - {{ item.role }}
+{% endfor %}</textarea></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>Services (format: Title | Description, one per line)</label>
-          <textarea name="services_text" rows="8">{% for item in site['services'] %}{{ item.title }} | {{ item.text }}
-{% endfor %}</textarea>
-        </div>
+        <section class="admin-card" id="contact-details">
+          <div class="admin-card-heading">
+            <div><span class="admin-kicker">08</span><h2>Contact and CTA</h2></div>
+            <p>Keep contact information and the closing invitation current.</p>
+          </div>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="cta_eyebrow">CTA eyebrow</label><input id="cta_eyebrow" type="text" name="cta_eyebrow" value="{{ site.cta_eyebrow }}" /></div>
+            <div class="form-group"><label for="cta_title">CTA title</label><input id="cta_title" type="text" name="cta_title" value="{{ site.cta_title }}" /></div>
+            <div class="form-group full-width"><label for="contact_address">Address</label><textarea id="contact_address" name="contact_address" rows="3">{{ site.contact_address }}</textarea></div>
+            <div class="form-group"><label for="contact_phone">Phone</label><input id="contact_phone" type="text" name="contact_phone" value="{{ site.contact_phone }}" /></div>
+            <div class="form-group"><label for="contact_email">Email</label><input id="contact_email" type="email" name="contact_email" value="{{ site.contact_email }}" /></div>
+            <div class="form-group"><label for="gallery_eyebrow">Gallery eyebrow</label><input id="gallery_eyebrow" type="text" name="gallery_eyebrow" value="{{ site.gallery_eyebrow }}" /></div>
+            <div class="form-group"><label for="gallery_title">Gallery title</label><input id="gallery_title" type="text" name="gallery_title" value="{{ site.gallery_title }}" /></div>
+          </div>
+        </section>
 
-        <div class="form-group">
-          <label>Projects (format: Title | Description, one per line)</label>
-          <textarea name="projects_text" rows="8">{% for item in site['projects'] %}{{ item.title }} | {{ item.text }}
-{% endfor %}</textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Testimonials (format: Quote | Name - Role, one per line)</label>
-          <textarea name="testimonials_text" rows="8">{% for item in site['testimonials'] %}{{ item.quote }} | {{ item.name }} - {{ item.role }}
-{% endfor %}</textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Contact Address</label>
-          <textarea name="contact_address" rows="3">{{ site.contact_address }}</textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="text" name="contact_phone" value="{{ site.contact_phone }}" />
-        </div>
-
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="contact_email" value="{{ site.contact_email }}" />
-        </div>
-
-        <div class="form-group">
-          <label>Upload Hero Image</label>
-          <input type="file" name="hero_image" accept="image/*" />
-        </div>
-
-        <div class="form-group">
-          <label>Upload Gallery Images</label>
-          <input type="file" name="gallery_images" accept="image/*" multiple />
-        </div>
-
-        <button type="submit" class="primary-btn wide">Save Updates</button>
+        <div class="admin-save-bar"><span>Changes are saved to the public website.</span><button type="submit" class="primary-btn">Save all changes</button></div>
       </form>
-    </div>
+
+      <section class="admin-card photo-manager" id="media">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">07</span><h2>Photo manager</h2></div>
+          <p>Replace or remove one photo at a time.</p>
+        </div>
+        <div class="photo-slot-grid">
+          {% for slot in photo_slots %}
+          <article class="photo-slot{% if not slot.image %} is-empty{% endif %}">
+            <div class="photo-slot-preview">
+              {% if slot.image %}<img src="{{ slot.image }}" alt="{{ slot.label }}" />{% else %}<span>No photo</span>{% endif %}
+            </div>
+            <div class="photo-slot-details">
+              <span class="photo-slot-label">{{ slot.label }}{% if slot.title %}: {{ slot.title }}{% endif %}</span>
+              <form method="post" action="/admin/photo/{{ slot.key }}/update" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <label class="photo-title-field">Edit title<input type="text" name="title" value="{{ slot.title }}" required /></label>
+                <label class="file-picker">Optional replacement<input type="file" name="photo" accept="image/*" /></label>
+                <button type="submit" class="primary-btn photo-action">Save photo changes</button>
+              </form>
+              {% if slot.image %}
+              <form method="post" action="/admin/photo/{{ slot.key }}/delete" onsubmit="return confirm('Remove this photo?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="photo-delete">Delete photo</button>
+              </form>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="admin-card" id="custom-content">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">09</span><h2>Custom content</h2></div>
+          <p>Create new homepage photo sections and standalone pages.</p>
+        </div>
+        <div class="creation-grid">
+          <div class="creation-panel">
+            <span class="admin-kicker">Homepage section</span>
+            <h3>Add a photo section</h3>
+            <form method="post" action="/admin/custom-section/create" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <div class="form-group"><label for="new_section_title">Section title</label><input id="new_section_title" type="text" name="title" required /></div>
+              <div class="form-group"><label for="new_section_text">Description</label><textarea id="new_section_text" name="text" rows="4" required></textarea></div>
+              <div class="form-group"><label for="new_section_image">Photo <small>optional</small></label><input id="new_section_image" type="file" name="image" accept="image/*" /></div>
+              <button type="submit" class="primary-btn">Create section</button>
+            </form>
+          </div>
+          <div class="creation-panel">
+            <span class="admin-kicker">Standalone page</span>
+            <h3>Add a new page</h3>
+            <form method="post" action="/admin/page/create" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <div class="form-group"><label for="new_page_title">Page title</label><input id="new_page_title" type="text" name="title" required /></div>
+              <div class="form-group"><label for="new_page_content">Page content</label><textarea id="new_page_content" name="content" rows="4" required></textarea></div>
+              <div class="form-group"><label for="new_page_image">Page image <small>optional</small></label><input id="new_page_image" type="file" name="image" accept="image/*" /></div>
+              <button type="submit" class="primary-btn">Create page</button>
+            </form>
+          </div>
+        </div>
+        {% if site.custom_sections or site.pages %}
+        <div class="custom-content-list">
+          {% for section in site.custom_sections %}
+          <div class="content-row"><div><strong>{{ section.title }}</strong><span>Homepage photo section</span></div><form method="post" action="/admin/custom-section/{{ loop.index0 }}/delete">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="photo-delete" type="submit">Delete</button></form></div>
+          {% endfor %}
+          {% for page in site.pages %}
+          <div class="content-row"><div><strong>{{ page.title }}</strong><span>/page/{{ page.slug }}</span></div><form method="post" action="/admin/page/{{ page.slug }}/delete">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="photo-delete" type="submit">Delete</button></form></div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="admin-card" id="security">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">10</span><h2>Admin account</h2></div>
+          <p>Change the username or password used to access this panel.</p>
+        </div>
+        <form method="post" action="/admin/account">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="admin_username">Username</label><input id="admin_username" type="text" name="username" value="{{ site.admin_account.username if site.admin_account and site.admin_account.username else 'admin' }}" required /></div>
+            <div class="form-group"><label for="current_password">Current password</label><input id="current_password" type="password" name="current_password" autocomplete="current-password" required /></div>
+            <div class="form-group"><label for="new_password">New password <small>leave blank to keep current</small></label><input id="new_password" type="password" name="new_password" autocomplete="new-password" minlength="8" /></div>
+            <div class="form-group"><label for="confirm_password">Confirm new password</label><input id="confirm_password" type="password" name="confirm_password" autocomplete="new-password" minlength="8" /></div>
+          </div>
+          <button type="submit" class="primary-btn">Update admin credentials</button>
+        </form>
+        <div class="admin-user-list">
+          <h3>Admin users</h3>
+          {% for user in admin_users %}
+          <div class="content-row">
+            <div><strong>{{ user.username }}</strong><span>{% if user.username == session.username %}Current account{% else %}Admin access{% endif %}</span></div>
+            {% if user.username != session.username %}<form method="post" action="/admin/users/{{ user.username }}/delete" onsubmit="return confirm('Delete this admin user?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="photo-delete" type="submit">Delete user</button></form>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="admin-user-add">
+          <h3>Add another admin</h3>
+          <form method="post" action="/admin/users/create">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="admin-form-grid">
+              <div class="form-group"><label for="new_admin_username">Username</label><input id="new_admin_username" type="text" name="username" required /></div>
+              <div class="form-group"><label for="new_admin_password">Password <small>minimum 8 characters</small></label><input id="new_admin_password" type="password" name="password" minlength="8" required /></div>
+              <div class="form-group"><label for="confirm_admin_password">Confirm password</label><input id="confirm_admin_password" type="password" name="confirm_password" minlength="8" required /></div>
+            </div>
+            <button type="submit" class="secondary-btn">Add admin user</button>
+          </form>
+        </div>
+      </section>
+    </main>
   </div>
 </section>
 {% endblock %}

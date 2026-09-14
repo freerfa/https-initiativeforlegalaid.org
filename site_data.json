@@ -1,0 +1,164 @@
+{
+  "site_name": "Initiative for Legal Aid",
+  "tagline": "Empowering Access To Justice In South Sudan",
+  "hero_eyebrow": "Legal support for communities in need",
+  "hero_meta": [
+    "Trusted legal guidance",
+    "Community-first advocacy"
+  ],
+  "hero_image": "/static/uploads/hero.jpg",
+  "about_image": "/static/uploads/gallery-1.jpg",
+  "mission_image": "/static/uploads/gallery-2.jpg",
+  "photo_titles": {
+    "hero": "Hero image",
+    "about": "About section photo",
+    "mission": "Mission section photo"
+  },
+  "cta_text": "Get Legal Aid",
+  "stats": [
+    {
+      "value": "24/7",
+      "label": "Legal guidance support"
+    },
+    {
+      "value": "3+",
+      "label": "Core community programs"
+    },
+    {
+      "value": "100%",
+      "label": "Committed to justice access"
+    }
+  ],
+  "about_title": "About Us",
+  "about_story": "The Initiative for Legal Aid was established to ensure that justice is accessible to all South Sudanese citizens, aligning legal aid with the empowerment of communities.",
+  "values": [
+    {
+      "title": "Justice And Equality",
+      "text": "We believe in equal rights and opportunities for all."
+    },
+    {
+      "title": "Integrity",
+      "text": "We act with honesty, transparency, and accountability."
+    },
+    {
+      "title": "Service",
+      "text": "We stand with vulnerable communities and respond with dignity."
+    }
+  ],
+  "mission": "We work to protect rights, promote legal awareness, and support vulnerable people through justice-focused advocacy and practical legal assistance.",
+  "mission_eyebrow": "Why We Exist",
+  "mission_title": "Justice should be within reach for every person.",
+  "mission_text": "We work with vulnerable communities to improve access to legal information, practical support, and rights-based advocacy that promotes dignity, safety, and long-term resilience.",
+  "mission_cards": [
+    {
+      "title": "Legal Awareness",
+      "text": "Helping people understand their rights and the legal tools available to them."
+    },
+    {
+      "title": "Advocacy",
+      "text": "Championing the voices of those often left out of formal justice systems."
+    },
+    {
+      "title": "Community Support",
+      "text": "Building stronger local responses through dialogue, mediation, and outreach."
+    }
+  ],
+  "services_eyebrow": "Our Services",
+  "services_title": "What We Do",
+  "services": [
+    {
+      "title": "Access To Justice",
+      "text": "We provide free and subsidized legal assistance, ensuring vulnerable populations have the support they need to assert their rights and seek justice.",
+      "image": "/static/uploads/gallery-3.jpg"
+    },
+    {
+      "title": "Human Rights Protection",
+      "text": "Our program focuses on monitoring, documenting, and advocating for victims of human rights violations while promoting respect for civil liberties.",
+      "image": "/static/uploads/gallery-4.jpg"
+    },
+    {
+      "title": "Women And Children's Rights",
+      "text": "We champion gender equality and protection for women and children, offering legal support and advocacy against gender-based violence and discrimination.",
+      "image": "/static/uploads/gallery-5.jpg"
+    },
+    {
+      "title": "Peacebuilding",
+      "text": "Our peacebuilding initiatives foster social cohesion, conflict resolution, and peaceful coexistence among communities affected by violence and displacement.",
+      "image": "/static/uploads/gallery-6.jpg"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Legal Empowerment Workshops",
+      "text": "These workshops equip individuals with essential legal knowledge to advocate effectively for their rights.",
+      "image": "/static/uploads/gallery-4.jpg"
+    },
+    {
+      "title": "Community Dialogues",
+      "text": "Facilitated discussions that aim to resolve conflicts peacefully and strengthen community bonds.",
+      "image": "/static/uploads/gallery-5.jpg"
+    },
+    {
+      "title": "Advocacy Campaigns",
+      "text": "Targeted campaigns raising awareness about human rights issues affecting local communities.",
+      "image": "/static/uploads/gallery-6.jpg"
+    }
+  ],
+  "projects_eyebrow": "Our Projects",
+  "projects_title": "Initiatives That Make a Difference",
+  "testimonials": [
+    {
+      "quote": "The support from ILA has changed my life. I finally received the help I needed to claim my rights.",
+      "name": "Amina L.",
+      "role": "Beneficiary",
+      "image": "/static/uploads/testimonial-2.jpg"
+    },
+    {
+      "quote": "ILA's advocacy work creates real change. We are grateful for their dedication to protecting our rights.",
+      "name": "John D.",
+      "role": "Human Rights Advocate",
+      "image": "/static/uploads/testimonial-3.jpg"
+    },
+    {
+      "quote": "Through ILA, we learned our rights as women. This knowledge empowers us to stand up and make a difference in our community.",
+      "name": "Sarah M.",
+      "role": "Community Leader",
+      "image": "/static/uploads/testimonial-1.jpg"
+    }
+  ],
+  "testimonials_eyebrow": "Testimonials",
+  "testimonials_title": "What People Say",
+  "contact_address": "Customs Business Area, Along Main Highway, Opp Dr. John Garang Mausoleum, Juba, Central Equatoria State, Republic of South Sudan",
+  "contact_phone": "+211 922 460 564 / +211 920 800 802",
+  "contact_email": "contact@domain.com",
+  "gallery": [
+    "/static/uploads/gallery-1.jpg",
+    "/static/uploads/gallery-2.jpg",
+    "/static/uploads/gallery-3.jpg",
+    "/static/uploads/gallery-4.jpg",
+    "/static/uploads/gallery-5.jpg",
+    "/static/uploads/gallery-6.jpg"
+  ],
+  "gallery_eyebrow": "Gallery",
+  "gallery_title": "Community Impact",
+  "cta_eyebrow": "Need help?",
+  "cta_title": "Speak with our team today.",
+  "custom_sections": [],
+  "pages": [],
+  "admin_account": {},
+  "admin_users": [
+    {
+      "username": "admin",
+      "password_hash": "pbkdf2:sha256:1000000$cenzLGR01bw3Zxy0$756dbd03ad201587b4490877c749591850fbfff152f7505a18c5f7809cb40c76",
+      "role": "admin"
+    }
+  ],
+  "users": [
+    {
+      "username": "test",
+      "email": "freerfa3@gmail.com",
+      "password_hash": "pbkdf2:sha256:1000000$bKXCL6tanZy4LdFK$7fce3070f47281e27e436928b89d3759faa76a318ea899b55c150a7b291fadf3",
+      "role": "user"
+    }
+  ]
+}

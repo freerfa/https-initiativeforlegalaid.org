@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card">
+    <span class="eyebrow">Member access</span>
+    <h2>Create an account</h2>
+    <p>Register to access your personal account.</p>
+    <form method="post" action="/register">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <label>Username<input type="text" name="username" autocomplete="username" required /></label>
+      <label>Email<input type="email" name="email" autocomplete="email" required /></label>
+      <label>Password<input type="password" name="password" autocomplete="new-password" minlength="8" required /></label>
+      <label>Confirm password<input type="password" name="confirm_password" autocomplete="new-password" minlength="8" required /></label>
+      <button type="submit" class="primary-btn wide">Create account</button>
+    </form>
+    <p class="auth-switch">Already registered? <a href="/login">Log in</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -5,6 +5,7 @@
   <div class="auth-card">
     <h2>Admin Login</h2>
     <form method="post" action="/admin/login">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <label>
         Username
         <input type="text" name="username" required />

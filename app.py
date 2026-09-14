@@ -1,99 +1,388 @@
 import json
 import os
+import re
+import secrets
+import socket
+import sqlite3
+from datetime import timedelta
 from functools import wraps
 from typing import Any, Dict, List
+import filetype
 
+from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_wtf.csrf import CSRFProtect
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
+
+load_dotenv()  # load .env into os.environ for local dev; production uses real env vars
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "replace-this-with-a-strong-secret")
+secret_key = os.environ.get("SECRET_KEY", "")
+if not secret_key or secret_key in {"change-me-to-a-long-random-string", "replace-this-with-a-strong-secret"}:
+    if os.environ.get("FLASK_ENV") == "production":
+        raise RuntimeError("SECRET_KEY must be set to a strong random value in production.")
+    secret_key = secrets.token_hex(32)  # dev-only ephemeral key; sessions reset on restart
+app.secret_key = secret_key
 app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+# Persistent login: keep users logged in for 30 days (survives browser close)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
+app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=30)
+DB_FILE = "site.db"
 
-DATA_FILE = "site_data.json"
-ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+csrf = CSRFProtect(app)
+
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+ADMIN_BOOTSTRAP_ENABLED = os.environ.get("ADMIN_BOOTSTRAP", "0") == "1"
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 
+def get_db_connection():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def allowed_file(filename: str) -> bool:
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def is_safe_image(stream) -> bool:
+    """Sniff magic bytes; SVG is rejected (can carry JS) even though it is text."""
+    header = stream.read(512)
+    stream.seek(0)
+    kind = filetype.guess(header)
+    if kind is None:
+        return False
+    return kind.extension in ALLOWED_EXTENSIONS
+
+
 def load_data() -> Dict[str, Any]:
-    if not os.path.exists(DATA_FILE):
-        return default_site_data()
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        try:
-            data = json.load(f)
-        except json.JSONDecodeError:
-            return default_site_data()
-    return data
+    defaults = default_site_data()
+    try:
+        conn = get_db_connection()
+        row = conn.execute('SELECT data FROM site_data WHERE id = 1').fetchone()
+        conn.close()
+        if row and row['data']:
+            data = json.loads(row['data'])
+        else:
+            data = {}
+    except (sqlite3.Error, json.JSONDecodeError):
+        data = {}
+
+    if isinstance(data, dict):
+        defaults.update(data)
+    gallery = defaults.get("gallery", [])
+    if "about_image" not in data:
+        defaults["about_image"] = gallery[0] if len(gallery) > 0 else ""
+    if "mission_image" not in data:
+        defaults["mission_image"] = gallery[1] if len(gallery) > 1 else ""
+    for index, item in enumerate(defaults.get("services", [])):
+        if "image" not in item and len(gallery) > index + 2:
+            item["image"] = gallery[index + 2]
+    for index, item in enumerate(defaults.get("projects", [])):
+        if "image" not in item and len(gallery) > index + 3:
+            item["image"] = gallery[index + 3]
+    return defaults
 
 
 def save_data(data: Dict[str, Any]) -> None:
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('SELECT COUNT(*) FROM site_data')
+    if c.fetchone()[0] == 0:
+        c.execute('INSERT INTO site_data (data) VALUES (?)', (json.dumps(data),))
+    else:
+        c.execute('UPDATE site_data SET data = ? WHERE id = 1', (json.dumps(data),))
+    conn.commit()
+    conn.close()
 
 
 def default_site_data() -> Dict[str, Any]:
     return {
         "site_name": "Initiative for Legal Aid",
         "tagline": "Empowering Access To Justice In South Sudan",
+        "hero_eyebrow": "Legal support for communities in need",
+        "hero_meta": ["Trusted legal guidance", "Community-first advocacy"],
         "hero_image": "/static/uploads/hero.jpg",
+        "about_image": "/static/uploads/gallery-1.jpg",
+        "mission_image": "/static/uploads/gallery-2.jpg",
+        "photo_titles": {
+            "hero": "Hero image",
+            "about": "About section photo",
+            "mission": "Mission section photo"
+        },
         "cta_text": "Get Legal Aid",
+        "stats": [
+            {"value": "24/7", "label": "Legal guidance support"},
+            {"value": "3+", "label": "Core community programs"},
+            {"value": "100%", "label": "Committed to justice access"}
+        ],
         "about_title": "About Us",
         "about_story": "The Initiative for Legal Aid was established to ensure that justice is accessible to all South Sudanese citizens, aligning legal aid with the empowerment of communities.",
-        "mission": "We work to protect rights, promote legal awareness, and support vulnerable people through justice-focused advocacy and practical legal assistance.",
         "values": [
             {"title": "Justice And Equality", "text": "We believe in equal rights and opportunities for all."},
             {"title": "Integrity", "text": "We act with honesty, transparency, and accountability."},
             {"title": "Service", "text": "We stand with vulnerable communities and respond with dignity."}
         ],
+        "mission": "We work to protect rights, promote legal awareness, and support vulnerable people through justice-focused advocacy and practical legal assistance.",
+        "mission_eyebrow": "Why We Exist",
+        "mission_title": "Justice should be within reach for every person.",
+        "mission_text": "We work with vulnerable communities to improve access to legal information, practical support, and rights-based advocacy that promotes dignity, safety, and long-term resilience.",
+        "mission_cards": [
+            {"title": "Legal Awareness", "text": "Helping people understand their rights and the legal tools available to them."},
+            {"title": "Advocacy", "text": "Championing the voices of those often left out of formal justice systems."},
+            {"title": "Community Support", "text": "Building stronger local responses through dialogue, mediation, and outreach."}
+        ],
+        "services_eyebrow": "Our Services",
+        "services_title": "What We Do",
         "services": [
-            {"title": "Access To Justice", "text": "We provide free and subsidized legal assistance, ensuring vulnerable populations have the support they need to assert their rights and seek justice."},
-            {"title": "Human Rights Protection", "text": "Our program focuses on monitoring, documenting, and advocating for victims of human rights violations while promoting respect for civil liberties."},
-            {"title": "Women And Children\'s Rights", "text": "We champion gender equality and protection for women and children, offering legal support and advocacy against gender-based violence and discrimination."},
-            {"title": "Peacebuilding", "text": "Our peacebuilding initiatives foster social cohesion, conflict resolution, and peaceful coexistence among communities affected by violence and displacement."}
+            {"title": "Access To Justice", "text": "We provide free and subsidized legal assistance, ensuring vulnerable populations have the support they need to assert their rights and seek justice.", "image": "/static/uploads/gallery-3.jpg"},
+            {"title": "Human Rights Protection", "text": "Our program focuses on monitoring, documenting, and advocating for victims of human rights violations while promoting respect for civil liberties.", "image": "/static/uploads/gallery-4.jpg"},
+            {"title": "Women And Children\'s Rights", "text": "We champion gender equality and protection for women and children, offering legal support and advocacy against gender-based violence and discrimination.", "image": "/static/uploads/gallery-5.jpg"},
+            {"title": "Peacebuilding", "text": "Our peacebuilding initiatives foster social cohesion, conflict resolution, and peaceful coexistence among communities affected by violence and displacement.", "image": "/static/uploads/gallery-6.jpg"}
         ],
         "projects": [
-            {"title": "Legal Empowerment Workshops", "text": "These workshops equip individuals with essential legal knowledge to advocate effectively for their rights."},
-            {"title": "Community Dialogues", "text": "Facilitated discussions that aim to resolve conflicts peacefully and strengthen community bonds."},
-            {"title": "Advocacy Campaigns", "text": "Targeted campaigns raising awareness about human rights issues affecting local communities."}
+            {"title": "Legal Empowerment Workshops", "text": "These workshops equip individuals with essential legal knowledge to advocate effectively for their rights.", "image": "/static/uploads/gallery-4.jpg"},
+            {"title": "Community Dialogues", "text": "Facilitated discussions that aim to resolve conflicts peacefully and strengthen community bonds.", "image": "/static/uploads/gallery-5.jpg"},
+            {"title": "Advocacy Campaigns", "text": "Targeted campaigns raising awareness about human rights issues affecting local communities.", "image": "/static/uploads/gallery-6.jpg"}
         ],
+        "projects_eyebrow": "Our Projects",
+        "projects_title": "Initiatives That Make a Difference",
         "testimonials": [
-            {"quote": "The support from ILA has changed my life. I finally received the help I needed to claim my rights.", "name": "Amina L.", "role": "Beneficiary"},
-            {"quote": "ILA's advocacy work creates real change. We are grateful for their dedication to protecting our rights.", "name": "John D.", "role": "Human Rights Advocate"},
-            {"quote": "Through ILA, we learned our rights as women. This knowledge empowers us to stand up and make a difference in our community.", "name": "Sarah M.", "role": "Community Leader"}
+            {"quote": "The support from ILA has changed my life. I finally received the help I needed to claim my rights.", "name": "Amina L.", "role": "Beneficiary", "image": "/static/uploads/testimonial-2.jpg"},
+            {"quote": "ILA's advocacy work creates real change. We are grateful for their dedication to protecting our rights.", "name": "John D.", "role": "Human Rights Advocate", "image": "/static/uploads/testimonial-3.jpg"},
+            {"quote": "Through ILA, we learned our rights as women. This knowledge empowers us to stand up and make a difference in our community.", "name": "Sarah M.", "role": "Community Leader", "image": "/static/uploads/testimonial-1.jpg"}
         ],
+        "testimonials_eyebrow": "Testimonials",
+        "testimonials_title": "What People Say",
         "contact_address": "Customs Business Area, Along Main Highway, Opp Dr. John Garang Mausoleum, Juba, Central Equatoria State, Republic of South Sudan",
         "contact_phone": "+211 922 460 564 / +211 920 800 802",
         "contact_email": "contact@domain.com",
         "gallery": [
             "/static/uploads/gallery-1.jpg",
             "/static/uploads/gallery-2.jpg",
-            "/static/uploads/gallery-3.jpg"
-        ]
+            "/static/uploads/gallery-3.jpg",
+            "/static/uploads/gallery-4.jpg",
+            "/static/uploads/gallery-5.jpg",
+            "/static/uploads/gallery-6.jpg"
+        ],
+        "gallery_eyebrow": "Gallery",
+        "gallery_title": "Community Impact",
+        "cta_eyebrow": "Need help?",
+        "cta_title": "Speak with our team today.",
+        "custom_sections": [],
+        "pages": [],
+        "admin_account": {},
+        "admin_users": [],
+        "users": []
     }
+
+
+def parse_entries(value: str) -> List[Dict[str, str]]:
+    entries = []
+    for line in value.splitlines():
+        if "|" in line:
+            title, text = [part.strip() for part in line.split("|", 1)]
+            if title and text:
+                entries.append({"title": title, "text": text})
+    return entries
+
+
+def find_account(site: Dict[str, Any], identifier: str):
+    """Look up an account by username or email across admins and users.
+    Returns (account_dict, role) where role is 'admin' or 'user', or (None, None)."""
+    ident = (identifier or "").strip().lower()
+    if not ident:
+        return None, None
+    for admin in admin_users(site):
+        if admin.get("username", "").lower() == ident:
+            return admin, "admin"
+    for user in site.get("users", []):
+        if user.get("username", "").lower() == ident or user.get("email", "").lower() == ident:
+            return user, "user"
+    return None, None
 
 
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
-        if not session.get("logged_in"):
+        if not session.get("logged_in") or session.get("role") != "admin":
             flash("You need to log in to manage the site.")
-            return redirect(url_for("admin_login"))
+            return redirect(url_for("unified_login", next=request.path))
         return view(*args, **kwargs)
 
     return wrapped
+
+
+def user_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("user_logged_in") or session.get("role") != "user":
+            flash("Please log in to view your account.")
+            return redirect(url_for("unified_login", next=request.path))
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
+def admin_account(data: Dict[str, Any]) -> Dict[str, str]:
+    # Legacy single-admin shape; env is NOT used here. Empty hash = unusable until
+    # an admin is created via ADMIN_BOOTSTRAP=1 or the dashboard's "Add admin user".
+    account = data.get("admin_account") or {}
+    return {
+        "username": account.get("username", ""),
+        "password_hash": account.get("password_hash", "")
+    }
+
+
+def admin_users(data: Dict[str, Any]) -> List[Dict[str, str]]:
+    users = data.get("admin_users")
+    if isinstance(users, list) and users:
+        return users
+    # Bootstrap from env ONLY when explicitly enabled (first deploy / recovery).
+    # Env never overrides stored admins; set ADMIN_BOOTSTRAP=0 afterwards.
+    if ADMIN_BOOTSTRAP_ENABLED and ADMIN_USERNAME and ADMIN_PASSWORD:
+        users = [{"username": ADMIN_USERNAME,
+                  "password_hash": generate_password_hash(ADMIN_PASSWORD, method="pbkdf2:sha256"),
+                  "role": "admin"}]
+        data["admin_users"] = users
+        return users
+    legacy = admin_account(data)
+    if legacy.get("username") and legacy.get("password_hash"):
+        users = [{"username": legacy["username"], "password_hash": legacy["password_hash"], "role": "admin"}]
+        data["admin_users"] = users
+        return users
+    data["admin_users"] = []
+    return data["admin_users"]
 
 
 def handle_upload(file, fallback_name: str) -> str:
     if not file or file.filename == "":
         return fallback_name
 
-    filename = file.filename
-    safe_name = "".join(ch for ch in filename if ch.isalnum() or ch in ("-", "_", "."))
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
+    if not allowed_file(file.filename):
+        flash("Invalid file extension. Only images are allowed.")
+        return fallback_name
+        
+    if not is_safe_image(file.stream):
+        flash("Invalid file content. The file does not appear to be a valid image.")
+        return fallback_name
+
+    filename = secure_filename(file.filename)
+    # Append a unique identifier if file already exists to prevent overwriting
+    base, ext = os.path.splitext(filename)
+    counter = 1
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    while os.path.exists(file_path):
+        filename = f"{base}_{counter}{ext}"
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        counter += 1
+
     file.save(file_path)
-    return f"/static/uploads/{safe_name}"
+    return f"/static/uploads/{filename}"
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "page"
+
+
+def unique_slug(data: Dict[str, Any], title: str, current: str = "") -> str:
+    base = slugify(title)
+    candidate = base
+    used = {page.get("slug") for page in data.get("pages", []) if page.get("slug") != current}
+    counter = 2
+    while candidate in used:
+        candidate = f"{base}-{counter}"
+        counter += 1
+    return candidate
+
+
+def photo_slots(site: Dict[str, Any]) -> List[Dict[str, str]]:
+    titles = site.get("photo_titles", {})
+    slots = [
+        {"key": "hero", "label": "Hero image", "title": titles.get("hero", "Hero image"), "image": site.get("hero_image", "")},
+        {"key": "about", "label": "About section", "title": titles.get("about", "About section photo"), "image": site.get("about_image", "")},
+        {"key": "mission", "label": "Mission section", "title": titles.get("mission", "Mission section photo"), "image": site.get("mission_image", "")}
+    ]
+    slots.extend({"key": f"service-{index}", "label": f"Service {index + 1}", "title": item.get("title", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("services", [])))
+    slots.extend({"key": f"project-{index}", "label": f"Project {index + 1}", "title": item.get("title", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("projects", [])))
+    slots.extend({"key": f"testimonial-{index}", "label": f"Testimonial {index + 1}", "title": item.get("name", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("testimonials", [])))
+    slots.extend({"key": f"gallery-{index}", "label": f"Gallery image {index + 1}", "title": titles.get(f"gallery-{index}", f"Gallery image {index + 1}"), "image": image} for index, image in enumerate(site.get("gallery", [])))
+    slots.extend({"key": f"custom-section-{index}", "label": f"Custom section {index + 1}", "title": item.get("title", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("custom_sections", [])))
+    slots.extend({"key": f"page-{index}", "label": f"Page {index + 1}", "title": item.get("title", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("pages", [])))
+    return slots
+
+
+def set_photo(data: Dict[str, Any], target: str, image: str) -> bool:
+    if target == "hero":
+        data["hero_image"] = image
+    elif target == "about":
+        data["about_image"] = image
+    elif target == "mission":
+        data["mission_image"] = image
+    else:
+        try:
+            group, raw_index = target.rsplit("-", 1)
+            index = int(raw_index)
+            if group == "service":
+                data["services"][index]["image"] = image
+            elif group == "project":
+                data["projects"][index]["image"] = image
+            elif group == "testimonial":
+                data["testimonials"][index]["image"] = image
+            elif group == "gallery":
+                data["gallery"][index] = image
+            elif group == "custom-section":
+                data["custom_sections"][index]["image"] = image
+            elif group == "page":
+                data["pages"][index]["image"] = image
+            else:
+                return False
+        except (ValueError, IndexError, KeyError):
+            return False
+    return True
+
+
+def set_photo_title(data: Dict[str, Any], target: str, title: str) -> bool:
+    if target in ("hero", "about", "mission") or target.startswith("gallery-"):
+        data.setdefault("photo_titles", {})[target] = title
+        return True
+    try:
+        group, raw_index = target.rsplit("-", 1)
+        index = int(raw_index)
+        if group == "service":
+            data["services"][index]["title"] = title
+        elif group == "project":
+            data["projects"][index]["title"] = title
+        elif group == "testimonial":
+            data["testimonials"][index]["name"] = title
+        elif group == "custom-section":
+            data["custom_sections"][index]["title"] = title
+        elif group == "page":
+            data["pages"][index]["title"] = title
+        else:
+            return False
+    except (ValueError, IndexError, KeyError):
+        return False
+    return True
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("404.html", site=load_data()), 404
+
+
+@app.errorhandler(413)
+def request_too_large(error):
+    flash("That file is too large. Images must be under 16 MB.")
+    redirect_to = request.referrer or url_for("index")
+    return redirect(redirect_to), 413
 
 
 @app.route("/")
@@ -102,18 +391,136 @@ def index():
     return render_template("index.html", site=site)
 
 
+@app.route("/page/<slug>")
+def custom_page(slug: str):
+    site = load_data()
+    page = next((item for item in site.get("pages", []) if item.get("slug") == slug), None)
+    if not page:
+        return render_template("404.html", site=site), 404
+    return render_template("page.html", site=site, page=page)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def unified_login():
+    """Single shared login page (same theme) for admins and regular users.
+    Role is detected automatically; each role is redirected to its own area.
+    NOTE: one browser holds ONE role at a time — logging in as the other role
+    clears the first session (intentional, prevents privilege confusion)."""
+    site = load_data()
+    # Already logged in? Send each role to its home.
+    if session.get("logged_in") and session.get("role") == "admin":
+        return redirect(url_for("admin_dashboard"))
+    if session.get("user_logged_in") and session.get("role") == "user":
+        return redirect(url_for("user_account"))
+    if request.method == "POST":
+        identifier = request.form.get("identifier", "").strip()
+        password = request.form.get("password", "")
+        remember = request.form.get("remember")
+        account, role = find_account(site, identifier)
+        if account and check_password_hash(account.get("password_hash", ""), password):
+            # Single-role session: clear first so admin/user logins never mix in one browser.
+            session.clear()
+            if remember:
+                session.permanent = True  # 30-day cookie: stay logged in across restarts
+            else:
+                session.permanent = False  # browser-session cookie: logged out on browser close
+            if role == "admin":
+                session["logged_in"] = True
+                session["username"] = account["username"]
+                session["role"] = "admin"
+                flash("Login successful. Welcome back, admin.")
+                requested = request.args.get("next") or request.form.get("next")
+                if requested and requested.startswith("/admin"):
+                    return redirect(requested)
+                return redirect(url_for("admin_dashboard"))
+            session["user_logged_in"] = True
+            session["user_username"] = account["username"]
+            session["role"] = "user"
+            flash("Welcome back.")
+            requested = request.args.get("next") or request.form.get("next")
+            if requested and requested.startswith("/") and not requested.startswith("/admin"):
+                return redirect(requested)
+            return redirect(url_for("user_account"))
+        flash("Invalid login details.")
+    return render_template("login.html", site=site)
+
+
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
+    # Keep old URL working: same theme, same logic as unified login.
     if request.method == "POST":
-        username = request.form.get("username", "")
+        return unified_login()
+    site = load_data()
+    if session.get("logged_in") and session.get("role") == "admin":
+        return redirect(url_for("admin_dashboard"))
+    return render_template("login.html", site=site, login_title="Admin Login",
+                           login_subtitle="Manage the Initiative for Legal Aid website.")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    site = load_data()
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session["logged_in"] = True
-            session["username"] = username
-            flash("Login successful.")
-            return redirect(url_for("admin_dashboard"))
-        flash("Invalid username or password.")
-    return render_template("admin_login.html", site=load_data())
+        confirm_password = request.form.get("confirm_password", "")
+        users = site.setdefault("users", [])
+        if not username or not email or not password:
+            flash("Username, email, and password are required.")
+        elif len(password) < 8:
+            flash("Password must be at least 8 characters.")
+        elif password != confirm_password:
+            flash("Passwords do not match.")
+        elif any(user.get("username", "").lower() == username.lower() for user in users):
+            flash("That username is already registered.")
+        elif any(admin.get("username", "").lower() == username.lower() for admin in admin_users(site)):
+            flash("That username is reserved for an administrator.")
+        elif any(user.get("email", "").lower() == email for user in users):
+            flash("That email is already registered.")
+        else:
+            users.append({"username": username, "email": email, "password_hash": generate_password_hash(password, method="pbkdf2:sha256"), "role": "user"})
+            save_data(site)
+            session.clear()
+            session.permanent = True  # stay logged in after registering (30-day cookie)
+            session["user_logged_in"] = True
+            session["user_username"] = username
+            session["role"] = "user"
+            flash("Your account has been created.")
+            return redirect(url_for("user_account"))
+    return render_template("register.html", site=site)
+
+
+@app.route("/user/login", methods=["GET", "POST"])
+def user_login():
+    # Backwards-compatible alias for the old user login URL.
+    if request.method == "POST":
+        return unified_login()
+    site = load_data()
+    if session.get("user_logged_in") and session.get("role") == "user":
+        return redirect(url_for("user_account"))
+    return render_template("login.html", site=site)
+
+
+@app.route("/logout")
+def user_logout():
+    session.pop("user_logged_in", None)
+    session.pop("user_username", None)
+    # Keep admin login intact if an admin is also logged in; only clear role if no login remains
+    if not session.get("logged_in"):
+        session.pop("role", None)
+    flash("You have been logged out.")
+    return redirect(url_for("index"))
+
+
+@app.route("/account")
+@user_required
+def user_account():
+    site = load_data()
+    user = next((item for item in site.get("users", []) if item.get("username") == session.get("user_username")), None)
+    if not user:
+        return user_logout()
+    return render_template("user_account.html", site=site, user=user)
 
 
 @app.route("/admin/logout")
@@ -127,7 +534,192 @@ def admin_logout():
 @login_required
 def admin_dashboard():
     site = load_data()
-    return render_template("admin_dashboard.html", site=site)
+    return render_template(
+        "admin_dashboard.html",
+        site=site,
+        values=site["values"],
+        photo_slots=photo_slots(site),
+        admin_users=admin_users(site)
+    )
+
+
+@app.route("/admin/account", methods=["POST"])
+@login_required
+def update_admin_account():
+    data = load_data()
+    users = admin_users(data)
+    current_username = session.get("username", "")
+    account = next((user for user in users if user.get("username") == current_username), None)
+    if not account:
+        session.clear()
+        flash("Your admin account could not be found.")
+        return redirect(url_for("admin_login"))
+    current_password = request.form.get("current_password", "")
+    username = request.form.get("username", "").strip()
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    if not check_password_hash(account["password_hash"], current_password):
+        flash("Current password is incorrect.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if not username:
+        flash("Username cannot be empty.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if any(user is not account and user.get("username") == username for user in users):
+        flash("That username is already in use.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if new_password and new_password != confirm_password:
+        flash("The new passwords do not match.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if new_password and len(new_password) < 8:
+        flash("The new password must be at least 8 characters.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+
+    account["username"] = username
+    account["role"] = "admin"
+    account["password_hash"] = generate_password_hash(new_password or current_password, method="pbkdf2:sha256")
+    data["admin_users"] = users
+    save_data(data)
+    session.clear()
+    flash("Admin credentials updated. Please log in again.")
+    return redirect(url_for("admin_login"))
+
+
+@app.route("/admin/users/create", methods=["POST"])
+@login_required
+def create_admin_user():
+    data = load_data()
+    users = admin_users(data)
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    confirm_password = request.form.get("confirm_password", "")
+    if not username or not password:
+        flash("Username and password are required.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if len(password) < 8:
+        flash("The new user's password must be at least 8 characters.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if password != confirm_password:
+        flash("The new user's passwords do not match.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if any(user.get("username") == username for user in users):
+        flash("That username already exists.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    users.append({"username": username, "password_hash": generate_password_hash(password, method="pbkdf2:sha256"), "role": "admin"})
+    data["admin_users"] = users
+    save_data(data)
+    flash("Admin user added successfully.")
+    return redirect(url_for("admin_dashboard", _anchor="security"))
+
+
+@app.route("/admin/users/<username>/delete", methods=["POST"])
+@login_required
+def delete_admin_user(username: str):
+    data = load_data()
+    users = admin_users(data)
+    if username == session.get("username"):
+        flash("You cannot delete the account you are currently using.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    if len(users) <= 1:
+        flash("At least one admin user must remain.")
+        return redirect(url_for("admin_dashboard", _anchor="security"))
+    remaining = [user for user in users if user.get("username") != username]
+    if len(remaining) == len(users):
+        flash("That admin user could not be found.")
+    else:
+        data["admin_users"] = remaining
+        save_data(data)
+        flash("Admin user deleted.")
+    return redirect(url_for("admin_dashboard", _anchor="security"))
+
+
+@app.route("/admin/custom-section/create", methods=["POST"])
+@login_required
+def create_custom_section():
+    data = load_data()
+    title = request.form.get("title", "").strip()
+    text = request.form.get("text", "").strip()
+    if not title or not text:
+        flash("A section title and description are required.")
+        return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+    image = handle_upload(request.files.get("image"), "")
+    data.setdefault("custom_sections", []).append({"title": title, "text": text, "image": image})
+    save_data(data)
+    flash("Custom photo section created.")
+    return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+
+
+@app.route("/admin/custom-section/<int:index>/delete", methods=["POST"])
+@login_required
+def delete_custom_section(index: int):
+    data = load_data()
+    try:
+        data.setdefault("custom_sections", []).pop(index)
+    except IndexError:
+        flash("That custom section could not be found.")
+        return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+    save_data(data)
+    flash("Custom section deleted.")
+    return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+
+
+@app.route("/admin/page/create", methods=["POST"])
+@login_required
+def create_page():
+    data = load_data()
+    title = request.form.get("title", "").strip()
+    content = request.form.get("content", "").strip()
+    if not title or not content:
+        flash("A page title and content are required.")
+        return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+    image = handle_upload(request.files.get("image"), "")
+    data.setdefault("pages", []).append({"title": title, "slug": unique_slug(data, title), "content": content, "image": image})
+    save_data(data)
+    flash("Page created successfully.")
+    return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+
+
+@app.route("/admin/page/<slug>/delete", methods=["POST"])
+@login_required
+def delete_page(slug: str):
+    data = load_data()
+    pages = data.setdefault("pages", [])
+    data["pages"] = [page for page in pages if page.get("slug") != slug]
+    save_data(data)
+    flash("Page deleted.")
+    return redirect(url_for("admin_dashboard", _anchor="custom-content"))
+
+
+@app.route("/admin/photo/<target>/update", methods=["POST"])
+@login_required
+def update_photo(target: str):
+    data = load_data()
+    uploaded = request.files.get("photo")
+    title = request.form.get("title", "").strip()
+    changed = False
+    if title:
+        changed = set_photo_title(data, target, title)
+    if uploaded and uploaded.filename:
+        image = handle_upload(uploaded, "")
+        changed = set_photo(data, target, image) or changed
+    if not changed:
+        flash("Choose a photo or enter a title before saving.")
+        return redirect(url_for("admin_dashboard", _anchor="media"))
+    save_data(data)
+    flash("Photo details updated successfully.")
+    return redirect(url_for("admin_dashboard", _anchor="media"))
+
+
+@app.route("/admin/photo/<target>/delete", methods=["POST"])
+@login_required
+def delete_photo(target: str):
+    data = load_data()
+    if not set_photo(data, target, ""):
+        flash("That photo slot could not be found.")
+        return redirect(url_for("admin_dashboard", _anchor="media"))
+    save_data(data)
+    flash("Photo removed successfully.")
+    return redirect(url_for("admin_dashboard", _anchor="media"))
 
 
 @app.route("/admin/update", methods=["POST"])
@@ -138,44 +730,64 @@ def update_site():
 
     data["site_name"] = form.get("site_name", data.get("site_name"))
     data["tagline"] = form.get("tagline", data.get("tagline"))
+    data["hero_eyebrow"] = form.get("hero_eyebrow", data.get("hero_eyebrow"))
+    data["hero_meta"] = [line.strip() for line in form.get("hero_meta", "").splitlines() if line.strip()] or data.get("hero_meta", [])
     data["cta_text"] = form.get("cta_text", data.get("cta_text"))
     data["about_title"] = form.get("about_title", data.get("about_title"))
     data["about_story"] = form.get("about_story", data.get("about_story"))
     data["mission"] = form.get("mission", data.get("mission"))
+    data["mission_eyebrow"] = form.get("mission_eyebrow", data.get("mission_eyebrow"))
+    data["mission_title"] = form.get("mission_title", data.get("mission_title"))
+    data["mission_text"] = form.get("mission_text", data.get("mission_text"))
+    data["services_eyebrow"] = form.get("services_eyebrow", data.get("services_eyebrow"))
+    data["services_title"] = form.get("services_title", data.get("services_title"))
+    data["projects_eyebrow"] = form.get("projects_eyebrow", data.get("projects_eyebrow"))
+    data["projects_title"] = form.get("projects_title", data.get("projects_title"))
+    data["testimonials_eyebrow"] = form.get("testimonials_eyebrow", data.get("testimonials_eyebrow"))
+    data["testimonials_title"] = form.get("testimonials_title", data.get("testimonials_title"))
+    data["gallery_eyebrow"] = form.get("gallery_eyebrow", data.get("gallery_eyebrow"))
+    data["gallery_title"] = form.get("gallery_title", data.get("gallery_title"))
+    data["cta_eyebrow"] = form.get("cta_eyebrow", data.get("cta_eyebrow"))
+    data["cta_title"] = form.get("cta_title", data.get("cta_title"))
     data["contact_address"] = form.get("contact_address", data.get("contact_address"))
     data["contact_phone"] = form.get("contact_phone", data.get("contact_phone"))
     data["contact_email"] = form.get("contact_email", data.get("contact_email"))
 
-    # Parse services entries from text area: 'Title | Description'
+    stats_text = form.get("stats_text", "")
+    if stats_text.strip():
+        data["stats"] = [{"value": entry["title"], "label": entry["text"]} for entry in parse_entries(stats_text)]
+
+    values_text = form.get("values_text", "")
+    if values_text.strip():
+        data["values"] = parse_entries(values_text)
+
+    mission_cards_text = form.get("mission_cards_text", "")
+    if mission_cards_text.strip():
+        data["mission_cards"] = parse_entries(mission_cards_text)
+
     services_text = form.get("services_text", "")
     if services_text.strip():
-        data["services"] = []
-        for line in services_text.splitlines():
-            if "|" in line:
-                title, description = [part.strip() for part in line.split("|", 1)]
-                if title and description:
-                    data["services"].append({"title": title, "text": description})
+        data["services"] = parse_entries(services_text)
 
     projects_text = form.get("projects_text", "")
     if projects_text.strip():
-        data["projects"] = []
-        for line in projects_text.splitlines():
-            if "|" in line:
-                title, description = [part.strip() for part in line.split("|", 1)]
-                if title and description:
-                    data["projects"].append({"title": title, "text": description})
+        data["projects"] = parse_entries(projects_text)
 
     testimonials_text = form.get("testimonials_text", "")
     if testimonials_text.strip():
+        existing_testimonials = data.get("testimonials", [])
         data["testimonials"] = []
-        for line in testimonials_text.splitlines():
+        for index, line in enumerate(testimonials_text.splitlines()):
             if "|" in line:
                 quote, author = [part.strip() for part in line.split("|", 1)]
                 if quote and author:
                     name_part = author.split("-")
                     role = name_part[-1].strip() if len(name_part) > 1 else "Beneficiary"
                     name = author.replace("-" + role, "").strip()
-                    data["testimonials"].append({"quote": quote, "name": name, "role": role})
+                    testimonial = {"quote": quote, "name": name, "role": role}
+                    if index < len(existing_testimonials) and existing_testimonials[index].get("image"):
+                        testimonial["image"] = existing_testimonials[index]["image"]
+                    data["testimonials"].append(testimonial)
 
     hero_image = request.files.get("hero_image")
     if hero_image and hero_image.filename:
@@ -195,6 +807,21 @@ def update_site():
     return redirect(url_for("admin_dashboard"))
 
 
+def get_local_port() -> int:
+    configured_port = os.environ.get("PORT")
+    if configured_port:
+        return int(configured_port)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        try:
+            probe.bind(("", 5000))
+            return 5000
+        except OSError:
+            probe.bind(("", 0))
+            return probe.getsockname()[1]
+
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5000"))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    port = get_local_port()
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug, host="0.0.0.0", port=port)

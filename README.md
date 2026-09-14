@@ -1,45 +1,30 @@
-# https-initiativeforlegalaid.org-
+# Initiative for Legal Aid — website + admin CMS
 
-Website study and admin-managed implementation for Initiative for Legal Aid.
+> **New here? Start with [`PROJECT_HANDOFF.md`](PROJECT_HANDOFF.md)** — full handoff: current state, routes, auth/storage design, issues log, production checklist.
 
-## Project purpose
+Flask site for Initiative for Legal Aid (South Sudan) with a unified login (admins → dashboard, members → account), persistent sessions, and an admin dashboard to edit homepage text, contact details, services/projects/testimonials, custom sections/pages, and photos.
 
-This project provides a public website for Initiative for Legal Aid with a simple admin dashboard that lets authorized users:
-
-- update homepage text
-- change contact details
-- manage services/projects/testimonials
-- upload hero and gallery images
-
-## Local run
+## Quick start (local dev)
 
 ```bash
-cd "/Users/freemirghani/Downloads/AIT ANALYSIS"
-python3 app.py
+cd /Users/freemirghani/Downloads/Initiativeforlegalaid.org
+python3 -m venv .venv && source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env   # then fill in SECRET_KEY + ADMIN_* (see below)
+PORT=5001 python app.py   # port 5000 is taken by macOS AirPlay
 ```
 
-Then open:
+Open http://127.0.0.1:5001/ · login http://127.0.0.1:5001/login · register http://127.0.0.1:5001/register
 
-- http://localhost:5000/
-- http://localhost:5000/admin/login
+## First admin account
 
-## Admin credentials
+1. In `.env`, set `ADMIN_USERNAME`, a strong `ADMIN_PASSWORD`, and `ADMIN_BOOTSTRAP=1`.
+2. Start the app once and log in — the admin is created from env.
+3. Set `ADMIN_BOOTSTRAP=0` and restart. Env never overrides stored admins afterwards.
 
-- Username: admin
-- Password: admin123
+## Production
 
-> Change these before production deployment.
+- Set `SECRET_KEY` (≥32 random chars), real `ADMIN_*`, `FLASK_ENV=production`, never commit `.env`.
+- Serve with gunicorn/waitress behind Nginx/Apache + HTTPS for `https://initiativeforlegalaid.org/`, e.g. `gunicorn -w 3 -b 127.0.0.1:8000 app:app` proxied by Nginx.
+- Back up `site.db` (live data) regularly; see `PROJECT_HANDOFF.md` §7/§10.
 
-## Production URL
-
-The live site should remain on:
-
-https://initiativeforlegalaid.org/
-
-To maintain that domain, deploy this Flask app to the server that hosts the domain and configure the web server to proxy traffic to the app.
-
-## Deployment notes
-
-- Set environment variables for the admin account and secret key
-- Use HTTPS with the domain host or certificate manager
-- Serve the app behind Nginx or Apache in production

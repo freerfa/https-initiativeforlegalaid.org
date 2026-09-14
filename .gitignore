@@ -1,0 +1,16 @@
+# Secrets, local state, caches — never commit
+.env
+__pycache__/
+*.pyc
+.venv/
+
+# Live database (dev copy exists locally; prod uses a managed volume + backups)
+site.db
+
+# Uploaded images (keep the folder, ignore contents)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# macOS / editor noise
+.DS_Store
+.vscode/
