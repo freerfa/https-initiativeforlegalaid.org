@@ -68,7 +68,7 @@
   "services": [
     {
       "title": "Access To Justice",
-      "text": "We provide free and subsidized legal assistance, ensuring vulnerable populations have the support they need to assert their rights and seek justice.",
+      "text": "The Access to Justice and Legal Aid Programme provides accessible, affordable, timely, and high-quality legal services — free and subsidized representation, legal advice and counselling, court representation, strategic litigation, and legal documentation assistance.",
       "image": "/static/uploads/gallery-3.jpg"
     },
     {
@@ -145,7 +145,7 @@
   "testimonials_title": "What People Say",
   "contact_address": "Customs Business Area, Along Main Highway, Opp Dr. John Garang Mausoleum, Juba, Central Equatoria State, Republic of South Sudan",
   "contact_phone": "+211 922 460 564 / +211 920 800 802",
-  "contact_email": "contact@domain.com",
+  "contact_email": "info@initiativeforlegalaid.org",
   "gallery": [
     "/static/uploads/gallery-1.jpg",
     "/static/uploads/gallery-2.jpg",

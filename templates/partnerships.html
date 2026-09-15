@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Collaboration</span>
+      <h2>Partnerships</h2>
+    </div>
+    <p class="lead">ILA recognises that sustainable justice and development can only be achieved through effective collaboration.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Our partners</span>
+      <h2>Who ILA works with</h2>
+    </div>
+    <p class="lead">ILA builds and maintains strategic partnerships with national, regional and international stakeholders whose expertise and shared commitment strengthen South Sudan's justice and governance systems.</p>
+
+    <div class="partner-card">
+      <div class="partner-card-media">
+        <img src="/static/uploads/partner-unfpa.jpeg" alt="UNFPA logo" loading="lazy" />
+      </div>
+      <div class="partner-card-body">
+        <span class="eyebrow">Coordination partner</span>
+        <h3>UNFPA — GBV Workstream, South Sudan</h3>
+        <p>ILA works with UNFPA through the Gender-Based Violence (GBV) Workstream in South Sudan, part of the humanitarian Protection Cluster coordination system.</p>
+        <h4>Areas of engagement</h4>
+        <ul class="check-list">
+          <li>Gender-based violence (GBV) partner coordination</li>
+          <li>Protection Cluster partner training</li>
+          <li>Humanitarian activity reporting (5W)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="partner-card-media">
+        <img src="/static/uploads/partner-cesyu.jpeg" alt="Central Equatoria State Youth Union logo" loading="lazy" />
+      </div>
+      <div class="partner-card-body">
+        <span class="eyebrow">Partnership signing ceremony — upcoming</span>
+        <h3>Central Equatoria State Youth Union (CESYU)</h3>
+        <p>&ldquo;Strengthening Youth Participation, Access to Justice, Human Rights and Inclusive Development&rdquo;</p>
+        <p><strong>Date:</strong> 15 September 2026, 9:00 AM – 12:00 PM<br /><strong>Location:</strong> Juba, South Sudan (venue to be confirmed)</p>
+        <h4>Partnership focus areas</h4>
+        <ul class="check-list">
+          <li>Legal awareness and access to justice</li>
+          <li>Human rights protection</li>
+          <li>Youth empowerment and participation</li>
+          <li>Community engagement and peacebuilding</li>
+          <li>Referral mechanisms and support services</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="duo-media">
+      <figure>
+        <img src="/static/uploads/cesyu-ceremony.jpeg" alt="Announcement artwork for the CESYU partnership signing ceremony" loading="lazy" />
+        <figcaption>Announcement artwork for the partnership signing ceremony. Image: Initiative for Legal Aid (ILA)</figcaption>
+      </figure>
+      <figure>
+        <img src="/static/uploads/cesyu-programme.jpeg" alt="CESYU partnership signing ceremony programme" loading="lazy" />
+        <figcaption>Ceremony programme. Image: Initiative for Legal Aid (ILA)</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Institutions ILA works with</span>
+      <h2>Categories of institution</h2>
+    </div>
+    <p class="lead">The list below sets out the categories of institution ILA works with. Named partners and donors are published only once a formal relationship has been confirmed by both organisations.</p>
+    <ul class="tag-grid">
+      {% for item in [
+        'National Government Institutions','State and Local Government Authorities','The Judiciary','Prosecution Authorities','The South Sudan Bar Association','Law Enforcement Agencies','Correctional and Prison Services','Human Rights Institutions','Civil Society Organizations','Community-Based Organizations','Women&#39;s Organizations','Youth Organizations','Organizations of Persons with Disabilities','Faith-Based Organizations','Traditional and Customary Authorities','Academic and Higher Learning Institutions','Research and Policy Institutes','United Nations Agencies','International and National Non-Governmental Organizations','Bilateral and Multilateral Development Partners','Diplomatic Missions and Embassies','Professional Associations','Private Sector Institutions','Media Organizations','Philanthropic Foundations','Regional and International Human Rights Networks'
+      ] %}
+      <li class="tag-item">{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Become a partner</span>
+      <h2>What partners can expect from ILA</h2>
+    </div>
+    <div class="card-grid">
+      <article class="info-card"><h3>Strong Institutional Commitment</h3><p>A steadfast commitment to justice, human rights, the rule of law, democratic governance, and ethical service delivery.</p></article>
+      <article class="info-card"><h3>Professional Legal Expertise</h3><p>A multidisciplinary team of qualified legal practitioners, human rights specialists, governance experts, researchers, programme managers, and development professionals.</p></article>
+      <article class="info-card"><h3>Deep Contextual Understanding</h3><p>Comprehensive knowledge of South Sudan's legal framework, governance environment, cultural diversity, conflict dynamics, and community realities, enabling context-sensitive interventions.</p></article>
+      <article class="info-card"><h3>Community-Centred Programming</h3><p>Strong relationships with local communities and stakeholders that ensure programmes are participatory, inclusive, responsive, and sustainable.</p></article>
+      <article class="info-card"><h3>Transparency and Accountability</h3><p>Robust governance, financial management, procurement, safeguarding, and accountability systems that promote responsible stewardship of resources and compliance with donor requirements.</p></article>
+      <article class="info-card"><h3>Strategic Partnerships</h3><p>Collaboration with government institutions, civil society organizations, community structures, and international partners that enhances programme effectiveness and collective impact.</p></article>
+      <article class="info-card"><h3>Innovation and Continuous Learning</h3><p>Commitment to research, evidence generation, digital innovation, adaptive programming, and organizational learning that strengthens programme quality and long-term impact.</p></article>
+      <article class="info-card"><h3>Effective Project Management</h3><p>Strong systems for project planning, implementation, monitoring, evaluation, financial reporting, risk management, and results-based management.</p></article>
+      <article class="info-card"><h3>Operational Flexibility</h3><p>Ability to design and implement programmes across diverse geographic, political, and humanitarian contexts, including remote, conflict-affected, and hard-to-reach areas.</p></article>
+      <article class="info-card"><h3>Focus on Sustainable Impact</h3><p>A long-term commitment to strengthening local institutions, building community resilience, promoting local ownership, and delivering measurable, lasting development outcomes.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Donor information</span>
+      <h2>Due diligence and reporting</h2>
+    </div>
+    <div class="split-layout">
+      <div>
+        <p>ILA maintains governance, financial management, procurement, safeguarding and accountability systems designed to meet donor compliance requirements and to support responsible stewardship of the resources entrusted to it. The Board of Directors operates a Finance &amp; Audit Committee and a Risk &amp; Compliance Committee, and an Internal Audit Officer reports independently of programme management.</p>
+        <p>Institutional documentation — governance, financial, safeguarding and MEAL — is available to prospective donors on request from the head office in Juba.</p>
+      </div>
+      <div>
+        <h3>Areas of collaboration</h3>
+        <ul class="check-list">
+          <li>Joint programming and co-implementation</li>
+          <li>Research and evidence generation</li>
+          <li>Policy dialogue and legal reform</li>
+          <li>Institutional capacity development</li>
+          <li>Knowledge sharing and learning</li>
+          <li>Resource mobilisation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section cta-section">
+  <div class="container">
+    <div class="cta-banner">
+      <div>
+        <span class="eyebrow">Work with ILA</span>
+        <h2>Start a partnership conversation</h2>
+        <p>ILA welcomes enquiries from government institutions, UN agencies, development partners, foundations, NGOs, academic institutions and civil society.</p>
+      </div>
+      <div class="cta-banner-meta">
+        <a class="primary-btn" href="mailto:{{ site.contact_email }}?subject=Partnership%20enquiry">Contact ILA</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -21,10 +21,11 @@
         <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle navigation menu">☰</button>
         <nav id="main-nav">
           <a href="/">Home</a>
-          <a href="#about">About</a>
-          <a href="#mission">Mission</a>
-          <a href="#services">Services</a>
-          <a href="#contact">Contact</a>
+          <a href="/#about">About</a>
+          <a href="/#services">Programmes</a>
+          <a href="/leadership">Leadership</a>
+          <a href="/partnerships">Partnerships</a>
+          <a href="/#contact">Contact</a>
           {% for page in site.pages %}<a href="{{ url_for('custom_page', slug=page.slug) }}">{{ page.title }}</a>{% endfor %}
           {% if session.get('logged_in') and session.get('role') == 'admin' %}
           <a href="/admin" class="nav-button login-button" aria-label="Admin dashboard" title="Admin dashboard"><span class="login-icon" aria-hidden="true">⚙</span><span>Dashboard</span></a>
@@ -64,10 +65,18 @@
           <h4>Quick Links</h4>
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#services">Services</a></li>
+            <li><a href="/#about">About</a></li>
+            <li><a href="/leadership">Leadership &amp; Governance</a></li>
+            <li><a href="/partnerships">Partnerships</a></li>
             <li><a href="/login">Log in</a></li>
-            <li><a href="/register">Register</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Follow ILA</h4>
+          <ul>
+            <li><a href="https://www.facebook.com/profile.php?id=61591226807076" target="_blank" rel="noopener">Facebook</a></li>
+            <li><a href="https://www.linkedin.com/in/initiative-for-legal-aid-ila-9b9247430" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="https://x.com/LegalAid4SS" target="_blank" rel="noopener">@LegalAid4SS on X</a></li>
           </ul>
         </div>
       </div>

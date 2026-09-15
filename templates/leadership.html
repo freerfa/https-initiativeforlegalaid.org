@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Leadership</span>
+      <h2>The people who lead ILA</h2>
+    </div>
+    <p class="lead">ILA is directed by a Board of Directors accountable to the General Assembly, and managed day to day by the Executive Director and senior programme staff.</p>
+    <div class="team-grid">
+      <article class="team-card">
+        <img src="/static/uploads/leadership-emmanuel.jpeg" alt="Emmanuel Sumagule Benaih Swaka, Executive Director" loading="lazy" />
+        <h3>Emmanuel Sumagule Benaih Swaka</h3>
+        <p class="team-role">Executive Director | Advocate</p>
+        <p class="team-cred">LL.M, L.P (RLA), LL.B</p>
+        <a class="team-mail" href="mailto:emmanuel@initiativeforlegalaid.org">emmanuel@initiativeforlegalaid.org</a>
+      </article>
+      <article class="team-card">
+        <img src="/static/uploads/leadership-nicodemus.jpeg" alt="Nicodemus Arkangelo Philip, Head of Legal Aid Services" loading="lazy" />
+        <h3>Nicodemus Arkangelo Philip</h3>
+        <p class="team-role">Head of Legal Aid Services | Advocate</p>
+        <p class="team-cred">LL.M in Human Rights — Pursuing</p>
+        <a class="team-mail" href="mailto:nicodemus@initiativeforlegalaid.org">nicodemus@initiativeforlegalaid.org</a>
+      </article>
+      <article class="team-card">
+        <img src="/static/uploads/leadership-modi.jpeg" alt="Modi Geofrey, Programs Manager" loading="lazy" />
+        <h3>Modi Geofrey</h3>
+        <p class="team-role">Programs Manager | Lawyer, Researcher &amp; Corporate Legal Practitioner</p>
+        <p class="team-cred">LL.B</p>
+        <a class="team-mail" href="mailto:modi@initiativeforlegalaid.org">modi@initiativeforlegalaid.org</a>
+      </article>
+      <article class="team-card">
+        <img src="/static/uploads/leadership-protection.jpeg" alt="Protection Coordinator (position open)" loading="lazy" />
+        <h3>Protection Coordinator</h3>
+        <p class="team-role">Name to be confirmed</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Organisational structure</span>
+      <h2>A clear line of accountability</h2>
+    </div>
+    <p class="lead">From the General Assembly through the Board of Directors and Executive Director, down to the legal officers and community paralegals who meet clients each day.</p>
+    <ul class="org-chain">
+      <li><strong>General Assembly</strong><span>All Members</span></li>
+      <li><strong>Board of Directors</strong><span>Chairperson</span></li>
+      <li><strong>Executive Director</strong></li>
+      <li><strong>Legal Aid &amp; Access to Justice Unit</strong><span>Shown in full on the organogram</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Our impact</span>
+      <h2>What we measure</h2>
+    </div>
+    <p class="lead">ILA reports against the indicators below. Figures are published only once they have been verified and signed off internally.</p>
+    <div class="card-grid">
+      {% for item in [
+        ('People reached','Individuals reached through legal aid, legal awareness and community outreach activities.'),
+        ('Legal consultations','Legal advice and counselling sessions provided to individuals seeking assistance.'),
+        ('Cases handled','Legal aid cases opened and managed by ILA legal staff.'),
+        ('Cases resolved','Cases concluded through representation, mediation or alternative dispute resolution.')
+      ] %}
+      <article class="info-card">
+        <span class="pill">Figure to be verified</span>
+        <h3>{{ item[0] }}</h3>
+        <p>{{ item[1] }}</p>
+      </article>
+      {% endfor %}
+    </div>
+    <p class="note">Verified figures for these indicators are being compiled and will be published with the reporting period they cover.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Knowledge Centre</span>
+      <h2>Research and publications</h2>
+    </div>
+    <p class="lead">ILA conducts legal, policy and socio-economic research to identify emerging justice challenges and inform national dialogue on legal and governance reforms. Reports, research, policy briefs and legal resources will be published here as they are released.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Accountability centre</span>
+      <h2>Accountability &amp; Policies</h2>
+    </div>
+    <p class="lead">ILA maintains institutional policies covering safeguarding, PSEA, conduct, anti-fraud, procurement, financial management, data protection and risk.</p>
+    <ul class="tag-grid">
+      {% for item in [
+        'Governance','Child Protection','Code of Conduct','Anti-Fraud, Corruption and Whistleblowing','Gender Equality, Diversity and Inclusion','Legal Aid Services','Data Protection and Privacy','Information and Communication Technology'
+      ] %}
+      <li class="tag-item">{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

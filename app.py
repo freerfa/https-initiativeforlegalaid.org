@@ -428,6 +428,18 @@ def custom_page(slug: str):
     return render_template("page.html", site=site, page=page)
 
 
+@app.route("/partnerships")
+def partnerships():
+    site = load_data()
+    return render_template("partnerships.html", site=site)
+
+
+@app.route("/leadership")
+def leadership():
+    site = load_data()
+    return render_template("leadership.html", site=site)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def unified_login():
     """Single shared login page (same theme) for admins and regular users.
