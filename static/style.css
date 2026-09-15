@@ -1490,3 +1490,155 @@ img { overflow-wrap: anywhere; }
 @media (max-width: 480px) {
   .tag-grid { grid-template-columns: 1fr; }
 }
+
+/* =====================================================================
+   CLASSIC THEME OVERRIDE (2026-09-15)
+   Serif headings, rectangular elements, formal navy/antique-gold palette.
+   Appended last so these rules win over the modern styles above.
+   ===================================================================== */
+:root {
+  --primary: #16324f;        /* deep institutional navy */
+  --secondary: #a8823c;      /* antique gold */
+  --bg: #faf8f3;             /* warm cream */
+  --panel: #ffffff;
+  --text: #24303f;
+  --muted: #5d6470;
+  --border: #dcd5c6;
+  --shadow: 0 1px 2px rgba(22, 50, 79, 0.06), 0 10px 24px rgba(22, 50, 79, 0.07);
+  --serif: Georgia, 'Times New Roman', 'Palatino Linotype', serif;
+}
+
+/* --- Typography: serif headings, calmer rhythm --- */
+body { line-height: 1.65; }
+h1, h2, h3, h4, h5, h6,
+.brand,
+.cta-banner h2,
+.auth-card h2 {
+  font-family: var(--serif);
+  letter-spacing: 0 !important;
+  font-weight: 700;
+}
+h2 { font-size: 1.9rem; }
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-left: 3px solid var(--secondary);
+  padding-left: 12px;
+}
+.eyebrow {
+  color: var(--secondary);
+  letter-spacing: 0.22em;
+  font-weight: 700;
+}
+.lead { color: var(--muted); }
+
+/* --- Rectangular classic components --- */
+.nav-button, .primary-btn, .secondary-btn,
+.login-button, .hero-meta span,
+.info-card, .project-card, .testimonial-card, .mini-card, .stat-card,
+.partner-card, .team-card, .org-chain li, .tag-item, .duo-media figure,
+.pill, .auth-card, .admin-card, .account-panel, .custom-page-image,
+.cta-banner, input, textarea, select, .remember-row input {
+  border-radius: 2px;
+}
+.hero-visual img { border-radius: 2px; box-shadow: var(--shadow); }
+
+/* --- Buttons: squared, uppercase, no floating hover --- */
+.nav-button, .primary-btn, .secondary-btn {
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.8rem 1.4rem;
+}
+.login-button {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  border-radius: 2px;
+}
+.primary-btn:hover, .secondary-btn:hover, .nav-button:hover {
+  transform: none;
+}
+.primary-btn { border: 1px solid var(--primary); }
+.primary-btn:hover { background: #0f2338; }
+.secondary-btn { border: 1px solid var(--primary); background: transparent; }
+.secondary-btn:hover { background: rgba(22, 50, 79, 0.06); }
+.nav-button:hover { background: #0f2338; box-shadow: none; }
+.primary-btn:focus-visible, .secondary-btn:focus-visible, .nav-button:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+/* --- Header: solid, formal, double-rule under nav --- */
+.topbar {
+  background: #ffffff;
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 #fff, 0 3px 0 var(--primary);
+}
+nav { font-weight: 500; }
+nav a { letter-spacing: 0.02em; }
+nav a:hover { color: var(--secondary); }
+
+/* --- Hero: calmer, paper-like --- */
+.hero {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 84px 0 60px;
+}
+.hero-meta span {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 2px;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+/* --- Sections & cards: crisp borders, quiet shadows --- */
+.section { padding: 72px 0; }
+.muted, .section-alt { background: #f3f0e8; }
+.info-card, .project-card, .testimonial-card, .mini-card, .stat-card,
+.partner-card, .team-card, .tag-item, .org-chain li, .duo-media figure,
+.auth-card, .admin-card, .account-panel, .cta-banner {
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.info-card img, .project-card img, .testimonial-card img, .team-card img,
+.duo-media img, .duo-media figure { border-radius: 0; }
+.info-card { border-top: 3px solid var(--secondary); }
+.org-chain li { border-left: 4px solid var(--secondary); }
+.team-card { padding-bottom: 20px; }
+.team-role { color: var(--secondary); }
+.stat-card { background: #fff; border: 1px solid var(--border); }
+
+/* --- CTA banner: solid navy, classic --- */
+.cta-banner {
+  background: var(--primary);
+  color: #f3efe6;
+  border: none;
+  border-top: 4px solid var(--secondary);
+}
+.cta-banner h2 { color: #fff; }
+.cta-banner p { color: #cfd8e2; }
+
+/* --- Footer: navy with gold rule --- */
+.site-footer {
+  background: #10263d;
+  border-top: 4px solid var(--secondary);
+}
+.site-footer a:hover { color: var(--secondary); }
+
+/* --- Forms --- */
+input, textarea, select { border: 1px solid var(--border); background: #fff; }
+input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+
+/* --- Pills/badges: square-ish, muted --- */
+.pill { border: 1px solid var(--border); background: #f3efe4; color: #7a6432; }
+
+@media (max-width: 768px) {
+  .hero { padding: 56px 0 44px; }
+  .section { padding: 56px 0; }
+}
