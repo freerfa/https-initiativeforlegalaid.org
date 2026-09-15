@@ -1,14 +1,14 @@
 # Initiative for Legal Aid — Project Handoff
 
 > **Living document.** Any human or AI picking up this project: start here.
-> Last updated: 2026-09-15. Status: **LIVE on Render: https://https-initiativeforlegalaid-org-1.onrender.com** (+ local dev http://127.0.0.1:5001).
+> Last updated: 2026-09-15. Status: **LIVE on Render: https://https-initiativeforlegalaid-org-p51u.onrender.com** (+ local dev http://127.0.0.1:5001). Domain `initiativeforlegalaid.org` NOT yet cut over (DNS still at OraWebHost/WordPress, 23.153.104.141) — see §10 + `deploy/DNS_CUTOVER.md`.
 > Update this file + `CHANGELOG.md` on every change (see §9).
 
 ## 1. What this project is
 
 Flask website for **Initiative for Legal Aid** (South Sudan legal-aid NGO).
 
-- Public site: home (hero, about, mission, services, projects, testimonials, gallery, contact) + dynamic custom pages (`/page/<slug>`).
+- Public site: home (hero, about, mission, services, projects, testimonials, gallery, contact), **`/leadership`** (team+photos, organogram, impact indicators, knowledge centre, accountability policies), **`/partnerships`** (UNFPA + CESYU partner cards, ceremony artwork, 26 institution categories, 10 partner-value cards, donor due diligence) + dynamic custom pages (`/page/<slug>`).
 - **Admin dashboard** (`/admin`): edit homepage text, contact details, services/projects/testimonials, custom sections, custom pages, photos, admin users, own credentials.
 - **Member accounts**: registration (`/register`), unified login (`/login`), account page (`/account`).
 - Production target: `https://initiativeforlegalaid.org/` — deploy this Flask app behind Nginx/Apache + HTTPS.
@@ -22,35 +22,40 @@ Flask website for **Initiative for Legal Aid** (South Sudan legal-aid NGO).
 - Security: `CSRFProtect` on, every POST form has `csrf_token`; uploads checked by extension allowlist + magic bytes (`filetype`); `secure_filename`; 16 MB cap; `pbkdf2:sha256` hashes.
 - Deps in `.venv` (Python 3.9 macOS arm64), pinned in `requirements.txt` (incl. gunicorn==23.0.0).
 - Live dev instance: port **5001** (5000 taken by macOS AirPlay). Log `/tmp/ila_app.log`.
-- **PRODUCTION: Render web service** `srv-dakep4bm8hqs73ebt5t0` — https://https-initiativeforlegalaid-org-1.onrender.com (main @ d29c596, start `gunicorn -w 2 -b 0.0.0.0:$PORT app:app`, DATA_DIR=/opt/render/project/src/data on persistent disk). Deploys auto-trigger on push to `main`.
+- **PRODUCTION: Render web service** `srv-dakep4bm8hqs73ebt5t0` — https://https-initiativeforlegalaid-org-p51u.onrender.com (auto-deploys on push to `main`; build `pip install -r requirements.txt`, start `gunicorn -w 2 -b 0.0.0.0:$PORT app:app`; DB on persistent disk `DATA_DIR=/opt/render/project/src/data` auto-seeds on first boot). ⚠️ **Root Directory in Render Settings must stay EMPTY** — a URL accidentally entered there caused a ~1h outage (see §8 #11).
 - Admin accounts: `Free` and `admin` (both in site.db admin_users; hashes, never plaintext).
+- Mail: domain MX → `mail.initiativeforlegalaid.org` (OraWebHost). Mailboxes `info@/emmanuel@/nicodemus@/modi@initiativeforlegalaid.org` must be **created in OraWebHost cPanel** (Email → Email Accounts). During DNS cutover, NEVER touch mail/MX/SPF records.
 
-### Uncommitted working changes (do not lose)
-- `M app.py` — CSRF, secure uploads, sqlite backend, unified login, persistent sessions.
-- `M templates/base.html` — role-aware nav (Login / Dashboard / username).
-- `M templates/admin_login.html`, `admin_dashboard.html`, `index.html` — CSRF tokens injected.
-- `M static/style.css` — `.remember-row` style added.
-- `??` new: `templates/login.html` (unified), `register.html`, `user_account.html`, `user_login.html` + `admin_login.html` (legacy, unused), `404.html`, `page.html`, `requirements.txt`, `site.db`, `site_data.json`, `.env`, `static/uploads/`.
+### Working tree
+Clean as of 2026-09-15 (all work committed + pushed to `origin/main`, repo renamed by GitHub to `freerfa/https-initiativeforlegalaid.org`).
 
 ## 3. Repo map
 
 ```
 /app.py                  # routes, auth, storage, uploads
 /site.db                 # live data: site_data(id, data JSON)
-/site_data.json          # LEGACY seed only, not read
-/requirements.txt        # Flask 3.1.3, Flask-WTF, filetype, ...
-/.env / .env.example     # SECRET_KEY, ADMIN_USERNAME, ADMIN_PASSWORD
+/site_data.json          # seed only, used by ensure_db() on fresh DATA_DIR
+/requirements.txt        # Flask 3.1.3, Flask-WTF, filetype, gunicorn 23.0.0, ...
+/.env / .env.example     # SECRET_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, DATA_DIR
+/render.yaml             # Render Blueprint config
+/Dockerfile docker-compose.yml Procfile pyproject.toml requirements-prod.txt  # packaging
+/deploy/                 # deploy.sh (VPS recipe), ila.service, nginx-ila.conf,
+                         # MIGRATION_CHECKLIST.md, DNS_CUTOVER.md (mail warning inside)
 /templates/
-  base.html              # layout, role-aware nav, flash, footer
+  base.html              # layout, role-aware nav, flash, footer w/ social links
+  index.html             # homepage
+  leadership.html        # /leadership (team, organogram, indicators, policies)
+  partnerships.html      # /partnerships (UNFPA, CESYU, institutions, donor info)
   login.html             # unified login (all login URLs)
   register.html          # member registration
   user_account.html      # member page
   admin_dashboard.html   # admin CMS
   admin_login.html       # legacy/unused
   user_login.html        # legacy/unused
-  index.html page.html 404.html
-/static/style.css        # styling incl. .remember-row
-/static/uploads/         # uploaded images
+  page.html 404.html
+/static/style.css        # styling incl. responsive breakpoints + partnerships/leadership styles
+/static/uploads/         # seed images committed to git (hero/gallery/testimonial/leadership/partners);
+                         # NEW admin uploads stay gitignored (§8 #10) and are EPHEMERAL on Render
 /PROJECT_HANDOFF.md      # this file — start here
 /CHANGELOG.md            # append every change
 
@@ -60,7 +65,7 @@ Run: `PORT=5001 python app.py` (port 5000 is taken by macOS AirPlay). Install wi
 
 ## 5. Routes (all)
 
-GET `/` homepage. GET `/page/<slug>` custom page. GET+POST `/login` unified login (role auto-detected). GET+POST `/admin/login` alias same theme/logic. GET+POST `/user/login` alias same theme/logic. GET+POST `/register` member registration (auto-login persistent). GET `/logout` member logout (keeps admin session). GET `/account` user_required member page. GET `/admin/logout` clears session. GET `/admin` login_required dashboard. POST `/admin/update` bulk content + uploads. POST `/admin/photo/<target>/update` and `/delete`. POST `/admin/custom-section/create` and `/<int:index>/delete`. POST `/admin/page/create` and `/<slug>/delete`. POST `/admin/account` own credentials. POST `/admin/users/create` and `/users/<username>/delete`.
+GET `/` homepage. GET `/leadership` team/governance/impact. GET `/partnerships` partners/donors. GET `/page/<slug>` custom page. GET+POST `/login` unified login (role auto-detected). GET+POST `/admin/login` alias same theme/logic. GET+POST `/user/login` alias same theme/logic. GET+POST `/register` member registration (auto-login persistent). GET `/logout` member logout (keeps admin session). GET `/account` user_required member page. GET `/admin/logout` clears session. GET `/admin` login_required dashboard. POST `/admin/update` bulk content + uploads. POST `/admin/photo/<target>/update` and `/delete`. POST `/admin/custom-section/create` and `/<int:index>/delete`. POST `/admin/page/create` and `/<slug>/delete`. POST `/admin/account` own credentials. POST `/admin/users/create` and `/users/<username>/delete`.
 
 Guards: login_required = admin only else redirect /login?next=/admin... ; user_required = user only else /login?next=... ; next honoured when safe.
 
@@ -82,21 +87,33 @@ get_db_connection() sqlite3 + Row factory. load_data() merges DB JSON over defau
 6. 2026-09-14 Split login themes plus session lost on browser close. Symptom: separate admin_login/user_login templates, non-persistent cookie. Cause: split views, session.permanent never set. Fix: unified templates/login.html for all login URLs, find_account role routing, PERMANENT_SESSION_LIFETIME 30d plus session.permanent=True, role-aware nav. Verify: admin login 302 to /admin 200, wrong pw shows Invalid login details.
 7. 2026-09-14 .venv/bin/pip missing. Symptom: zsh command not found pip. Cause: pip shim absent. Fix: use .venv/bin/python -m pip everywhere. Verify: python -m pip show Flask OK.
 8. 2026-09-15 Render deploy failed with gunicorn: command not found (exit 127). Symptom: build succeeded but start ran `gunicorn your_application.wsgi` (Render placeholder) → bash: line 1: gunicorn: command not found. Cause: (a) gunicorn was only in requirements-prod.txt while the dashboard build command was `pip install -r requirements.txt`; (b) start command left as Render's placeholder instead of our app entry. Fix: added gunicorn==23.0.0 to requirements.txt (commit d29c596) and set Start Command in Render dashboard to `gunicorn -w 2 -b 0.0.0.0:$PORT app:app` (Render injects $PORT; hardcoding a port fails health checks). Verify: deploy log shows gunicorn-23.0.0 installed, `[INFO] Booting worker`, `Your service is live`, external home 200.
+9. 2026-09-15 Hamburger nav-toggle appeared unstyled/broken (looked like a dead white button). Symptom: user saw a plain bordered square that did nothing. Cause: browser cached the pre-responsive stylesheet while HTML already had the toggle (old CSS + new HTML = orphaned element). Fix: cache-bust query string on style.css link (bump ?v= on every CSS change: 20260915b→c→d) + moved toggle JS to addEventListener. Toggle was removed then re-added per user request; final state: hidden on desktop (>768px), shown and functional on ≤768px. Verify: live CSS contains `nav-toggle{display:none}` default and `display:inline-flex` only inside @media (max-width:768px).
+10. 2026-09-15 All photos 404 on Render. Symptom: hero/gallery/testimonial images missing on production. Cause: seed images existed only in local static/uploads/, which .gitignore excludes → fresh Render checkout had empty uploads dir. Fix: `git add -f` the 17 seed images + .gitignore whitelist exceptions (!static/uploads/{hero,hero-alt,gallery-*,testimonial-*}.jpg etc.) so seed images stay tracked while new admin uploads stay ignored. Verify: all image URLs 200 on live site. KNOWN LIMITATION: images uploaded via admin on Render live on the ephemeral instance filesystem and reset to seeds on redeploy — fix by pointing UPLOAD_FOLDER at DATA_DIR disk (not yet done).
+11. 2026-09-15 SITE DOWN ~1h (restart loop). Symptom: Render log repeating `/home/render/runner.sh: line 15: cd: /opt/render/project/src/https-initiativeforlegalaid-org-p51u.onrender.com: No such file or directory`; site unreachable. Cause: the service URL was accidentally pasted into Render Settings → Root Directory, so the runner tried to cd into a nonexistent directory before every start. Fix: clear Root Directory to EMPTY in Render Settings → Save → Manual Deploy. Verify: deploy log shows normal `Cloning` → `gunicorn -w 2 -b 0.0.0.0:$PORT app:app` → `Your service is live`; all pages 200. LESSON: Root Directory must stay empty for this repo (app.py is at repo root).
+12. 2026-09-15 Domain DNS typo risk. Symptom: user added `initiative4legalaid.org` (with "4") as custom domain in Render — domain does not exist. Fix: remove the wrong entry; add the real `initiativeforlegalaid.org` (f-o-r). Real domain still points to 23.153.104.141 (WordPress, OraWebHost). Cutover records in deploy/DNS_CUTOVER.md.
+13. 2026-09-15 Mail-breakage risk during DNS cutover. Symptom: none yet (prevented). Cause: MX + mail A + SPF records for initiativeforlegalaid.org live on the OLD OraWebHost server; a naive "change all A records" cutover would kill @initiativeforlegalaid.org email. Fix: DNS_CUTOVER.md now warns: change ONLY `A @` → 216.24.57.1 and `CNAME www` → https-initiativeforlegalaid-org-p51u.onrender.com; never touch mail/MX/SPF. Also: mailboxes (info@, emmanuel@, nicodemus@, modi@) must be created in OraWebHost cPanel. Verify: `dig MX initiativeforlegalaid.org` still returns mail host after cutover; test send/receive.
 
 ## 9. How to update these docs (humans + AI)
 
 After any code or config change: append a row to CHANGELOG.md (date, what, files, verify) and update section 2 above if behaviour/ports/credentials changed. After any bug found or fixed: append a numbered entry to section 8 (symptom, cause, fix, verify). Keep this file the single entry point; README stays short and links here. Before committing: python -m py_compile app.py, curl touched routes, update docs, then git add and commit.
 
-## 10. Production checklist (in progress)
+## 10. Production checklist (as of 2026-09-15)
 
-- [x] Strong SECRET_KEY via env (Render Generate) — done at service creation; never commit .env
-- [x] Deployed to Render web service (gunicorn 2 workers, start `gunicorn -w 2 -b 0.0.0.0:$PORT app:app`)
-- [x] Admin accounts exist: Free/Contact12 + admin/admin123 (site.db admin_users) — **rotate before real users**
-- [ ] **Verify admin login works on Render** (if it fails, add ADMIN_BOOTSTRAP=1 + ADMIN_USERNAME/ADMIN_PASSWORD env vars)
-- [ ] **Set ADMIN_BOOTSTRAP=0** in Render Environment after first successful login
-- [ ] **Confirm Render disk** mounted at /opt/render/project/src/data (else every redeploy wipes edits)
-- [ ] **Custom domain cutover**: Render → Settings → Custom Domains → add initiativeforlegalaid.org + www; create DNS records at registrar (current WP host: A 23.153.104.141, ns orawebhost.co.ke)
-- [ ] Content review on Render instance (uploads/uploads dir on disk; placeholder contact@domain.com → real inbox)
-- [ ] Consider Render paid plan (free tier sleeps after ~15 min idle, ~50s cold start)
-- [ ] Remove legacy unused templates admin_login.html and user_login.html or confirm no references
-- [ ] Back up site.db (download from Render shell or via admin export) before bulk edits
+- [x] Strong SECRET_KEY via env (Render Generate); .env never committed
+- [x] Deployed to Render web service (gunicorn 2 workers, auto-deploy on push to main)
+- [x] Persistent disk mounted at /opt/render/project/src/data (DB survives redeploys; auto-seeds on first boot)
+- [x] Admin login verified on Render; ADMIN_BOOTSTRAP set to 0 after first login
+- [x] Seed photos committed to repo; all image URLs 200 on live site
+- [x] Content parity with old WordPress site (6 services, 4 projects) + incorporated companion sites (/leadership, /partnerships) with 17 real photos
+- [x] Nav/footer updated: Leadership + Partnerships links, real social URLs (Facebook/LinkedIn/X @LegalAid4SS)
+- [x] Root Directory in Render Settings cleared (was cause of §8 #11 outage) — MUST STAY EMPTY
+- [ ] **DNS cutover** at OraWebHost cPanel → Zone Editor: `A @` → 216.24.57.1, `CNAME www` → https-initiativeforlegalaid-org-p51u.onrender.com. NEVER touch mail/MX/SPF (see §8 #13 + deploy/DNS_CUTOVER.md). Rollback: restore 23.153.104.141.
+- [ ] **Render Custom Domains**: ensure correct spelling `initiativeforlegalaid.org` + www (a typo'd `initiative4legalaid.org` entry was created and must be deleted, §8 #12); click Retry Verification after DNS save; Render issues HTTPS cert automatically
+- [ ] **Create mailboxes** in OraWebHost cPanel (Email → Email Accounts): info@, emmanuel@, nicodemus@, modi@initiativeforlegalaid.org
+- [ ] **Replace placeholder content**: Protection Coordinator name+photo on /leadership; confirm CESYU ceremony venue; review impact-indicator "figures to be verified" wording with staff
+- [ ] **Rotate admin passwords** before real users (Free/Contact12 + admin/admin123 were shared in chat during dev)
+- [ ] **Render paid plan decision**: free tier sleeps ~15 min idle (~50s cold start) and had an unexplained ~1h outage; Starter ($7/mo) = always-on
+- [ ] **Upload persistence**: point UPLOAD_FOLDER at DATA_DIR disk so admin photo uploads survive redeploys (§8 #10)
+- [ ] Remove legacy unused templates admin_login.html and user_login.html (zero code references confirmed)
+- [ ] Back up site.db (Render shell or admin export) before bulk edits
+- [ ] Post-cutover verification: https://initiativeforlegalaid.org 200 + cert valid; `dig MX` unchanged; test mail send/receive; update this checklist + CHANGELOG
