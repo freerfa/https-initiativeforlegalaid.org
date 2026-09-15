@@ -9,6 +9,11 @@ site.db
 
 # Uploaded images (keep the folder, ignore contents)
 static/uploads/*
+# but keep seed images tracked (needed on fresh deploys, e.g. Render)
+!static/uploads/hero.jpg
+!static/uploads/hero-alt.jpg
+!static/uploads/gallery-*.jpg
+!static/uploads/testimonial-*.jpg
 !static/uploads/.gitkeep
 
 # macOS / editor noise
