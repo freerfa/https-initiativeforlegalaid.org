@@ -14,6 +14,14 @@ static/uploads/*
 !static/uploads/hero-alt.jpg
 !static/uploads/gallery-*.jpg
 !static/uploads/testimonial-*.jpg
+!static/uploads/ila-logo.jpeg
+!static/uploads/partner-unfpa.jpeg
+!static/uploads/partner-cesyu.jpeg
+!static/uploads/cesyu-ceremony.jpeg
+!static/uploads/cesyu-programme.jpeg
+!static/uploads/leadership-*.jpeg
+!static/uploads/programme-*.jpeg
+!static/uploads/testimony-*.jpeg
 !static/uploads/.gitkeep
 
 # macOS / editor noise
