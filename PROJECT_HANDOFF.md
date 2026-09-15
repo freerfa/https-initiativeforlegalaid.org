@@ -1,7 +1,7 @@
 # Initiative for Legal Aid — Project Handoff
 
 > **Living document.** Any human or AI picking up this project: start here.
-> Last updated: 2026-09-14. Status: **running locally on http://127.0.0.1:5001**.
+> Last updated: 2026-09-15. Status: **LIVE on Render: https://https-initiativeforlegalaid-org-1.onrender.com** (+ local dev http://127.0.0.1:5001).
 > Update this file + `CHANGELOG.md` on every change (see §9).
 
 ## 1. What this project is
@@ -20,9 +20,10 @@ Flask website for **Initiative for Legal Aid** (South Sudan legal-aid NGO).
 - Storage: **SQLite `site.db`** (table `site_data`, row `id=1`, col `data` = JSON blob). Legacy `site_data.json` on disk but **not read** — `load/save_data()` use `site.db` only.
 - Auth: **unified login** — `/login`, `/admin/login`, `/user/login` render `templates/login.html`; role auto-detected (admin → `/admin`, user → `/account`). Sessions **persistent 30 days** (`PERMANENT_SESSION_LIFETIME`, `session.permanent=True`).
 - Security: `CSRFProtect` on, every POST form has `csrf_token`; uploads checked by extension allowlist + magic bytes (`filetype`); `secure_filename`; 16 MB cap; `pbkdf2:sha256` hashes.
-- Deps in `.venv` (Python 3.9 macOS arm64), pinned in `requirements.txt`.
+- Deps in `.venv` (Python 3.9 macOS arm64), pinned in `requirements.txt` (incl. gunicorn==23.0.0).
 - Live dev instance: port **5001** (5000 taken by macOS AirPlay). Log `/tmp/ila_app.log`.
-- Default admin: `admin / admin123` — **change before production**.
+- **PRODUCTION: Render web service** `srv-dakep4bm8hqs73ebt5t0` — https://https-initiativeforlegalaid-org-1.onrender.com (main @ d29c596, start `gunicorn -w 2 -b 0.0.0.0:$PORT app:app`, DATA_DIR=/opt/render/project/src/data on persistent disk). Deploys auto-trigger on push to `main`.
+- Admin accounts: `Free` and `admin` (both in site.db admin_users; hashes, never plaintext).
 
 ### Uncommitted working changes (do not lose)
 - `M app.py` — CSRF, secure uploads, sqlite backend, unified login, persistent sessions.
@@ -80,11 +81,22 @@ get_db_connection() sqlite3 + Row factory. load_data() merges DB JSON over defau
 5. 2026-09-14 Zombie app.py processes. Symptom: ps showed 10+ PIDs, Port 5001 is in use. Cause: background runs never killed. Fix: kill -9 pids or lsof -ti:5001 | xargs kill -9, single nohup instance. Verify: one PID, curl :5001/ is 200.
 6. 2026-09-14 Split login themes plus session lost on browser close. Symptom: separate admin_login/user_login templates, non-persistent cookie. Cause: split views, session.permanent never set. Fix: unified templates/login.html for all login URLs, find_account role routing, PERMANENT_SESSION_LIFETIME 30d plus session.permanent=True, role-aware nav. Verify: admin login 302 to /admin 200, wrong pw shows Invalid login details.
 7. 2026-09-14 .venv/bin/pip missing. Symptom: zsh command not found pip. Cause: pip shim absent. Fix: use .venv/bin/python -m pip everywhere. Verify: python -m pip show Flask OK.
+8. 2026-09-15 Render deploy failed with gunicorn: command not found (exit 127). Symptom: build succeeded but start ran `gunicorn your_application.wsgi` (Render placeholder) → bash: line 1: gunicorn: command not found. Cause: (a) gunicorn was only in requirements-prod.txt while the dashboard build command was `pip install -r requirements.txt`; (b) start command left as Render's placeholder instead of our app entry. Fix: added gunicorn==23.0.0 to requirements.txt (commit d29c596) and set Start Command in Render dashboard to `gunicorn -w 2 -b 0.0.0.0:$PORT app:app` (Render injects $PORT; hardcoding a port fails health checks). Verify: deploy log shows gunicorn-23.0.0 installed, `[INFO] Booting worker`, `Your service is live`, external home 200.
 
 ## 9. How to update these docs (humans + AI)
 
 After any code or config change: append a row to CHANGELOG.md (date, what, files, verify) and update section 2 above if behaviour/ports/credentials changed. After any bug found or fixed: append a numbered entry to section 8 (symptom, cause, fix, verify). Keep this file the single entry point; README stays short and links here. Before committing: python -m py_compile app.py, curl touched routes, update docs, then git add and commit.
 
-## 10. Production checklist (not done)
+## 10. Production checklist (in progress)
 
-Set strong SECRET_KEY and real ADMIN_USERNAME/ADMIN_PASSWORD in env, never commit .env. Delete or rotate default admin/admin123. Remove legacy unused templates admin_login.html and user_login.html or confirm no references. Decide whether to commit site.db (dev yes, prod use volume plus backups). Serve behind Nginx/Apache plus HTTPS with gunicorn/waitress, FLASK_DEBUG=0. Add .gitignore for .env, __pycache__, site.db prod copy, static/uploads. Add forgot-password and profile-edit; CSRF already in place.
+- [x] Strong SECRET_KEY via env (Render Generate) — done at service creation; never commit .env
+- [x] Deployed to Render web service (gunicorn 2 workers, start `gunicorn -w 2 -b 0.0.0.0:$PORT app:app`)
+- [x] Admin accounts exist: Free/Contact12 + admin/admin123 (site.db admin_users) — **rotate before real users**
+- [ ] **Verify admin login works on Render** (if it fails, add ADMIN_BOOTSTRAP=1 + ADMIN_USERNAME/ADMIN_PASSWORD env vars)
+- [ ] **Set ADMIN_BOOTSTRAP=0** in Render Environment after first successful login
+- [ ] **Confirm Render disk** mounted at /opt/render/project/src/data (else every redeploy wipes edits)
+- [ ] **Custom domain cutover**: Render → Settings → Custom Domains → add initiativeforlegalaid.org + www; create DNS records at registrar (current WP host: A 23.153.104.141, ns orawebhost.co.ke)
+- [ ] Content review on Render instance (uploads/uploads dir on disk; placeholder contact@domain.com → real inbox)
+- [ ] Consider Render paid plan (free tier sleeps after ~15 min idle, ~50s cold start)
+- [ ] Remove legacy unused templates admin_login.html and user_login.html or confirm no references
+- [ ] Back up site.db (download from Render shell or via admin export) before bulk edits
