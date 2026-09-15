@@ -12,12 +12,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260915c') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260915d') }}" />
   </head>
   <body>
     <header class="topbar">
       <div class="container nav-wrap">
         <div class="brand">{{ site.site_name }}</div>
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle navigation menu">☰</button>
         <nav id="main-nav">
           <a href="/">Home</a>
           <a href="#about">About</a>
@@ -71,5 +72,17 @@
         </div>
       </div>
     </footer>
+    <script>
+      (function () {
+        var t = document.getElementById('navToggle');
+        var n = document.getElementById('main-nav');
+        if (t && n) {
+          t.addEventListener('click', function () {
+            var open = n.classList.toggle('open');
+            t.setAttribute('aria-expanded', open ? 'true' : 'false');
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

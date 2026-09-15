@@ -1340,17 +1340,39 @@ img { overflow-wrap: anywhere; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
+/* Mobile nav toggle — hidden on desktop, shown only ≤768px */
+.nav-toggle { display: none; }
+
+@media (max-width: 768px) {
 /* --- Tablets / large phones (<=768px): always-visible wrapping nav + single columns --- */
 @media (max-width: 768px) {
   .nav-wrap { gap: 8px; flex-wrap: wrap; justify-content: center; }
   .brand { width: 100%; text-align: center; }
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 1;
+    padding: 8px 14px;
+    cursor: pointer;
+    color: #222;
+  }
   #main-nav {
+    display: none;
     width: 100%;
+    flex-direction: column;
+    align-items: center;
     flex-wrap: wrap;
     justify-content: center;
     gap: 4px 14px;
     padding: 8px 0 4px;
   }
+  #main-nav.open { display: flex; }
   #main-nav a { padding: 8px 6px; }
   #main-nav a.nav-button { text-align: center; }
 
