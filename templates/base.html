@@ -12,13 +12,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260915b') }}" />
   </head>
   <body>
     <header class="topbar">
       <div class="container nav-wrap">
         <div class="brand">{{ site.site_name }}</div>
-        <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" onclick="var n=document.getElementById('main-nav');var o=n.classList.toggle('open');this.setAttribute('aria-expanded',o);">☰</button>
+        <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="main-nav">☰</button>
         <nav id="main-nav">
           <a href="/">Home</a>
           <a href="#about">About</a>
@@ -72,5 +72,16 @@
         </div>
       </div>
     </footer>
+    <script>
+      (function () {
+        var btn = document.getElementById('nav-toggle');
+        var nav = document.getElementById('main-nav');
+        if (!btn || !nav) return;
+        btn.addEventListener('click', function () {
+          var open = nav.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+      })();
+    </script>
   </body>
 </html>
