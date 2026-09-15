@@ -1322,18 +1322,7 @@ html { -webkit-text-size-adjust: 100%; }
 img, video, iframe { max-width: 100%; height: auto; }
 img { overflow-wrap: anywhere; }
 
-/* Hamburger toggle (hidden on desktop, shown on mobile) */
-.nav-toggle {
-  display: none;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.25rem;
-  line-height: 1;
-  padding: 0.55rem 0.8rem;
-  cursor: pointer;
-}
+/* (Hamburger toggle removed — nav links are always visible at all sizes) */
 
 /* --- Large tablets / small laptops (<=1024px) --- */
 @media (max-width: 1024px) {
@@ -1351,21 +1340,19 @@ img { overflow-wrap: anywhere; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* --- Tablets / large phones (<=768px): hamburger nav + single columns --- */
+/* --- Tablets / large phones (<=768px): always-visible wrapping nav + single columns --- */
 @media (max-width: 768px) {
-  .nav-wrap { gap: 12px; }
-  .nav-toggle { display: inline-flex; margin-left: auto; }
+  .nav-wrap { gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .brand { width: 100%; text-align: center; }
   #main-nav {
-    display: none;
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    padding: 12px 0 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 14px;
+    padding: 8px 0 4px;
   }
-  #main-nav.open { display: flex; }
-  #main-nav a { padding: 10px 4px; border-top: 1px solid var(--border); }
-  #main-nav a.nav-button { border-top: none; text-align: center; }
+  #main-nav a { padding: 8px 6px; }
+  #main-nav a.nav-button { text-align: center; }
 
   .hero { padding: 44px 0 36px; }
   .hero-grid,
