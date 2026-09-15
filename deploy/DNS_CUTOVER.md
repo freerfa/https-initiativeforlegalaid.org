@@ -9,6 +9,12 @@
 - [ ] Set ADMIN_BOOTSTRAP=0 in Render → Environment (done after first login).
 - [ ] Confirm Render → Disks has the disk at /opt/render/project/src/data.
 - [ ] Optional: back up the old WordPress site (OraWebHost export) for content reference.
+- [ ] **MAIL WARNING (verified 2026-09-15): email for this domain is hosted on the OLD
+      server (MX → mail.initiativeforlegalaid.org → 23.153.104.141, SPF on file).
+      When cutting over, touch ONLY the `@` and `www` records.
+      DO NOT delete or change: the `mail` A record, the MX record, or the TXT/SPF record —
+      otherwise all @initiativeforlegalaid.org email (including info@ and the leadership
+      addresses on /leadership) stops receiving.**
 
 ## STEP 1 — Add domains in Render (5 min)
 1. Render Dashboard → your service → Settings → scroll to **Custom Domains**.
