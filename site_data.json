@@ -186,7 +186,7 @@
       "role": "user"
     }
   ],
-  "seed_version": 2,
+  "seed_version": 3,
   "hero_motto": "Breaking Barriers. Building Justice.",
   "hero_status": "Independent National Non-Governmental Organization (NGO) · Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",
@@ -247,5 +247,5 @@
   ],
   "gallery_note": "Captions describe only what is visible. ILA does not publish the identity, contact details or case information of any person who has received legal assistance.",
   "footer_motto": "Breaking Barriers. Building Justice.",
-  "footer_registration": "Registered in the Republic of South Sudan"
+  "footer_registration": "Registered in the Republic of South Sudan · RRC Reg. No. 3561"
 }

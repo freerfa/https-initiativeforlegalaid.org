@@ -1451,6 +1451,20 @@ img { overflow-wrap: anywhere; }
 }
 
 
+/* ===== Organisational profile page ===== */
+.fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 26px; }
+.fact-item { background: #fff; border: 1px solid #e5e0d5; border-top: 3px solid #a8823c; border-radius: 2px; padding: 16px 18px; }
+.fact-item span { display: block; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: #777; margin-bottom: 6px; }
+.fact-item strong { font-size: 0.98rem; line-height: 1.4; }
+.reg-card { background: #fff; border: 1px solid #e5e0d5; border-top: 4px solid #16324f; border-radius: 2px; padding: 26px; max-width: 720px; margin-top: 26px; }
+.reg-table { width: 100%; border-collapse: collapse; }
+.reg-table th, .reg-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #eee9de; vertical-align: top; }
+.reg-table tr:last-child th, .reg-table tr:last-child td { border-bottom: none; }
+.reg-table th { width: 38%; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6b5d3f; font-weight: 600; }
+.reg-table td { font-size: 1rem; }
+.reg-number { font-size: 1.25rem; color: #16324f; letter-spacing: 0.04em; }
+@media (max-width: 480px) { .reg-table th, .reg-table td { display: block; width: 100%; padding: 6px 0; } .reg-table tr { border-bottom: 1px solid #eee9de; padding: 8px 0; display: block; } }
+
 /* ===== Partnerships & Leadership pages (incorporated from paytack.co.ke/ila) ===== */
 .section-alt { background: #f6f4ef; }
 .lead { max-width: 760px; font-size: 1.06rem; line-height: 1.65; color: #444; }

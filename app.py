@@ -459,6 +459,12 @@ def custom_page(slug: str):
     return render_template("page.html", site=site, page=page)
 
 
+@app.route("/profile")
+def profile():
+    site = load_data()
+    return render_template("profile.html", site=site)
+
+
 @app.route("/partnerships")
 def partnerships():
     site = load_data()
