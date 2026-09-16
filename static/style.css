@@ -1641,4 +1641,26 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); }
 @media (max-width: 768px) {
   .hero { padding: 56px 0 44px; }
   .section { padding: 56px 0; }
+/* ===== Paytack.co.ke/ila incorporation: new sections ===== */
+.hero-sub { font-size: 1.15rem; font-weight: 600; color: #16324f; margin-top: -6px; }
+.text-link { display: inline-block; margin-top: 10px; color: #16324f; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.text-link:hover { color: #a8823c; }
+.justice-quote { margin: 26px 0 0; padding: 18px 24px; border-left: 4px solid #a8823c; background: #fff; font-family: Georgia, 'Times New Roman', serif; font-size: 1.08rem; font-style: italic; color: #2b2b2b; max-width: 820px; }
+.flagship-copy { max-width: 560px; }
+.flagship-media { margin: 0; background: #fff; border: 1px solid #e0d9c8; padding: 10px; }
+.flagship-media img { width: 100%; height: 340px; object-fit: cover; display: block; }
+.flagship-media figcaption { padding: 10px 6px 4px; font-size: 0.85rem; color: #6b6b6b; }
+.caption-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; margin-top: 24px; }
+.caption-card { margin: 0; background: #fff; border: 1px solid #e0d9c8; overflow: hidden; }
+.caption-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.caption-card figcaption { padding: 10px 12px; font-size: 0.86rem; color: #555; border-top: 1px solid #eee7d8; }
+.partner-strip-row { display: grid; grid-template-columns: 130px 130px 1fr; gap: 24px; align-items: center; margin-top: 24px; background: #fff; border: 1px solid #e0d9c8; padding: 22px 26px; }
+.partner-strip-row img { max-height: 72px; width: auto; object-fit: contain; justify-self: center; }
+.footer-motto { font-family: Georgia, 'Times New Roman', serif; font-style: italic; color: #cfa85e; margin: 6px 0 10px; }
+.footer-reg { font-size: 0.8rem; color: #8fa3b8; margin-top: 8px; letter-spacing: 0.04em; }
+@media (max-width: 768px) {
+  .partner-strip-row { grid-template-columns: 1fr 1fr; }
+  .partner-strip-row div { grid-column: 1 / -1; }
+  .flagship-media img { height: auto; }
+}
 }

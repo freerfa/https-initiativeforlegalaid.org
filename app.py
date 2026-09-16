@@ -54,20 +54,51 @@ def get_db_connection():
 
 
 def ensure_db() -> None:
-    """Create site_data table + seed from site_data.json on first boot (fresh Render disk)."""
+    """Create site_data table + seed from site_data.json on first boot (fresh Render disk).
+
+    Also merges newer seed content into an existing DB (SEED_VERSION mechanism):
+    content keys are refreshed from site_data.json when the seed is newer, while
+    account data (admin_users/users/admin_account) is always preserved.
+    """
     if DATA_DIR:
         os.makedirs(DATA_DIR, exist_ok=True)
     conn = get_db_connection()
     conn.execute("CREATE TABLE IF NOT EXISTS site_data (id INTEGER PRIMARY KEY, data JSON)")
     row = conn.execute("SELECT data FROM site_data WHERE id = 1").fetchone()
+    seed = "{}"
+    try:
+        with open(SEED_FILE, "r", encoding="utf-8") as f:
+            seed = f.read()
+    except OSError:
+        pass
+    try:
+        seed_obj = json.loads(seed)
+    except ValueError:
+        seed_obj = {}
+    seed_version = int(seed_obj.get("seed_version", 1))
+
     if not row or not row["data"]:
-        seed = "{}"
-        try:
-            with open(SEED_FILE, "r", encoding="utf-8") as f:
-                seed = f.read()
-        except OSError:
-            pass
         conn.execute("INSERT OR REPLACE INTO site_data (id, data) VALUES (1, ?)", (seed,))
+        conn.commit()
+        conn.close()
+        return
+
+    try:
+        current = json.loads(row["data"])
+    except ValueError:
+        current = {}
+    if int(current.get("seed_version", 0)) < seed_version:
+        preserved = {
+            k: current[k]
+            for k in ("admin_users", "users", "admin_account")
+            if k in current
+        }
+        current.update(seed_obj)
+        current.update(preserved)
+        conn.execute(
+            "INSERT OR REPLACE INTO site_data (id, data) VALUES (1, ?)",
+            (json.dumps(current),),
+        )
         conn.commit()
     conn.close()
 

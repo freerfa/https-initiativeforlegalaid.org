@@ -4,12 +4,14 @@
 <section class="hero">
   <div class="container hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow">{{ site.hero_eyebrow }}</span>
-      <h1>{{ site.tagline }}</h1>
+      <span class="eyebrow">{{ site.hero_status }}</span>
+      <h1>{{ site.hero_motto }}</h1>
+      <p class="hero-sub">{{ site.tagline }}</p>
       <p>{{ site.mission }}</p>
       <div class="cta-row">
-        <a class="primary-btn" href="#contact">{{ site.cta_text }}</a>
-        <a class="secondary-btn" href="#about">Learn More</a>
+        <a class="primary-btn" href="#services">Our work</a>
+        <a class="secondary-btn" href="#impact">Our impact</a>
+        <a class="secondary-btn" href="/partnerships">Partner with ILA</a>
       </div>
       <div class="hero-meta">
         {% for item in site.hero_meta %}
@@ -37,9 +39,11 @@
 <section class="section" id="about">
   <div class="container split-layout">
     <div>
-      <span class="eyebrow">{{ site.about_title }}</span>
-      <h2>{{ site.about_title }}</h2>
-      <p>{{ site.about_story }}</p>
+      <span class="eyebrow">About ILA</span>
+      <h2>{{ site.who_we_are_title }}</h2>
+      <p>{{ site.who_we_are_p1 }}</p>
+      <p>{{ site.who_we_are_p2 }}</p>
+      <a class="text-link" href="/leadership">Governance &amp; leadership →</a>
     </div>
     <div class="about-visual">
       {% if site.about_image %}<img src="{{ site.about_image }}" alt="About {{ site.site_name }} — {{ site.about_title }}" />{% endif %}
@@ -81,11 +85,23 @@
   </div>
 </section>
 
+<section class="section section-alt" id="challenge">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">The challenge</span>
+      <h2>{{ site.challenge_title }}</h2>
+    </div>
+    <p class="lead">{{ site.challenge_text }}</p>
+    <blockquote class="justice-quote">{{ site.challenge_quote }}</blockquote>
+  </div>
+</section>
+
 <section class="section muted" id="services">
   <div class="container">
     <div class="heading-row">
       <span class="eyebrow">{{ site.services_eyebrow }}</span>
       <h2>{{ site.services_title }}</h2>
+      <p class="lead">{{ site.services_intro }}</p>
     </div>
     <div class="card-grid">
       {% for service in site['services'] %}
@@ -96,6 +112,45 @@
       </article>
       {% endfor %}
     </div>
+  </div>
+</section>
+
+<section class="section" id="flagship">
+  <div class="container split-layout">
+    <div class="flagship-copy">
+      <span class="eyebrow">{{ site.flagship.eyebrow }}</span>
+      <h2>{{ site.flagship.title }}</h2>
+      <p>{{ site.flagship.text }}</p>
+      <ul class="check-list">
+        {% for item in site.flagship['items'] %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <figure class="flagship-media">
+      <img src="{{ site.flagship.image }}" alt="{{ site.flagship.caption }}" loading="lazy" />
+      <figcaption>{{ site.flagship.caption }}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section section-alt" id="impact">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Our impact</span>
+      <h2>What we measure</h2>
+    </div>
+    <p class="lead">ILA reports against the indicators below. Figures are published only once they have been verified and signed off internally.</p>
+    <div class="card-grid">
+      {% for item in [('People reached','Individuals reached through legal aid, legal awareness and community outreach activities.'),('Legal consultations','Legal advice and counselling sessions provided to individuals seeking assistance.'),('Cases handled','Legal aid cases opened and managed by ILA legal staff.'),('Cases resolved','Cases concluded through representation, mediation or alternative dispute resolution.')] %}
+      <article class="info-card">
+        <span class="pill">Figure to be verified</span>
+        <h3>{{ item[0] }}</h3>
+        <p>{{ item[1] }}</p>
+      </article>
+      {% endfor %}
+    </div>
+    <p class="note">Verified figures are being compiled and will be published here with the reporting period they cover.</p>
   </div>
 </section>
 
@@ -138,16 +193,39 @@
   </div>
 </section>
 
-<section class="section gallery-section">
+<section class="section gallery-section" id="gallery">
   <div class="container">
     <div class="heading-row">
-      <span class="eyebrow">{{ site.gallery_eyebrow }}</span>
-      <h2>{{ site.gallery_title }}</h2>
+      <span class="eyebrow">Legal aid in practice</span>
+      <h2>From the communities we serve</h2>
     </div>
-    <div class="gallery-grid">
-      {% for image in site['gallery'] %}
-      <img src="{{ image }}" alt="{{ site.gallery_title }} photo {{ loop.index }}" loading="lazy" />
+    <p class="lead">Photographs from ILA's legal aid consultations and community legal awareness sessions.</p>
+    <div class="caption-grid">
+      {% for item in site.get('gallery_items', []) %}
+      <figure class="caption-card">
+        <img src="{{ item.src }}" alt="{{ item.caption }}" loading="lazy" />
+        <figcaption>{{ item.caption }}</figcaption>
+      </figure>
       {% endfor %}
+    </div>
+    <p class="note">{{ site.gallery_note }}</p>
+  </div>
+</section>
+
+<section class="section section-alt partner-strip">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Partnerships</span>
+      <h2>Who ILA works with</h2>
+    </div>
+    <p class="lead">ILA builds strategic partnerships with national, regional and international stakeholders — including UNFPA through the GBV Workstream and, soon, the Central Equatoria State Youth Union.</p>
+    <div class="partner-strip-row">
+      <img src="/static/uploads/partner-unfpa.jpeg" alt="UNFPA logo" loading="lazy" />
+      <img src="/static/uploads/partner-cesyu.jpeg" alt="Central Equatoria State Youth Union logo" loading="lazy" />
+      <div>
+        <p><strong>26+ categories of institution</strong> — government, judiciary, civil society, UN agencies, academia, development partners and more.</p>
+        <a class="text-link" href="/partnerships">Explore partnerships →</a>
+      </div>
     </div>
   </div>
 </section>

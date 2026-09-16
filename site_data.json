@@ -64,37 +64,47 @@
     }
   ],
   "services_eyebrow": "Our Services",
-  "services_title": "What We Do",
+  "services_title": "Eight integrated programmes",
   "services": [
     {
-      "title": "Access To Justice",
-      "text": "The Access to Justice and Legal Aid Programme provides accessible, affordable, timely, and high-quality legal services — free and subsidized representation, legal advice and counselling, court representation, strategic litigation, and legal documentation assistance.",
+      "title": "Access to Justice & Legal Aid",
+      "text": "Accessible, affordable, timely and high-quality legal services for individuals and communities who would otherwise be unable to protect or enforce their rights.",
       "image": "/static/uploads/gallery-3.jpg"
     },
     {
       "title": "Human Rights Protection",
-      "text": "Our program focuses on monitoring, documenting, and advocating for victims of human rights violations while promoting respect for civil liberties.",
+      "text": "Preventing human rights violations, supporting victims, strengthening accountability mechanisms and encouraging compliance with national and international standards.",
       "image": "/static/uploads/gallery-4.jpg"
     },
     {
-      "title": "Women And Children's Rights",
-      "text": "We champion gender equality and protection for women and children, offering legal support and advocacy against gender-based violence and discrimination.",
+      "title": "Women & Children's Rights",
+      "text": "Advancing gender equality and ensuring that women, girls, boys and vulnerable children enjoy their legal rights and protection.",
       "image": "/static/uploads/gallery-5.jpg"
     },
     {
-      "title": "Peacebuilding",
-      "text": "Our peacebuilding initiatives foster social cohesion, conflict resolution, and peaceful coexistence among communities affected by violence and displacement.",
+      "title": "Peacebuilding & Social Cohesion",
+      "text": "Supporting peaceful coexistence by addressing the underlying causes of conflict while strengthening community resilience and social harmony.",
       "image": "/static/uploads/gallery-6.jpg"
     },
     {
-      "title": "Civic and Legal Education",
-      "text": "We provide community education programs to raise awareness of legal rights and responsibilities, empowering citizens to actively participate in governance.",
+      "title": "Governance & Rule of Law",
+      "text": "Promoting constitutionalism, transparency, accountability, citizen participation and institutional integrity while supporting justice sector reform.",
       "image": "/static/uploads/gallery-1.jpg"
     },
     {
-      "title": "Research and Advocacy",
-      "text": "Our ongoing research and advocacy work seeks to influence policy reforms and enhance legal frameworks, ensuring justice systems serve all citizens effectively.",
+      "title": "Civic & Legal Education",
+      "text": "Increasing legal literacy so that citizens can exercise and defend their rights, participate in governance and resolve disputes peacefully.",
       "image": "/static/uploads/gallery-2.jpg"
+    },
+    {
+      "title": "Research, Policy & Advocacy",
+      "text": "Generating evidence that informs public debate, strengthens legislation, improves governance and supports evidence-based advocacy.",
+      "image": "/static/uploads/programme-hr-training.jpeg"
+    },
+    {
+      "title": "Institutional Capacity Development",
+      "text": "Strengthening the organizational, technical, governance and leadership capacities of institutions involved in justice delivery and community development.",
+      "image": "/static/uploads/programme-aj-client.jpeg"
     }
   ],
   "projects": [
@@ -175,5 +185,67 @@
       "password_hash": "pbkdf2:sha256:1000000$bKXCL6tanZy4LdFK$7fce3070f47281e27e436928b89d3759faa76a318ea899b55c150a7b291fadf3",
       "role": "user"
     }
-  ]
+  ],
+  "seed_version": 2,
+  "hero_motto": "Breaking Barriers. Building Justice.",
+  "hero_status": "Independent National Non-Governmental Organization (NGO) · Republic of South Sudan",
+  "who_we_are_title": "An independent national organisation for justice in South Sudan",
+  "who_we_are_p1": "The Initiative for Legal Aid (ILA) is an independent national civil society organization established to promote access to justice, protect and advance human rights, strengthen the rule of law, and contribute to good governance, peacebuilding, and sustainable development in the Republic of South Sudan.",
+  "who_we_are_p2": "ILA serves as both a legal service provider and a development organization by combining legal aid, human rights advocacy, civic education, research, institutional development, policy engagement, peacebuilding, and community empowerment within an integrated programming framework.",
+  "challenge_title": "Justice remains out of reach for many South Sudanese",
+  "challenge_text": "Women, children, persons with disabilities, displaced people, detainees and low-income households face legal, financial, geographical and institutional barriers to justice. ILA was established as a response to these realities.",
+  "challenge_quote": "Justice is not a privilege reserved for those with financial means or social influence, but a universal and fundamental human right guaranteed to every individual without discrimination.",
+  "services_intro": "ILA combines direct legal assistance with advocacy, research, institutional strengthening, civic education, peacebuilding and community engagement — addressing both immediate legal needs and the structural causes of injustice.",
+  "flagship": {
+    "eyebrow": "Flagship programme",
+    "title": "Access to Justice & Legal Aid",
+    "text": "The Access to Justice and Legal Aid Programme seeks to bridge this gap by providing accessible, affordable, timely, and high-quality legal services to individuals and communities who would otherwise be unable to protect or enforce their rights.",
+    "items": [
+      "Free and subsidized legal representation",
+      "Legal advice and legal counselling",
+      "Court representation and litigation support",
+      "Strategic litigation for public interest cases",
+      "Legal documentation assistance",
+      "Case management and follow-up"
+    ],
+    "image": "/static/uploads/programme-aj-client.jpeg",
+    "caption": "Legal aid consultation at the ILA office, Juba. Client identity withheld."
+  },
+  "gallery_items": [
+    {
+      "src": "/static/uploads/testimony-aid-01.jpeg",
+      "caption": "Legal aid support at the ILA office, Juba."
+    },
+    {
+      "src": "/static/uploads/testimony-aid-02.jpeg",
+      "caption": "Concluding a legal aid consultation."
+    },
+    {
+      "src": "/static/uploads/testimony-aid-03.jpeg",
+      "caption": "Client consultation, ILA office."
+    },
+    {
+      "src": "/static/uploads/testimony-aid-04.jpeg",
+      "caption": "Meeting a community member seeking legal assistance."
+    },
+    {
+      "src": "/static/uploads/testimony-aware-01.jpeg",
+      "caption": "Community legal awareness session."
+    },
+    {
+      "src": "/static/uploads/testimony-aware-02.jpeg",
+      "caption": "Participants at a community legal awareness session."
+    },
+    {
+      "src": "/static/uploads/testimony-aware-03.jpeg",
+      "caption": "Legal awareness outreach."
+    },
+    {
+      "src": "/static/uploads/testimony-aware-04.jpeg",
+      "caption": "Legal awareness outreach in the community."
+    }
+  ],
+  "gallery_note": "Captions describe only what is visible. ILA does not publish the identity, contact details or case information of any person who has received legal assistance.",
+  "footer_motto": "Breaking Barriers. Building Justice.",
+  "footer_registration": "Registered in the Republic of South Sudan"
 }

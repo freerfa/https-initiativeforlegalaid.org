@@ -27,3 +27,4 @@ static/uploads/*
 # macOS / editor noise
 .DS_Store
 .vscode/
+update_seed.py
