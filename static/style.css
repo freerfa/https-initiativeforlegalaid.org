@@ -1677,6 +1677,21 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); }
 .partner-strip-row { display: grid; grid-template-columns: 130px 130px 1fr; gap: 24px; align-items: center; margin-top: 24px; background: #fff; border: 1px solid #e0d9c8; padding: 22px 26px; }
 .partner-strip-row img { max-height: 72px; width: auto; object-fit: contain; justify-self: center; }
 .footer-motto { font-family: Georgia, 'Times New Roman', serif; font-style: italic; color: #cfa85e; margin: 6px 0 10px; }
+/* ===== Call button (contact section): phones/small screens only ===== */
+.call-btn { display: none; }
+@media (max-width: 768px) {
+  .call-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 12px 22px;
+    background: #1c7c54;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+  }
+  .call-btn:hover { background: #155e40; color: #fff; }
+}
 .footer-reg { font-size: 0.8rem; color: #8fa3b8; margin-top: 8px; letter-spacing: 0.04em; }
 @media (max-width: 768px) {
   .partner-strip-row { grid-template-columns: 1fr 1fr; }
