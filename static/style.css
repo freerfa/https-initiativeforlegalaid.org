@@ -1349,7 +1349,6 @@ img { overflow-wrap: anywhere; }
 /* Mobile nav toggle (hamburger) — hidden on large screens, shown only ≤768px */
 .nav-toggle { display: none !important; }
 
-@media (max-width: 768px) {
 /* --- Tablets / large phones (<=768px): hamburger menu + single columns --- */
 @media (max-width: 768px) {
   .nav-wrap { gap: 8px; flex-wrap: wrap; justify-content: center; }
@@ -1661,6 +1660,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); }
 @media (max-width: 768px) {
   .hero { padding: 56px 0 44px; }
   .section { padding: 56px 0; }
+}
 /* ===== Paytack.co.ke/ila incorporation: new sections ===== */
 .hero-sub { font-size: 1.15rem; font-weight: 600; color: #16324f; margin-top: -6px; }
 .text-link { display: inline-block; margin-top: 10px; color: #16324f; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
@@ -1714,5 +1714,4 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); }
 .db-danger { border: 1px solid #d8a7a0; }
 @media (max-width: 768px) {
   .db-transfer-grid { grid-template-columns: 1fr; }
-}
 }
