@@ -1346,16 +1346,16 @@ img { overflow-wrap: anywhere; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* Mobile nav toggle — hidden on desktop, shown only ≤768px */
-.nav-toggle { display: none; }
+/* Mobile nav toggle (hamburger) — hidden on large screens, shown only ≤768px */
+.nav-toggle { display: none !important; }
 
 @media (max-width: 768px) {
-/* --- Tablets / large phones (<=768px): always-visible wrapping nav + single columns --- */
+/* --- Tablets / large phones (<=768px): hamburger menu + single columns --- */
 @media (max-width: 768px) {
   .nav-wrap { gap: 8px; flex-wrap: wrap; justify-content: center; }
   .brand { width: 100%; text-align: center; }
   .nav-toggle {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
