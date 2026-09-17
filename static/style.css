@@ -377,6 +377,11 @@ p {
   margin-bottom: 20px;
 }
 
+/* Per-photo focal tweaks: the two 800x600 programme photos frame
+   differently from the square ones, so anchor each on its subjects. */
+.info-card img[src*="programme-hr-training"] { object-position: center 45%; }
+.info-card img[src*="programme-aj-client"] { object-position: center 20%; }
+
 .info-card h3,
 .info-card p,
 .project-card h3,
