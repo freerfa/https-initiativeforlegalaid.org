@@ -1677,4 +1677,21 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); }
   .partner-strip-row div { grid-column: 1 / -1; }
   .flagship-media img { height: auto; }
 }
+/* ===== Site database manager (/admin/database) ===== */
+.db-table-wrap { overflow-x: auto; }
+.db-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.db-table th, .db-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee7d8; vertical-align: middle; }
+.db-table thead th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #8a7a55; border-bottom: 2px solid #e0d9c8; }
+.db-key { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86rem; background: #faf8f3; border: 1px solid #e0d9c8; padding: 2px 7px; }
+.db-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #6b5d3f; background: #efe9dc; border-radius: 999px; padding: 2px 9px; margin-left: 6px; }
+.db-actions { white-space: nowrap; }
+.db-actions form { display: inline; margin-left: 8px; }
+.db-small { font-size: 0.82rem; padding: 6px 12px; }
+.db-editor { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.55; width: 100%; border: 1px solid #cfc6ae; background: #fffdf8; }
+.db-transfer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.db-transfer-grid h3 { margin: 0 0 6px; }
+.db-danger { border: 1px solid #d8a7a0; }
+@media (max-width: 768px) {
+  .db-transfer-grid { grid-template-columns: 1fr; }
+}
 }

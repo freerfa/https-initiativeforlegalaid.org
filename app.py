@@ -4,13 +4,13 @@ import re
 import secrets
 import socket
 import sqlite3
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Dict, List
 import filetype
 
 from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -376,6 +376,183 @@ def photo_slots(site: Dict[str, Any]) -> List[Dict[str, str]]:
     slots.extend({"key": f"custom-section-{index}", "label": f"Custom section {index + 1}", "title": item.get("title", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("custom_sections", [])))
     slots.extend({"key": f"page-{index}", "label": f"Page {index + 1}", "title": item.get("title", ""), "image": item.get("image", "")} for index, item in enumerate(site.get("pages", [])))
     return slots
+
+
+# Keys the database manager shows as view-only; they are edited from their own sections.
+DB_PROTECTED_KEYS = frozenset({"admin_users", "users", "admin_account", "seed_version"})
+
+# Sentinel for "key not present" (so a real null value is still editable).
+_MISSING = object()
+
+
+def db_key_rows(site):
+    """One summary row per top-level data key for the database manager."""
+    rows = []
+    for key in sorted(site.keys()):
+        value = site[key]
+        try:
+            size_kb = round(len(json.dumps(value, ensure_ascii=False).encode("utf-8")) / 1024, 1)
+        except (TypeError, ValueError):
+            size_kb = 0.0
+        if isinstance(value, list):
+            kind, count = "list", len(value)
+        elif isinstance(value, dict):
+            kind, count = "object", len(value)
+        elif isinstance(value, str):
+            kind, count = "text", len(value)
+        else:
+            kind, count = type(value).__name__, "-"
+        rows.append({
+            "key": key,
+            "kind": kind,
+            "count": count,
+            "size_kb": size_kb,
+            "protected": key in DB_PROTECTED_KEYS,
+        })
+    return rows
+
+
+@app.route("/admin/database", methods=["GET"])
+@login_required
+def admin_database():
+    site = load_data()
+    edit_key = (request.args.get("edit") or "").strip()
+    rows = db_key_rows(site)
+    edit_value = ""
+    if edit_key:
+        value = site.get(edit_key, _MISSING)
+        if value is _MISSING:
+            flash("Key '%s' does not exist." % edit_key)
+            return redirect(url_for("admin_database"))
+        if edit_key in DB_PROTECTED_KEYS:
+            flash("Key '%s' is protected and managed from its own section." % edit_key)
+            return redirect(url_for("admin_database"))
+        edit_value = json.dumps(value, indent=2, ensure_ascii=False)
+    return render_template(
+        "admin_database.html",
+        site=site,
+        db_rows=rows,
+        db_total_kb=round(len(json.dumps(site, ensure_ascii=False).encode("utf-8")) / 1024, 1),
+        edit_key=edit_key or None,
+        edit_value=edit_value,
+    )
+
+
+@app.route("/admin/database/update", methods=["POST"])
+@login_required
+def admin_database_update():
+    site = load_data()
+    key = (request.form.get("key") or "").strip()
+    raw = request.form.get("value", "")
+    if not key or key not in site:
+        flash("Unknown key — nothing was saved.")
+        return redirect(url_for("admin_database"))
+    if key in DB_PROTECTED_KEYS:
+        flash("Key '%s' is protected and cannot be edited here." % key)
+        return redirect(url_for("admin_database"))
+    try:
+        site[key] = json.loads(raw)
+    except ValueError as exc:
+        flash("Invalid JSON — nothing was saved. Error: %s" % exc)
+        return redirect(url_for("admin_database", edit=key))
+    save_data(site)
+    flash("Key '%s' has been updated." % key)
+    return redirect(url_for("admin_database", edit=key))
+
+
+@app.route("/admin/database/add", methods=["POST"])
+@login_required
+def admin_database_add():
+    site = load_data()
+    key = (request.form.get("key") or "").strip()
+    raw = request.form.get("value", "[]")
+    if not key:
+        flash("Give the new key a name.")
+        return redirect(url_for("admin_database"))
+    if key in site or key in DB_PROTECTED_KEYS:
+        flash("Key '%s' already exists or is reserved." % key)
+        return redirect(url_for("admin_database"))
+    try:
+        site[key] = json.loads(raw)
+    except ValueError as exc:
+        flash("Invalid JSON for the new key: %s" % exc)
+        return redirect(url_for("admin_database"))
+    save_data(site)
+    flash("Key '%s' has been added." % key)
+    return redirect(url_for("admin_database", edit=key))
+
+
+@app.route("/admin/database/delete", methods=["POST"])
+@login_required
+def admin_database_delete():
+    site = load_data()
+    key = (request.form.get("key") or "").strip()
+    if not key or key not in site:
+        flash("Unknown key — nothing was deleted.")
+    elif key in DB_PROTECTED_KEYS:
+        flash("Key '%s' is protected and cannot be deleted." % key)
+    else:
+        del site[key]
+        save_data(site)
+        flash("Key '%s' has been deleted." % key)
+    return redirect(url_for("admin_database"))
+
+
+@app.route("/admin/database/export", methods=["GET"])
+@login_required
+def admin_database_export():
+    site = load_data()
+    export = {k: v for k, v in site.items() if k not in DB_PROTECTED_KEYS}
+    payload = json.dumps(export, indent=2, ensure_ascii=False)
+    return Response(
+        payload,
+        mimetype="application/json",
+        headers={"Content-Disposition": "attachment; filename=ila-site-content-%s.json" % datetime.now().strftime("%Y%m%d")},
+    )
+
+
+@app.route("/admin/database/import", methods=["POST"])
+@login_required
+def admin_database_import():
+    site = load_data()
+    upload = request.files.get("import_file")
+    if not upload or not upload.filename:
+        flash("Choose a JSON file to import.")
+        return redirect(url_for("admin_database"))
+    try:
+        imported = json.loads(upload.stream.read().decode("utf-8"))
+    except (ValueError, UnicodeDecodeError) as exc:
+        flash("That file is not valid JSON: %s" % exc)
+        return redirect(url_for("admin_database"))
+    if not isinstance(imported, dict):
+        flash("The import file must contain a JSON object of keys.")
+        return redirect(url_for("admin_database"))
+    applied = 0
+    for key, value in imported.items():
+        if key in DB_PROTECTED_KEYS:
+            continue
+        site[key] = value
+        applied += 1
+    save_data(site)
+    flash("Import complete: %d keys applied. Accounts were preserved." % applied)
+    return redirect(url_for("admin_database"))
+
+
+@app.route("/admin/database/reset", methods=["POST"])
+@login_required
+def admin_database_reset():
+    site = load_data()
+    kept = {k: site[k] for k in DB_PROTECTED_KEYS if k in site}
+    try:
+        with open(SEED_FILE, "r", encoding="utf-8") as f:
+            seed_obj = json.load(f)
+    except (OSError, ValueError) as exc:
+        flash("Could not load the shipped defaults: %s" % exc)
+        return redirect(url_for("admin_database"))
+    seed_obj.update(kept)
+    save_data(seed_obj)
+    flash("All content has been reset to the shipped defaults. Accounts were preserved.")
+    return redirect(url_for("admin_database"))
 
 
 def set_photo(data: Dict[str, Any], target: str, image: str) -> bool:

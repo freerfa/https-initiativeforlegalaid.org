@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="admin-layout">
+  <div class="container admin-shell">
+    <aside class="admin-sidebar" aria-label="Database sections">
+      <div class="admin-sidebar-brand">
+        <span class="admin-kicker">Control panel</span>
+        <strong>Site database</strong>
+      </div>
+      <nav class="admin-nav">
+        <a href="/admin">← Back to dashboard</a>
+        <a href="#db-keys">All keys</a>
+        {% if edit_key %}<a href="#db-edit">Edit: {{ edit_key }}</a>{% endif %}
+        <a href="#db-add">Add key</a>
+        <a href="#db-transfer">Import / Export</a>
+        <a href="#db-danger">Reset</a>
+      </nav>
+      <a class="admin-logout" href="/admin/logout">Log out</a>
+    </aside>
+
+    <main class="admin-content">
+      <div class="admin-page-heading">
+        <div>
+          <span class="admin-kicker">Website settings</span>
+          <h1>Site database</h1>
+          <p>Every piece of website content lives in one database record. Browse it, edit a single value, or move the whole dataset — accounts are always kept safe. <strong>{{ db_rows|length }} keys · {{ db_total_kb }} KB total.</strong></p>
+        </div>
+        <a class="secondary-btn" href="/">View website</a>
+      </div>
+
+      <section class="admin-card" id="db-keys">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">01</span><h2>All data keys</h2></div>
+          <p>Protected keys (accounts, seed version) are view-only and managed from their own sections.</p>
+        </div>
+        <div class="db-table-wrap">
+          <table class="db-table">
+            <thead>
+              <tr><th>Key</th><th>Type</th><th>Items</th><th>Size</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {% for row in db_rows %}
+              <tr>
+                <td><code class="db-key">{{ row.key }}</code>{% if row.protected %} <span class="db-badge">protected</span>{% endif %}</td>
+                <td>{{ row.kind }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ row.size_kb }} KB</td>
+                <td class="db-actions">
+                  <a class="secondary-btn db-small" href="/admin/database?edit={{ row.key }}">Edit</a>
+                  {% if not row.protected %}
+                  <form method="post" action="/admin/database/delete" onsubmit="return confirm('Delete the key {{ row.key }}? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="key" value="{{ row.key }}"/>
+                    <button class="photo-delete" type="submit">Delete</button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {% if edit_key %}
+      <section class="admin-card" id="db-edit">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">02</span><h2>Edit: <code class="db-key">{{ edit_key }}</code></h2></div>
+          <p>Edit the raw JSON value. It is checked before saving — broken JSON is rejected and nothing changes.</p>
+        </div>
+        <form method="post" action="/admin/database/update">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <input type="hidden" name="key" value="{{ edit_key }}"/>
+          <div class="form-group full-width">
+            <label for="db_value">JSON value</label>
+            <textarea id="db_value" name="value" rows="16" class="db-editor" spellcheck="false">{{ edit_value }}</textarea>
+          </div>
+          <button type="submit" class="primary-btn">Save {{ edit_key }}</button>
+          <a class="secondary-btn" href="/admin/database">Cancel</a>
+        </form>
+      </section>
+      {% endif %}
+
+      <section class="admin-card" id="db-add">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">{% if edit_key %}03{% else %}02{% endif %}</span><h2>Add a key</h2></div>
+          <p>Create a new content key with a JSON value (for example <code class="db-key">[]</code> or <code class="db-key">{"a": 1}</code>).</p>
+        </div>
+        <form method="post" action="/admin/database/add">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div class="admin-form-grid">
+            <div class="form-group"><label for="db_new_key">New key</label><input id="db_new_key" type="text" name="key" required placeholder="e.g. announcements" /></div>
+          </div>
+          <div class="form-group full-width">
+            <label for="db_new_value">Initial JSON value</label>
+            <textarea id="db_new_value" name="value" rows="6" class="db-editor" spellcheck="false">[]</textarea>
+          </div>
+          <button type="submit" class="secondary-btn">Add key</button>
+        </form>
+      </section>
+
+      <section class="admin-card" id="db-transfer">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">{% if edit_key %}04{% else %}03{% endif %}</span><h2>Import / Export</h2></div>
+          <p>Move the full dataset between environments. Uploading <strong>keeps all accounts</strong> and only replaces content.</p>
+        </div>
+        <div class="db-transfer-grid">
+          <div>
+            <h3>Export</h3>
+            <p>Download today's full content (without account data) as a JSON file — ideal before bulk changes.</p>
+            <a class="secondary-btn" href="/admin/database/export">Download JSON export</a>
+          </div>
+          <div>
+            <h3>Import</h3>
+            <p>Upload a JSON file previously exported. Missing keys are added, existing ones replaced — <strong>accounts untouched</strong>.</p>
+            <form method="post" action="/admin/database/import" enctype="multipart/form-data">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <div class="form-group"><label for="db_import_file">JSON file <small>max 16 MB</small></label><input id="db_import_file" type="file" name="import_file" accept=".json,application/json" required /></div>
+              <button type="submit" class="secondary-btn" onclick="return confirm('Import this file? Content keys will be replaced, accounts kept.');">Import JSON</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-card db-danger" id="db-danger">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">{% if edit_key %}05{% else %}04{% endif %}</span><h2>Reset to defaults</h2></div>
+          <p>Restore every content key from the shipped seed. <strong>Accounts are preserved.</strong> Use only when content is badly broken.</p>
+        </div>
+        <form method="post" action="/admin/database/reset" onsubmit="return confirm('Reset ALL content to the shipped defaults? This cannot be undone. Accounts will be kept.');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button class="photo-delete" type="submit">Reset all content to defaults</button>
+        </form>
+      </section>
+    </main>
+  </div>
+</section>
+{% endblock %}
