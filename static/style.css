@@ -371,8 +371,9 @@ p {
 .info-card img,
 .project-card img {
   width: 100%;
-  height: 150px;
+  height: 170px;
   object-fit: cover;
+  object-position: center 30%;
   margin-bottom: 20px;
 }
 
