@@ -186,16 +186,16 @@
       "role": "user"
     }
   ],
-  "seed_version": 3,
+  "seed_version": 4,
   "hero_motto": "Breaking Barriers. Building Justice.",
-  "hero_status": "Independent National Non-Governmental Organization (NGO) · Republic of South Sudan",
+  "hero_status": "Independent National Non-Governmental Organization (NGO) \u00b7 Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",
   "who_we_are_p1": "The Initiative for Legal Aid (ILA) is an independent national civil society organization established to promote access to justice, protect and advance human rights, strengthen the rule of law, and contribute to good governance, peacebuilding, and sustainable development in the Republic of South Sudan.",
   "who_we_are_p2": "ILA serves as both a legal service provider and a development organization by combining legal aid, human rights advocacy, civic education, research, institutional development, policy engagement, peacebuilding, and community empowerment within an integrated programming framework.",
   "challenge_title": "Justice remains out of reach for many South Sudanese",
   "challenge_text": "Women, children, persons with disabilities, displaced people, detainees and low-income households face legal, financial, geographical and institutional barriers to justice. ILA was established as a response to these realities.",
   "challenge_quote": "Justice is not a privilege reserved for those with financial means or social influence, but a universal and fundamental human right guaranteed to every individual without discrimination.",
-  "services_intro": "ILA combines direct legal assistance with advocacy, research, institutional strengthening, civic education, peacebuilding and community engagement — addressing both immediate legal needs and the structural causes of injustice.",
+  "services_intro": "ILA combines direct legal assistance with advocacy, research, institutional strengthening, civic education, peacebuilding and community engagement \u2014 addressing both immediate legal needs and the structural causes of injustice.",
   "flagship": {
     "eyebrow": "Flagship programme",
     "title": "Access to Justice & Legal Aid",
@@ -213,39 +213,39 @@
   },
   "gallery_items": [
     {
-      "src": "/static/uploads/testimony-aid-01.jpeg",
+      "src": "/static/uploads/testimony-aid-01.jpeg?v=3",
       "caption": "Legal aid support at the ILA office, Juba."
     },
     {
-      "src": "/static/uploads/testimony-aid-02.jpeg",
+      "src": "/static/uploads/testimony-aid-02.jpeg?v=3",
       "caption": "Concluding a legal aid consultation."
     },
     {
-      "src": "/static/uploads/testimony-aid-03.jpeg",
+      "src": "/static/uploads/testimony-aid-03.jpeg?v=3",
       "caption": "Client consultation, ILA office."
     },
     {
-      "src": "/static/uploads/testimony-aid-04.jpeg",
+      "src": "/static/uploads/testimony-aid-04.jpeg?v=3",
       "caption": "Meeting a community member seeking legal assistance."
     },
     {
-      "src": "/static/uploads/testimony-aware-01.jpeg",
+      "src": "/static/uploads/testimony-aware-01.jpeg?v=3",
       "caption": "Community legal awareness session."
     },
     {
-      "src": "/static/uploads/testimony-aware-02.jpeg",
+      "src": "/static/uploads/testimony-aware-02.jpeg?v=3",
       "caption": "Participants at a community legal awareness session."
     },
     {
-      "src": "/static/uploads/testimony-aware-03.jpeg",
+      "src": "/static/uploads/testimony-aware-03.jpeg?v=3",
       "caption": "Legal awareness outreach."
     },
     {
-      "src": "/static/uploads/testimony-aware-04.jpeg",
+      "src": "/static/uploads/testimony-aware-04.jpeg?v=3",
       "caption": "Legal awareness outreach in the community."
     }
   ],
   "gallery_note": "Captions describe only what is visible. ILA does not publish the identity, contact details or case information of any person who has received legal assistance.",
   "footer_motto": "Breaking Barriers. Building Justice.",
-  "footer_registration": "Registered in the Republic of South Sudan · RRC Reg. No. 3561"
+  "footer_registration": "Registered in the Republic of South Sudan \u00b7 RRC Reg. No. 3561"
 }
