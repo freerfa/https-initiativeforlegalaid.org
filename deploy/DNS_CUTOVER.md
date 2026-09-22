@@ -1,8 +1,20 @@
 # DNS cutover — pointing initiativeforlegalaid.org at Render
 # Production service: https://https-initiativeforlegalaid-org-1.onrender.com
-# (srv-dakep4bm8hqs73ebt5t0) — LIVE and verified 2026-09-15.
-# Current DNS: A @ → 23.153.104.141, A www → 23.153.104.141 (OraWebHost WordPress),
-# nameservers ns1/ns2.orawebhost.co.ke → DNS is edited in OraWebHost's panel (cPanel Zone Editor).
+# (srv-dakep4bm8hqs73ebt5t0)
+#
+# RE-CUTOVER NOTE (verified live 2026-09-22):
+#   Current DNS (nameservers ns1/ns2.orawebhost.co.ke, zone edited in OraWebHost cPanel):
+#     A  @   -> 185.113.249.115   (Truehost Cloud KE — currently serving a Next.js build)
+#     A  www -> 185.113.249.115   (Truehost Cloud KE)
+#     A  mail -> 23.153.104.141   (OraWebHost — EMAIL, DO NOT TOUCH)
+#     MX 10 mail.initiativeforlegalaid.org.   (DO NOT TOUCH)
+#     TXT SPF "v=spf1 a mx ip4:23.153.104.141 ip4:23.153.104.141 ~all"  (DO NOT TOUCH)
+#   Rollback target for this cutover = 185.113.249.115 (both @ and www).
+#
+# Historical reference (first cutover, 2026-09-15):
+#   Current DNS then: A @ -> 23.153.104.141, A www -> 23.153.104.141
+#   (OraWebHost WordPress), nameservers ns1/ns2.orawebhost.co.ke ->
+#   DNS edited in OraWebHost's panel (cPanel Zone Editor).
 
 ## STEP 0 — Pre-flight (do first)
 - [ ] Confirm you can log in to https://https-initiativeforlegalaid-org-1.onrender.com/login (Free).
@@ -47,7 +59,7 @@
   (grep for "Civic and Legal Education" to confirm content, not WordPress).
 
 ## STEP 4 — Cleanup / rollback
-- Keep the old OraWebHost WordPress hosting active for 48 h, then cancel/migrate.
-- Rollback: point both records back to A 23.153.104.141 (propagates within TTL 300).
+- Keep the Truehost (185.113.249.115) site active for 48 h, then cancel/migrate.
+- Rollback: point both records back to A 185.113.249.115 (propagates within TTL 300).
 - After 48 h stable, raise TTL back to 3600.
 

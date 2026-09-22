@@ -1,5 +1,5 @@
 {
-  "site_name": "Initiative for Legal Aid",
+  "site_name": "Initiative for Legal Aid South Sudan",
   "tagline": "Empowering Access To Justice In South Sudan",
   "hero_eyebrow": "Legal support for communities in need",
   "hero_meta": [
@@ -186,7 +186,7 @@
       "role": "user"
     }
   ],
-  "seed_version": 5,
+  "seed_version": 6,
   "hero_motto": "Breaking Barriers. Building Justice.",
   "hero_status": "Independent National Non-Governmental Organization (NGO) \u00b7 Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",

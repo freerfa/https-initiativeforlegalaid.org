@@ -163,7 +163,7 @@ def save_data(data: Dict[str, Any]) -> None:
 
 def default_site_data() -> Dict[str, Any]:
     return {
-        "site_name": "Initiative for Legal Aid",
+        "site_name": "Initiative for Legal Aid South Sudan",
         "tagline": "Empowering Access To Justice In South Sudan",
         "hero_eyebrow": "Legal support for communities in need",
         "hero_meta": ["Trusted legal guidance", "Community-first advocacy"],
