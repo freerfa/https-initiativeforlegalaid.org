@@ -1,6 +1,54 @@
 # DNS cutover — pointing initiativeforlegalaid.org at Render
 # Production service: https://https-initiativeforlegalaid-org-1.onrender.com
 # (srv-dakep4bm8hqs73ebt5t0)
+# ============================================================
+# CURRENT PLAN (decided 2026-09-23): initiative4legalaid.org (with "4")
+# ============================================================
+# Decision: the production domain is `initiative4legalaid.org`, registered at
+# HOSTINGER (hPanel). The historical plans further below for
+# `initiativeforlegalaid.org` (OraWebHost/Truehost) are kept as reference.
+#
+# Verified DNS before cutover (2026-09-23):
+#   NS    initiative4legalaid.org -> aster/helios.dns-parking.com (Hostinger parking)
+#   A     @      -> 5.252.75.81   (Hostinger default page)
+#   A     @      -> 88.222.223.77 (Hostinger default page)
+#   CNAME www    -> www.initiative4legalaid.org.cdn.hstgr.net (Hostinger)
+#   Render app (srv-dakep4bm8hqs73ebt5t0) LIVE, HTTP 200 at
+#   https://https-initiativeforlegalaid-org-p51u.onrender.com
+#
+# STEP 1 — Hostinger hPanel (only you can log in):
+#   hPanel -> Domains -> initiative4legalaid.org -> DNS / Nameservers (DNS Zone):
+#   1. DELETE the Hostinger parking records:
+#        A  @   -> 5.252.75.81
+#        A  @   -> 88.222.223.77
+#        CNAME www -> www.initiative4legalaid.org.cdn.hstgr.net
+#   2. ADD:  A     @    -> 216.24.57.1     (Render apex IP, TTL 3600 or default)
+#   3. ADD:  CNAME www  -> https-initiativeforlegalaid-org-p51u.onrender.com
+#   If Render's Custom Domains page shows different values, USE THOSE instead.
+#   Email note: this domain has no existing mailboxes; leave/remove any default
+#   Hostinger MX records freely. The org's real email (MX, mail A, SPF) belongs
+#   to initiativeforlegalaid.org on OraWebHost — never touch those.
+#
+# STEP 2 — Render Dashboard (only you can log in):
+#   Service srv-dakep4bm8hqs73ebt5t0 -> Settings -> Custom Domains:
+#   1. Ensure BOTH `initiative4legalaid.org` and `www.initiative4legalaid.org`
+#      are added (the entry once considered a typo in §8 #12 is now CORRECT —
+#      keep/verify it instead of deleting).
+#   2. Click Retry Verification after saving the Hostinger DNS records.
+#   Render auto-provisions the Let's Encrypt cert + HTTP->HTTPS redirect.
+#
+# STEP 3 — Verify (up to ~1 h for propagation):
+#   dig +short A initiative4legalaid.org          # expect 216.24.57.1
+#   dig +short CNAME www.initiative4legalaid.org  # expect ...onrender.com
+#   curl -s -o /dev/null -w '%{http_code} %{url_effective}\n' -L https://initiative4legalaid.org/
+#   Expect 200 + Flask homepage (grep "Civic and Legal Education"), not Hostinger default.
+#
+# ROLLBACK: in hPanel restore A @ -> 5.252.75.81 and CNAME www ->
+#   www.initiative4legalaid.org.cdn.hstgr.net, then remove the custom domains in Render.
+#
+# ============================================================
+# HISTORICAL: initiativeforlegalaid.org (f-o-r) — NOT the production target since 2026-09-23
+# ============================================================
 #
 # RE-CUTOVER NOTE (verified live 2026-09-22):
 #   Current DNS (nameservers ns1/ns2.orawebhost.co.ke, zone edited in OraWebHost cPanel):
