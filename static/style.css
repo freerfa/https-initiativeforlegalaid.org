@@ -2165,3 +2165,21 @@ input:focus, textarea:focus, select:focus {
 .admin-sidebar { background: var(--navy); border-radius: 12px; }
 .admin-kicker { color: var(--gold-soft); }
 .admin-card { border-radius: 12px; }
+
+/* --- Header logo (appended: overrides earlier text-brand rules) --- */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  border-left: 0 !important;
+  padding-left: 0 !important;
+  font-size: inherit !important;
+  line-height: 1;
+}
+.brand img {
+  height: 48px;
+  width: auto;
+  display: block;
+}
+@media (max-width: 768px) {
+  .brand img { height: 38px; }
+}
