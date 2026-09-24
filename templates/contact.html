@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span aria-current="page">Contact</span>
+    </nav>
+    <span class="eyebrow">Get in touch</span>
+    <h1>Contact ILA</h1>
+    <p class="lead">ILA welcomes enquiries from people seeking legal assistance, partners, donors, government institutions and the media. Send us a message and the team will respond from the head office in Juba.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <div class="contact-card">
+      <h2>Send a message</h2>
+      <p class="note contact-intro">All fields marked with an asterisk (*) are required. Please do not include confidential case details in the first message — the team will advise on a safe way to share documents.</p>
+      <form method="post" action="/contact" class="contact-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="honeypot" aria-hidden="true">
+          <label for="website">Website (leave this field empty)</label>
+          <input id="website" type="text" name="website" tabindex="-1" autocomplete="off"/>
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label for="name">Full name *</label>
+            <input id="name" type="text" name="name" value="{{ form.name }}" required maxlength="120" autocomplete="name"/>
+          </div>
+          <div class="form-group">
+            <label for="email">Email address *</label>
+            <input id="email" type="email" name="email" value="{{ form.email }}" required maxlength="160" autocomplete="email"/>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label for="phone">Phone number</label>
+            <input id="phone" type="tel" name="phone" value="{{ form.phone }}" maxlength="40" autocomplete="tel"/>
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input id="subject" type="text" name="subject" value="{{ form.subject }}" maxlength="160" placeholder="e.g. Request for legal assistance"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" rows="7" required maxlength="5000">{{ form.message }}</textarea>
+        </div>
+        <div class="contact-submit">
+          <button class="primary-btn wide" type="submit">Send message</button>
+          {% if not mail_ready %}<p class="note contact-intro">Your message is stored securely in the ILA office inbox. You can also email <a class="text-link" href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a> or call <a class="text-link" href="tel:{{ site.contact_phone|replace(' ', '')|replace('/', ',') }}">{{ site.contact_phone }}</a>.</p>{% endif %}
+        </div>
+      </form>
+    </div>
+
+    <aside class="contact-aside" aria-label="ILA contact details">
+      <h2>Head office</h2>
+      <ul class="contact-list">
+        <li>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          <span><strong>Address</strong>{{ site.contact_address }}</span>
+        </li>
+        <li>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>
+          <span><strong>Email</strong><a class="text-link" href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a></span>
+        </li>
+        <li>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span><strong>Telephone</strong>{{ site.contact_phone }}</span>
+        </li>
+      </ul>
+      <a class="primary-btn block-btn" href="mailto:{{ site.contact_email }}">Email the office</a>
+      <div class="contact-note">
+        <h3>Confidentiality</h3>
+        <p>ILA treats every enquiry as confidential. The identity and case information of anyone receiving legal assistance is never published.</p>
+      </div>
+      <div class="contact-note">
+        <h3>Response time</h3>
+        <p>Messages are reviewed on working days. Urgent protection matters should also be raised by telephone so the team can respond immediately.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="heading-row">
+      <span class="eyebrow">Other ways to reach ILA</span>
+      <h2>Partnerships, media and complaints</h2>
+    </div>
+    <div class="card-grid">
+      <article class="info-card">
+        <h3>Partnerships and donors</h3>
+        <p>Institutional profiles, governance, financial and safeguarding documentation is available to prospective partners on request.</p>
+        <a class="text-link" href="/partnerships">See how ILA works with partners</a>
+      </article>
+      <article class="info-card">
+        <h3>Accounts and policies</h3>
+        <p>ILA maintains policies covering safeguarding, PSEA, conduct, anti-fraud, procurement, data protection and risk.</p>
+        <a class="text-link" href="/profile">View the organisational profile</a>
+      </article>
+      <article class="info-card">
+        <h3>Complaints and feedback</h3>
+        <p>Community feedback helps ILA improve. Complaints may be submitted through this form or directly to the head office in Juba.</p>
+        <a class="text-link" href="/contact">Submit feedback</a>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

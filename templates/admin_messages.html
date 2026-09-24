@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="admin-layout">
+  <div class="container admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-brand">
+        <span class="admin-kicker">Admin</span>
+        <strong>{{ site.site_name }}</strong>
+      </div>
+      <nav class="admin-nav">
+        <a href="/admin">Content editor</a>
+        <a href="/admin/messages">Messages{% if unread_messages %} <span class="db-badge">{{ unread_messages }} new</span>{% endif %}</a>
+        <a href="/admin/database">Site database</a>
+      </nav>
+      <a class="admin-logout" href="/admin/logout">Log out</a>
+    </aside>
+
+    <div>
+      <div class="admin-page-heading">
+        <div>
+          <span class="admin-kicker">Contact form inbox</span>
+          <h1>Messages</h1>
+          <p>Enquiries submitted through the public contact form. Read, reply by email and archive them here.</p>
+        </div>
+        <div class="admin-card-actions">
+          <span class="db-badge">{{ messages|length }} total</span>
+          <span class="db-badge">{{ unread_messages }} unread</span>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-heading">
+          <div>
+            <h2>Delivery status</h2>
+            <p>This tells you whether a copy of each enquiry is also emailed out.</p>
+          </div>
+        </div>
+        {% if mail_ready %}
+        <p class="mail-status mail-status-on">Email delivery is active. Each enquiry is saved here and a copy is emailed to <strong>{{ mail_to }}</strong> from <strong>{{ mail_from }}</strong>.</p>
+        {% else %}
+        <p class="mail-status mail-status-off">Email delivery is not configured, so enquiries are saved here only. Set <code>RESEND_API_KEY</code>, <code>MAIL_FROM</code> and <code>MAIL_TO</code> in the Render environment (see deploy/EMAIL_SETUP.md) to have each enquiry emailed automatically. Render blocks outbound SMTP (ports 25/465/587), so notifications go out over the provider's HTTPS API on port 443.</p>
+        {% endif %}
+      </div>
+
+      {% if messages %}
+        {% for item in messages %}
+        <article class="admin-card message-card{% if not item.is_read %} message-unread{% endif %}">
+          <header class="message-head">
+            <div>
+              <h2>{{ item.subject }}</h2>
+              <p class="message-meta">
+                <strong>{{ item.name }}</strong>
+                · <a href="mailto:{{ item.email }}">{{ item.email }}</a>
+                {% if item.phone %} · {{ item.phone }}{% endif %}
+              </p>
+              <p class="message-meta">
+                {{ item.created_at }}
+                {% if item.ip %} · IP {{ item.ip }}{% endif %}
+                · email: {{ item.mail_status }}
+                {% if not item.is_read %} · <span class="db-badge">Unread</span>{% endif %}
+              </p>
+            </div>
+            <div class="message-actions">
+              <form method="post" action="/admin/messages/{{ item.id }}/{{ 'unread' if item.is_read else 'read' }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="secondary-btn db-small" type="submit">{{ 'Mark unread' if item.is_read else 'Mark read' }}</button>
+              </form>
+              <form method="post" action="/admin/messages/{{ item.id }}/delete" onsubmit="return confirm('Delete this message permanently?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="secondary-btn db-small" type="submit">Delete</button>
+              </form>
+            </div>
+          </header>
+          <pre class="message-body">{{ item.body }}</pre>
+          <p class="message-foot">
+            <a class="text-link" href="mailto:{{ item.email }}?subject=Re%3A%20{{ item.subject|urlencode }}">Reply by email</a>
+          </p>
+        </article>
+        {% endfor %}
+      {% else %}
+      <div class="admin-card">
+        <p>No messages yet. Enquiries sent through the <a class="text-link" href="/contact">contact form</a> will appear here.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

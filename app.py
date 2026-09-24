@@ -4,6 +4,8 @@ import re
 import secrets
 import socket
 import sqlite3
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Dict, List
@@ -42,6 +44,17 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 ADMIN_BOOTSTRAP_ENABLED = os.environ.get("ADMIN_BOOTSTRAP", "0") == "1"
 
+# --- Contact-form email notification ---
+# Render blocks outbound SMTP (ports 25/465/587), so notifications are sent over
+# an email provider's HTTPS API on port 443. Resend is the default provider; set
+# RESEND_API_KEY + MAIL_FROM + MAIL_TO to switch the notifications on. With no
+# key configured the contact form still works and every enquiry is stored.
+MAIL_API_URL = os.environ.get("MAIL_API_URL", "https://api.resend.com/emails")
+MAIL_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
+MAIL_FROM = os.environ.get("MAIL_FROM", "").strip()
+MAIL_TO = os.environ.get("MAIL_TO", "").strip()
+CONTACT_RATE_LIMIT = int(os.environ.get("CONTACT_RATE_LIMIT", "5") or "5")
+
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 
@@ -64,6 +77,24 @@ def ensure_db() -> None:
         os.makedirs(DATA_DIR, exist_ok=True)
     conn = get_db_connection()
     conn.execute("CREATE TABLE IF NOT EXISTS site_data (id INTEGER PRIMARY KEY, data JSON)")
+    # Website enquiry inbox: one row per contact-form submission. Kept in its own
+    # table (not in site_data) so content resets never touch visitor messages.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS contact_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TEXT NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT NOT NULL DEFAULT '',
+            subject TEXT NOT NULL DEFAULT '',
+            body TEXT NOT NULL,
+            ip TEXT NOT NULL DEFAULT '',
+            is_read INTEGER NOT NULL DEFAULT 0,
+            mail_status TEXT NOT NULL DEFAULT 'not_sent'
+        )
+        """
+    )
     row = conn.execute("SELECT data FROM site_data WHERE id = 1").fetchone()
     seed = "{}"
     try:
@@ -412,6 +443,117 @@ def db_key_rows(site):
     return rows
 
 
+# ===== Contact messages: website enquiry inbox + email notification =====
+def mail_configured() -> bool:
+    """True when every value needed to send a notification email is present."""
+    return bool(MAIL_API_KEY and MAIL_FROM and MAIL_TO)
+
+
+def save_message(name: str, email: str, phone: str, subject: str, body: str, ip: str) -> int:
+    conn = get_db_connection()
+    cursor = conn.execute(
+        """INSERT INTO contact_messages (created_at, name, email, phone, subject, body, ip)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), name, email, phone, subject, body, ip),
+    )
+    message_id = int(cursor.lastrowid or 0)
+    conn.commit()
+    conn.close()
+    return message_id
+
+
+def recent_message_count(ip: str, hours: int = 1) -> int:
+    """Submissions from one IP in the last `hours` — a light spam brake."""
+    if not ip:
+        return 0
+    conn = get_db_connection()
+    since = (datetime.now() - timedelta(hours=hours)).strftime("%Y-%m-%d %H:%M:%S")
+    row = conn.execute(
+        "SELECT COUNT(*) FROM contact_messages WHERE ip = ? AND created_at >= ?", (ip, since)
+    ).fetchone()
+    conn.close()
+    return int(row[0]) if row else 0
+
+
+def list_messages() -> List[Dict[str, Any]]:
+    conn = get_db_connection()
+    rows = conn.execute("SELECT * FROM contact_messages ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def unread_message_count() -> int:
+    conn = get_db_connection()
+    row = conn.execute("SELECT COUNT(*) FROM contact_messages WHERE is_read = 0").fetchone()
+    conn.close()
+    return int(row[0]) if row else 0
+
+
+def set_message_status(message_id: int, is_read: int = None, mail_status: str = None) -> None:
+    fields, params = [], []
+    if is_read is not None:
+        fields.append("is_read = ?")
+        params.append(is_read)
+    if mail_status is not None:
+        fields.append("mail_status = ?")
+        params.append(mail_status)
+    if not fields:
+        return
+    params.append(message_id)
+    conn = get_db_connection()
+    conn.execute("UPDATE contact_messages SET %s WHERE id = ?" % ", ".join(fields), params)
+    conn.commit()
+    conn.close()
+
+
+def delete_message(message_id: int) -> None:
+    conn = get_db_connection()
+    conn.execute("DELETE FROM contact_messages WHERE id = ?", (message_id,))
+    conn.commit()
+    conn.close()
+
+
+def send_notification_email(subject: str, body: str, reply_to: str = "") -> str:
+    """Send one notification over an HTTPS mail API (works on Render).
+
+    Returns a short status string stored alongside the message so the admin
+    inbox always shows whether the email actually went out.
+    """
+    if not mail_configured():
+        return "not_configured"
+    payload = {
+        "from": MAIL_FROM,
+        "to": [address.strip() for address in MAIL_TO.split(",") if address.strip()],
+        "subject": subject,
+        "text": body,
+    }
+    if reply_to:
+        payload["reply_to"] = reply_to
+    request_object = urllib.request.Request(
+        MAIL_API_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": "Bearer %s" % MAIL_API_KEY,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request_object, timeout=10) as response:
+            if 200 <= response.status < 300:
+                return "sent"
+            return "failed: HTTP %s" % response.status
+    except urllib.error.HTTPError as error:
+        detail = ""
+        try:
+            detail = error.read(200).decode("utf-8", "replace")
+        except Exception:
+            detail = ""
+        return "failed: HTTP %s %s" % (error.code, detail.strip())
+    except (urllib.error.URLError, TimeoutError, OSError) as error:
+        return "failed: %s" % error
+
+
 @app.route("/admin/database", methods=["GET"])
 @login_required
 def admin_database():
@@ -609,6 +751,46 @@ def set_photo_title(data: Dict[str, Any], target: str, title: str) -> bool:
     return True
 
 
+@app.route("/admin/messages")
+@login_required
+def admin_messages():
+    """Inbox for enquiries submitted through the public contact form."""
+    site = load_data()
+    return render_template(
+        "admin_messages.html",
+        site=site,
+        messages=list_messages(),
+        unread_messages=unread_message_count(),
+        mail_ready=mail_configured(),
+        mail_to=MAIL_TO,
+        mail_from=MAIL_FROM,
+    )
+
+
+@app.route("/admin/messages/<int:message_id>/read", methods=["POST"])
+@login_required
+def admin_message_read(message_id: int):
+    set_message_status(message_id, is_read=1)
+    flash("Message marked as read.")
+    return redirect(url_for("admin_messages"))
+
+
+@app.route("/admin/messages/<int:message_id>/unread", methods=["POST"])
+@login_required
+def admin_message_unread(message_id: int):
+    set_message_status(message_id, is_read=0)
+    flash("Message marked as unread.")
+    return redirect(url_for("admin_messages"))
+
+
+@app.route("/admin/messages/<int:message_id>/delete", methods=["POST"])
+@login_required
+def admin_message_delete(message_id: int):
+    delete_message(message_id)
+    flash("Message deleted.")
+    return redirect(url_for("admin_messages"))
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template("404.html", site=load_data()), 404
@@ -652,6 +834,74 @@ def partnerships():
 def leadership():
     site = load_data()
     return render_template("leadership.html", site=site)
+
+
+@app.route("/contact", methods=["GET", "POST"])
+def contact():
+    """Public enquiry form.
+
+    Every submission is saved to the database first, so an enquiry is never
+    lost even when email delivery is not configured or the provider is down.
+    """
+    site = load_data()
+    form = {"name": "", "email": "", "phone": "", "subject": "", "message": ""}
+    if request.method == "POST":
+        form = {
+            "name": request.form.get("name", "").strip(),
+            "email": request.form.get("email", "").strip(),
+            "phone": request.form.get("phone", "").strip(),
+            "subject": request.form.get("subject", "").strip(),
+            "message": request.form.get("message", "").strip(),
+        }
+        forwarding = request.headers.get("X-Forwarded-For", "") or request.remote_addr or ""
+        ip = forwarding.split(",")[0].strip()
+        subject = form["subject"] or "Website enquiry"
+
+        if request.form.get("website", "").strip():
+            # Honeypot field filled in: treat as a bot, but respond normally.
+            flash("Thank you. Your message has been received.")
+            return redirect(url_for("contact"))
+        if not form["name"] or not form["message"]:
+            flash("Please provide your name and a message.")
+        elif "@" not in form["email"] or "." not in form["email"].rsplit("@", 1)[-1]:
+            flash("Please provide a valid email address so the team can reply.")
+        elif recent_message_count(ip) >= CONTACT_RATE_LIMIT:
+            flash("You have already sent several messages. Please try again later, or call the office.")
+        else:
+            message_id = save_message(
+                form["name"], form["email"], form["phone"], subject, form["message"], ip
+            )
+            body = (
+                "New website enquiry — %s\n\n"
+                "Name:  %s\n"
+                "Email: %s\n"
+                "Phone: %s\n"
+                "Subject: %s\n\n"
+                "Message:\n%s\n\n"
+                "--\n"
+                "Sent from the contact form at %s\n"
+                "Reference: #%s\n"
+            ) % (
+                site.get("site_name", "ILA"),
+                form["name"],
+                form["email"],
+                form["phone"] or "—",
+                subject,
+                form["message"],
+                request.url_root.rstrip("/"),
+                message_id,
+            )
+            try:
+                status = send_notification_email(subject, body, reply_to=form["email"])
+            except Exception as error:  # never lose a submission because mail failed
+                status = "failed: %s" % error
+            set_message_status(message_id, mail_status=status)
+            if status == "sent":
+                flash("Thank you. Your message has been sent — our team will reply shortly.")
+            else:
+                flash("Thank you. Your message has been received and added to the office inbox.")
+            return redirect(url_for("contact"))
+    return render_template("contact.html", site=site, form=form, mail_ready=mail_configured())
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -793,7 +1043,8 @@ def admin_dashboard():
         site=site,
         values=site["values"],
         photo_slots=photo_slots(site),
-        admin_users=admin_users(site)
+        admin_users=admin_users(site),
+        unread_messages=unread_message_count()
     )
 
 

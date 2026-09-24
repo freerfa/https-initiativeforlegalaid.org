@@ -17,6 +17,14 @@ services:
         sync: false
       - key: DATA_DIR
         value: /opt/render/project/src/data
+      # Contact-form email notifications (optional — see deploy/EMAIL_SETUP.md).
+      # sync: false = set the real value in the Render dashboard, never in git.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_TO
+        sync: false
     disk:
       name: ila-data
       mountPath: /opt/render/project/src/data
