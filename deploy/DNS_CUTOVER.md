@@ -3,7 +3,40 @@
 # (srv-dakep4bm8hqs73ebt5t0)
 # ============================================================
 # CURRENT PLAN (decided 2026-09-23): initiative4legalaid.org (with "4")
+# >>> STATUS: CUTOVER COMPLETE — verified 2026-09-23, re-verified 2026-09-24 <<<
 # ============================================================
+# FINAL ZONE STATE at Hostinger for initiative4legalaid.org:
+#   A      @    -> 216.24.57.1                                       (Render)
+#   CNAME  www  -> https-initiativeforlegalaid-org-p51u.onrender.com
+#   MX / TXT / autodiscover / autoconfig -> untouched Hostinger defaults
+#
+# WHAT ACTUALLY HAPPENED (differed from the plan in STEP 1 below — the apex
+# was NOT on plain A records but on an ALIAS to Hostinger's CDN, which is why
+# the first edit looked applied yet the Hostinger placeholder kept serving):
+#   1. DELETED  ALIAS @ -> initiative4legalaid.org.cdn.hstgr.net   (the blocker)
+#   2. ADDED    A     @ -> 216.24.57.1
+#   3. DELETED  A     ftp -> 216.24.57.1   (Render IP first entered on the
+#               wrong record name; removed in cleanup)
+#   4. www CNAME was already correct — left as-is.
+#   5. Render -> Settings -> Custom Domains: both domains Verified; TLS
+#      certificate issued automatically.
+#
+# VERIFIED 2026-09-24 from public resolvers:
+#   dig @8.8.8.8 +short A initiative4legalaid.org          -> 216.24.57.1
+#   dig @8.8.8.8 +short CNAME www.initiative4legalaid.org  -> ...onrender.com.
+#   curl -L https://initiative4legalaid.org/               -> 200 (HTTP/2), apex kept
+#   <title>                                                -> Initiative for Legal Aid South Sudan
+#   TLS                                                    -> subject CN=initiative4legalaid.org,
+#                                                             issuer Google Trust Services (WE1),
+#                                                             notAfter 2026-12-22
+#
+# NOTE: the older "...-1.onrender.com" hostname in the notes below is
+# historical. The authoritative custom-domain target is
+# https-initiativeforlegalaid-org-p51u.onrender.com.
+#
+# STEPS 1-3 below are kept as the reference procedure for a re-cutover or a
+# move to another host; the ROLLBACK note still applies.
+#
 # Decision: the production domain is `initiative4legalaid.org`, registered at
 # HOSTINGER (hPanel). The historical plans further below for
 # `initiativeforlegalaid.org` (OraWebHost/Truehost) are kept as reference.

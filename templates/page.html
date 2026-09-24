@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="section custom-page">
-  <div class="container custom-page-inner">
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span aria-current="page">{{ page.title }}</span>
+    </nav>
     {% if page.image %}<img class="custom-page-image" src="{{ page.image }}" alt="{{ page.title }}" />{% endif %}
     <span class="eyebrow">{{ site.site_name }}</span>
     <h1>{{ page.title }}</h1>
+  </div>
+</section>
+
+<section class="section custom-page">
+  <div class="container custom-page-inner">
     <div class="custom-page-content">{{ page.content }}</div>
   </div>
 </section>

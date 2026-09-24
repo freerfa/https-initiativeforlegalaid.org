@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="section">
+<section class="page-hero">
   <div class="container">
-    <div class="heading-row">
-      <span class="eyebrow">Collaboration</span>
-      <h2>Partnerships</h2>
-    </div>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span aria-current="page">Partnerships</span>
+    </nav>
+    <span class="eyebrow">Collaboration</span>
+    <h1>Partnerships</h1>
     <p class="lead">ILA recognises that sustainable justice and development can only be achieved through effective collaboration.</p>
   </div>
 </section>
@@ -24,8 +27,8 @@
         <img src="/static/uploads/partner-unfpa.jpeg?v=2" alt="UNFPA logo" loading="lazy" />
       </div>
       <div class="partner-card-body">
-        <span class="eyebrow">Coordination partner</span>
-        <h3>UNFPA — GBV Workstream, South Sudan</h3>
+        <span class="badge">Coordination partner</span>
+        <h3>UNFPA<span class="name-muted"> — GBV Workstream, South Sudan</span></h3>
         <p>ILA works with UNFPA through the Gender-Based Violence (GBV) Workstream in South Sudan, part of the humanitarian Protection Cluster coordination system.</p>
         <h4>Areas of engagement</h4>
         <ul class="check-list">
@@ -41,10 +44,19 @@
         <img src="/static/uploads/partner-cesyu.jpeg?v=2" alt="Central Equatoria State Youth Union logo" loading="lazy" />
       </div>
       <div class="partner-card-body">
-        <span class="eyebrow">Partnership signing ceremony — 15 September 2026</span>
-        <h3>Central Equatoria State Youth Union (CESYU)</h3>
-        <p>&ldquo;Strengthening Youth Participation, Access to Justice, Human Rights and Inclusive Development&rdquo;</p>
-        <p><strong>Date:</strong> 15 September 2026, 9:00 AM – 12:00 PM<br /><strong>Location:</strong> Juba, South Sudan (venue to be confirmed)</p>
+        <span class="badge">Partnership signing ceremony — 15 September 2026</span>
+        <h3>Central Equatoria State Youth Union<span class="name-muted"> (CESYU)</span></h3>
+        <p class="quote-line">&ldquo;Strengthening Youth Participation, Access to Justice, Human Rights and Inclusive Development&rdquo;</p>
+        <ul class="partner-meta">
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 2v3"/><path d="M8 2v3"/><path d="M3 9h18"/><rect width="18" height="18" x="3" y="4" rx="2"/></svg>
+            <span>15 September 2026, 9:00 AM – 12:00 PM</span>
+          </li>
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Juba, South Sudan (venue to be confirmed)</span>
+          </li>
+        </ul>
         <h4>Partnership focus areas</h4>
         <ul class="check-list">
           <li>Legal awareness and access to justice</li>

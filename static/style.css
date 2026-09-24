@@ -1320,6 +1320,7 @@ textarea {
     align-items: stretch;
     flex-direction: column;
   }
+}
 
 /* ============ Responsive: auto-fit all screen sizes ============ */
 
@@ -1453,8 +1454,6 @@ img { overflow-wrap: anywhere; }
   .hero-grid { gap: 56px; }
   .card-grid { gap: 26px; }
 }
-}
-
 
 /* ===== Organisational profile page ===== */
 .fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 26px; }
@@ -1715,3 +1714,378 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); }
 @media (max-width: 768px) {
   .db-transfer-grid { grid-template-columns: 1fr; }
 }
+
+/* =====================================================================
+   ILA DIGITAL THEME (2026-09-24)
+   Design language adopted from paytack.co.ke/ila: navy + signal-blue +
+   antique-gold, Manrope display / Inter body, crisp bordered cards with
+   quiet shadows, gold rules, navy utility bar and footer.
+   Appended last so these rules win over the themes above.
+   ===================================================================== */
+:root {
+  /* Raw palette (paytack.co.ke/ila tokens) */
+  --navy: #0f2f5a;
+  --navy-deep: #0a2140;
+  --navy-ink: #172033;
+  --blue: #144b92;
+  --blue-hover: #103c75;
+  --gold: #af862c;
+  --gold-hover: #785b1d;
+  --gold-soft: #d9b768;
+  --light-blue: #eaf2fa;
+  --soft: #f7f9fc;
+  --cream: #f7f1e3;
+  --line: #d9e1ea;
+  --display: 'Manrope', 'Inter', sans-serif;
+
+  /* Token remap — every component rule above follows these */
+  --primary: #0f2f5a;
+  --secondary: #af862c;
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --text: #172033;
+  --muted: #5d6778;
+  --border: #d9e1ea;
+  --shadow: 0 1px 2px rgba(15, 47, 90, 0.05), 0 12px 28px rgba(15, 47, 90, 0.07);
+}
+
+/* --- Typography: Manrope display, Inter body --- */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+}
+h1, h2, h3, h4, h5, h6,
+.brand,
+.cta-banner h2,
+.auth-card h2,
+.admin-page-heading h1,
+.account-panel h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--navy);
+}
+h2 { font-size: clamp(1.65rem, 2.6vw, 2.15rem); line-height: 1.2; }
+h3 { font-size: 1.15rem; }
+.eyebrow {
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  font-weight: 800;
+}
+.lead { color: var(--muted); max-width: 780px; }
+.note { color: var(--muted); }
+.text-link { color: var(--blue); }
+.text-link:hover { color: var(--blue-hover); }
+.footer-motto { font-family: var(--display); font-style: italic; color: var(--gold-soft); }
+.check-list li::before { color: var(--blue); }
+.team-role { color: var(--blue); }
+.team-mail { color: var(--blue); }
+.hero-sub { color: var(--navy); }
+
+/* --- Utility bar: navy contact strip (target shows it on wide screens) --- */
+.utility-bar { display: none; background: var(--navy); color: #fff; }
+.utility-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 40px;
+  font-size: 0.8125rem;
+}
+.utility-contact { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.utility-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.78);
+}
+a.utility-item:hover { color: #fff; }
+.utility-item svg { color: var(--gold-soft); flex: none; }
+.utility-item-address { display: none; }
+.utility-links { display: flex; align-items: center; gap: 18px; }
+.utility-links a { color: rgba(255, 255, 255, 0.78); font-weight: 600; font-size: 0.8125rem; }
+.utility-links a:hover { color: var(--gold-soft); }
+@media (min-width: 768px) { .utility-bar { display: block; } }
+@media (min-width: 1360px) { .utility-item-address { display: inline-flex; } }
+
+/* --- Header: white, quiet shadow, blue hover --- */
+.topbar {
+  background: #ffffff;
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(15, 47, 90, 0.06);
+}
+.nav-wrap { min-height: 74px; }
+.brand {
+  font-size: 1.15rem;
+  color: var(--navy);
+  border-left: 3px solid var(--gold);
+  padding-left: 12px;
+  line-height: 1.2;
+}
+nav { font-weight: 600; font-size: 0.9375rem; }
+nav a { letter-spacing: 0; color: var(--text); }
+nav a:hover { color: var(--blue); }
+
+/* --- Buttons: rectangular, blue primary / outline secondary --- */
+.nav-button,
+.primary-btn,
+.secondary-btn {
+  border-radius: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  padding: 0.72rem 1.4rem;
+}
+.primary-btn { background: var(--blue); border: 1px solid var(--blue); color: #fff; }
+.primary-btn:hover { background: var(--blue-hover); border-color: var(--blue-hover); transform: none; }
+.secondary-btn { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
+.secondary-btn:hover { background: var(--light-blue); transform: none; }
+.nav-button { background: var(--blue); border: 1px solid var(--blue); }
+.nav-button:hover,
+.nav-button:focus-visible { background: var(--blue-hover); border-color: var(--blue-hover); box-shadow: none; }
+.login-button { border-radius: 8px; text-transform: none; letter-spacing: 0; }
+.primary-btn:focus-visible,
+.secondary-btn:focus-visible,
+.nav-button:focus-visible { outline: 3px solid rgba(175, 134, 44, 0.45); outline-offset: 2px; }
+.register-link,
+.auth-switch a { color: var(--blue); }
+
+/* --- Hero: soft blue wash, breadcrumb support --- */
+.hero {
+  background: linear-gradient(180deg, var(--light-blue) 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--line);
+  padding: 64px 0 56px;
+}
+.page-hero {
+  background: var(--soft);
+  border-bottom: 1px solid var(--line);
+  padding: 44px 0 48px;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.breadcrumb a { color: var(--blue); font-weight: 600; }
+.breadcrumb a:hover { color: var(--blue-hover); }
+.breadcrumb .crumb-sep { color: #b9c7d6; }
+.breadcrumb [aria-current='page'] { color: var(--navy); font-weight: 600; }
+.page-hero h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  line-height: 1.12;
+  color: var(--navy);
+  margin: 0 0 14px;
+}
+.page-hero .lead { font-size: 1.0625rem; }
+.hero-meta span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  padding: 6px 14px;
+}
+.heading-row { margin-bottom: 18px; }
+
+/* --- Badges / pills --- */
+.badge,
+.pill {
+  display: inline-block;
+  border: 1px solid #e6d7ac;
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--gold-hover);
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+/* --- Sections: white / soft alternates --- */
+.section { padding: 68px 0; }
+.muted,
+.section-alt { background: var(--soft); }
+.section-alt { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+/* --- Cards: crisp borders, small radius, quiet shadow --- */
+.info-card, .project-card, .testimonial-card, .mini-card, .stat-card,
+.partner-card, .team-card, .tag-item, .org-chain li, .duo-media figure,
+.auth-card, .admin-card, .account-panel, .caption-card, .flagship-media,
+.partner-strip-row, .fact-item, .reg-card, .admin-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 47, 90, 0.04);
+}
+.info-card,
+.project-card { border-top: 3px solid var(--gold); }
+.info-card img,
+.project-card img,
+.duo-media img,
+.duo-media figure { border-radius: 12px 12px 0 0; }
+.duo-media figure { overflow: hidden; }
+.stat-card strong { color: var(--navy); font-family: var(--display); }
+.team-card img { border: 1px solid var(--line); border-radius: 8px; }
+.org-chain li { border-left: 4px solid var(--gold); }
+.fact-item { border-top: 3px solid var(--gold); }
+.reg-card { border-top: 4px solid var(--navy); }
+.reg-number { color: var(--navy); }
+
+/* --- Partner cards: media panel + labelled sections (target style) --- */
+.partner-card { padding: 26px; align-items: start; }
+.partner-card-media {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  display: grid;
+  place-items: center;
+}
+.partner-card-media img { border-radius: 6px; }
+.partner-card-body h3 { font-size: 1.35rem; margin: 8px 0 10px; }
+.partner-card-body h3 .name-muted { color: var(--muted); font-weight: 600; }
+.partner-card-body h4 {
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--navy);
+}
+.quote-line {
+  margin: 14px 0 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--gold);
+  font-family: var(--display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--navy);
+}
+.partner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+.partner-meta li { display: inline-flex; align-items: center; gap: 8px; }
+.partner-meta svg { color: var(--gold); flex: none; }
+.justice-quote { font-family: var(--display); border-left: 4px solid var(--gold); border-radius: 0; }
+
+/* --- CTA banner: solid navy with gold rule --- */
+.cta-banner {
+  background: var(--navy);
+  border: none;
+  border-top: 4px solid var(--gold);
+  border-radius: 12px;
+  box-shadow: none;
+  color: #fff;
+}
+.cta-banner .eyebrow { color: var(--gold-soft); }
+.cta-banner h2 { color: #fff; }
+
+/* --- Footer: navy with gold rule --- */
+.site-footer {
+  background: var(--navy);
+  border-top: 4px solid var(--gold);
+  color: #fff;
+  padding: 54px 0 0;
+}
+.footer-grid { grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 34px; }
+.site-footer h3,
+.site-footer h4 {
+  font-family: var(--display);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+}
+.site-footer h3 { font-size: 0.95rem; text-transform: none; letter-spacing: 0; }
+.site-footer p,
+.site-footer li,
+.site-footer a { color: rgba(255, 255, 255, 0.78); }
+.site-footer a:hover { color: var(--gold-soft); }
+.footer-bottom {
+  margin-top: 40px;
+  padding: 18px 0 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+.footer-bottom .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.footer-bottom p { margin: 0; font-size: 0.82rem; color: rgba(255, 255, 255, 0.62); }
+.footer-reg { color: rgba(255, 255, 255, 0.55); letter-spacing: 0.02em; }
+
+/* --- Forms stay legible on the new palette --- */
+label, .form-group label { color: var(--navy); }
+input, textarea, select { border-radius: 8px; border-color: var(--line); }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--blue);
+  outline: 3px solid rgba(20, 75, 146, 0.15);
+  outline-offset: 0;
+}
+.flash-box > div {
+  background: var(--light-blue);
+  border: 1px solid #bcd3ea;
+  border-radius: 10px;
+  color: var(--blue-hover);
+}
+
+/* --- Responsive: footer columns + page hero --- */
+@media (max-width: 1024px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .page-hero { padding: 34px 0 38px; }
+  .hero { padding: 44px 0 40px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+  .site-footer { padding-top: 42px; }
+  .partner-card { padding: 20px 18px; }
+}
+
+/* --- Corner radii + display tracking follow-through --- */
+.hero-copy h1 { letter-spacing: -0.025em; }
+.hero-visual img { border-radius: 14px; box-shadow: var(--shadow); }
+.about-visual > img,
+.mission-photo img,
+.gallery-grid img,
+.custom-page-image { border-radius: 12px; }
+.value-box { border-radius: 12px; padding: 26px 24px; }
+.value-box li strong { color: var(--navy); }
+.flagship-media,
+.caption-card { border-radius: 12px; overflow: hidden; }
+.flagship-media img,
+.caption-card img { border-radius: 12px 12px 0 0; }
+.tag-item { padding: 12px 16px; }
+.tag-item:hover { border-color: var(--gold); }
+.stats-section { padding-bottom: 0; }
+.stat-card { border-top: 3px solid var(--gold); }
+.mission-card-row .mini-card { border-left: 3px solid var(--gold); }
+.admin-layout { background: var(--soft); }
+.admin-sidebar { background: var(--navy); border-radius: 12px; }
+.admin-kicker { color: var(--gold-soft); }
+.admin-card { border-radius: 12px; }
