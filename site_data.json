@@ -155,7 +155,7 @@
   "testimonials_title": "What People Say",
   "contact_address": "Customs Business Area, Along Main Highway, Opp Dr. John Garang Mausoleum, Juba, Central Equatoria State, Republic of South Sudan",
   "contact_phone": "+211 922 460 564 / +211 920 800 802",
-  "contact_email": "info@initiativeforlegalaid.org",
+  "contact_email": "info@initiative4legalaid.org",
   "gallery": [
     "/static/uploads/gallery-1.jpg",
     "/static/uploads/gallery-2.jpg",
@@ -186,7 +186,7 @@
       "role": "user"
     }
   ],
-  "seed_version": 6,
+  "seed_version": 7,
   "hero_motto": "Breaking Barriers. Building Justice.",
   "hero_status": "Independent National Non-Governmental Organization (NGO) \u00b7 Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",
