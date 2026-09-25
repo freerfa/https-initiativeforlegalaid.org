@@ -12,7 +12,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260924b') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260924c') }}" />
+    <script>
+      /* Set theme before first paint to avoid a light/dark flash. */
+      (function () {
+        try {
+          var t = localStorage.getItem('ila-theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+      })();
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -58,6 +70,7 @@
           <a href="/login" class="nav-button login-button" aria-label="Login or register" title="Login or register"><span class="login-icon" aria-hidden="true">↪</span><span>Login</span></a>
           {% endif %}
         </nav>
+        <button type="button" id="themeToggle" class="theme-toggle" aria-label="Switch to dark mode" title="Switch to dark mode"><span id="themeIcon" aria-hidden="true">🌙</span></button>
       </div>
     </header>
 
@@ -123,6 +136,27 @@
         }
         var y = document.getElementById('footer-year');
         if (y) { y.textContent = new Date().getFullYear(); }
+
+        /* Light/dark theme toggle — persists to localStorage, no flash on load. */
+        var btn = document.getElementById('themeToggle');
+        var icon = document.getElementById('themeIcon');
+        function syncTheme() {
+          var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (icon) icon.textContent = dark ? '☀️' : '🌙';
+          if (btn) {
+            btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+            btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+          }
+        }
+        syncTheme();
+        if (btn) {
+          btn.addEventListener('click', function () {
+            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('ila-theme', next); } catch (e) {}
+            syncTheme();
+          });
+        }
       })();
     </script>
   </body>

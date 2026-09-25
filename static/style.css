@@ -2183,3 +2183,200 @@ input:focus, textarea:focus, select:focus {
 @media (max-width: 768px) {
   .brand img { height: 38px; }
 }
+@media (max-width: 768px) {
+  .brand { justify-content: center; }
+}
+
+/* =====================================================================
+   DARK MODE (2026-09-24) — activated by <html data-theme="dark">
+   Strategy: remap the design tokens, then pin the surfaces that are
+   painted solid navy (footer/utility/CTA/sidebar) and the hardcoded
+   white cards/inputs so nothing goes invisible.
+   ===================================================================== */
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e1626;
+  --panel: #162033;
+  --text: #e9eef6;
+  --muted: #9da9bd;
+  --border: #2a3752;
+  --line: #2a3752;
+  --soft: #111a2c;
+  --cream: #2c2717;
+  --light-blue: #13233a;
+  --primary: #7db2f2;   /* text/accent roles only — see button pins below */
+  --blue: #7db2f2;
+  --blue-hover: #a6ccf7;
+  --navy: #9cc3f4;      /* text roles; solid-navy roles re-pinned below */
+  --gold: #d3a94f;
+  --gold-soft: #e7cc8b;
+  --gold-hover: #e7cc8b;
+  --secondary: #d3a94f;
+  --navy-deep: #0a1f3d;
+  --navy-ink: #dfe7f2;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+html[data-theme='dark'] body { background: var(--bg); color: var(--text); }
+
+/* Solid navy surfaces must stay dark (they carry white text) */
+html[data-theme='dark'] .utility-bar,
+html[data-theme='dark'] .cta-banner,
+html[data-theme='dark'] .site-footer,
+html[data-theme='dark'] .admin-sidebar { background: #0a1f3d; }
+
+/* Sticky header + mobile hamburger */
+html[data-theme='dark'] .topbar {
+  background: rgba(14, 22, 38, 0.96);
+  border-bottom-color: var(--line);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+html[data-theme='dark'] .nav-toggle {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+/* Hero washes: light-blue -> white becomes deep -> page bg */
+html[data-theme='dark'] .hero {
+  background: linear-gradient(180deg, #13233a 0%, var(--bg) 100%);
+  border-bottom-color: var(--line);
+}
+html[data-theme='dark'] .hero-meta span {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--muted);
+}
+html[data-theme='dark'] .page-hero,
+html[data-theme='dark'] .section-alt,
+html[data-theme='dark'] .muted { background: var(--soft); border-color: var(--line); }
+
+/* White cards -> panel (theme group + older one-off rules) */
+html[data-theme='dark'] .info-card, html[data-theme='dark'] .project-card,
+html[data-theme='dark'] .testimonial-card, html[data-theme='dark'] .mini-card,
+html[data-theme='dark'] .stat-card, html[data-theme='dark'] .partner-card,
+html[data-theme='dark'] .team-card, html[data-theme='dark'] .tag-item,
+html[data-theme='dark'] .org-chain li, html[data-theme='dark'] .duo-media figure,
+html[data-theme='dark'] .auth-card, html[data-theme='dark'] .admin-card,
+html[data-theme='dark'] .account-panel, html[data-theme='dark'] .caption-card,
+html[data-theme='dark'] .flagship-media, html[data-theme='dark'] .partner-strip-row,
+html[data-theme='dark'] .fact-item, html[data-theme='dark'] .reg-card,
+html[data-theme='dark'] .admin-panel, html[data-theme='dark'] .contact-card,
+html[data-theme='dark'] .contact-aside, html[data-theme='dark'] .content-row,
+html[data-theme='dark'] .creation-panel, html[data-theme='dark'] .photo-slot,
+html[data-theme='dark'] .photo-slot-preview, html[data-theme='dark'] .account-details div,
+html[data-theme='dark'] .member-page-link, html[data-theme='dark'] .member-page-link:hover,
+html[data-theme='dark'] .justice-quote, html[data-theme='dark'] .db-key,
+html[data-theme='dark'] .db-editor {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--text);
+}
+html[data-theme='dark'] .db-badge,
+html[data-theme='dark'] .pill,
+html[data-theme='dark'] .badge {
+  background: var(--cream);
+  border-color: #4a4026;
+  color: var(--gold-soft);
+}
+html[data-theme='dark'] .team-card img { background: var(--panel); border-color: var(--line); }
+html[data-theme='dark'] .admin-layout { background: var(--bg); }
+
+/* The border-color pin above flattened accent edges — restore them */
+html[data-theme='dark'] .info-card, html[data-theme='dark'] .project-card,
+html[data-theme='dark'] .fact-item, html[data-theme='dark'] .stat-card {
+  border-top-color: var(--gold);
+}
+html[data-theme='dark'] .reg-card { border-top-color: var(--blue); }
+html[data-theme='dark'] .org-chain li,
+html[data-theme='dark'] .mission-card-row .mini-card { border-left-color: var(--gold); }
+html[data-theme='dark'] .message-unread { border-left-color: var(--blue); }
+html[data-theme='dark'] .tag-item:hover { border-color: var(--gold); }
+
+/* Logo JPEG has a baked white background — round it into a plate */
+html[data-theme='dark'] .brand img { border-radius: 8px; }
+
+/* Forms: white fields -> panel */
+html[data-theme='dark'] input, html[data-theme='dark'] textarea,
+html[data-theme='dark'] select {
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--line);
+}
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder { color: var(--muted); opacity: 1; }
+html[data-theme='dark'] input:focus, html[data-theme='dark'] textarea:focus,
+html[data-theme='dark'] select:focus {
+  border-color: var(--blue);
+  outline: 3px solid rgba(125, 178, 242, 0.25);
+}
+html[data-theme='dark'] label, html[data-theme='dark'] .form-group label { color: var(--navy); }
+
+/* Solid-blue buttons keep white text (light blue would break contrast) */
+html[data-theme='dark'] .primary-btn,
+html[data-theme='dark'] .nav-button {
+  background: #2f6ed0;
+  border-color: #2f6ed0;
+  color: #fff;
+}
+html[data-theme='dark'] .primary-btn:hover,
+html[data-theme='dark'] .primary-btn:focus-visible,
+html[data-theme='dark'] .nav-button:hover,
+html[data-theme='dark'] .nav-button:focus-visible {
+  background: #265cb0;
+  border-color: #265cb0;
+  color: #fff;
+}
+html[data-theme='dark'] .secondary-btn {
+  background: transparent;
+  color: var(--blue);
+  border-color: var(--blue);
+}
+html[data-theme='dark'] .secondary-btn:hover { background: var(--light-blue); color: var(--blue-hover); }
+
+/* Flash + mail notices: soft tints -> dark tints */
+html[data-theme='dark'] .flash-box { background: transparent; border: none; color: var(--text); }
+html[data-theme='dark'] .flash-box > div {
+  background: #12351f;
+  border: 1px solid #2c5e3f;
+  color: #9fd9b4;
+}
+html[data-theme='dark'] .mail-status-on { background: #12351f; border-color: #2c5e3f; color: #9fd9b4; }
+html[data-theme='dark'] .mail-status-off { background: var(--cream); border-color: #4a4026; color: var(--gold-soft); }
+html[data-theme='dark'] .mail-status code { background: rgba(255, 255, 255, 0.09); color: var(--text); }
+
+/* Tables (registration + database browser) */
+html[data-theme='dark'] .reg-table th, html[data-theme='dark'] .reg-table td,
+html[data-theme='dark'] .db-table th, html[data-theme='dark'] .db-table td {
+  border-bottom-color: var(--line);
+  color: var(--text);
+}
+html[data-theme='dark'] .reg-table th,
+html[data-theme='dark'] .db-table thead th { color: var(--gold-soft); }
+html[data-theme='dark'] .db-table thead th { border-bottom-color: var(--border); }
+html[data-theme='dark'] .reg-table tr { border-bottom-color: var(--line); }
+
+/* Toggle button (styled in both themes) */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.theme-toggle:hover, .theme-toggle:focus-visible {
+  background: var(--light-blue);
+  border-color: var(--blue);
+  outline: none;
+}
+html[data-theme='dark'] .theme-toggle { background: var(--panel); border-color: var(--line); }
+html[data-theme='dark'] .theme-toggle:hover,
+html[data-theme='dark'] .theme-toggle:focus-visible { background: var(--light-blue); border-color: var(--blue); }
