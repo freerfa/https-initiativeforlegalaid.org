@@ -2355,22 +2355,30 @@ html[data-theme='dark'] .db-table thead th { color: var(--gold-soft); }
 html[data-theme='dark'] .db-table thead th { border-bottom-color: var(--border); }
 html[data-theme='dark'] .reg-table tr { border-bottom-color: var(--line); }
 
-/* Toggle button (styled in both themes) */
+/* Toggle button (fluid footprint; icon scales independently) */
 .theme-toggle {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  inline-size: clamp(2.125rem, 3.5vw, 2.75rem);
+  block-size: clamp(2.125rem, 3.5vw, 2.75rem);
   padding: 0;
-  border-radius: 8px;
+  border-radius: clamp(0.5rem, 1.5vw, 0.75rem);
   border: 1px solid var(--line);
   background: transparent;
   color: var(--text);
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
   line-height: 1;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+#themeIcon {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  font-size: inherit;
+  line-height: 1;
 }
 .theme-toggle:hover, .theme-toggle:focus-visible {
   background: var(--light-blue);
@@ -2380,3 +2388,18 @@ html[data-theme='dark'] .reg-table tr { border-bottom-color: var(--line); }
 html[data-theme='dark'] .theme-toggle { background: var(--panel); border-color: var(--line); }
 html[data-theme='dark'] .theme-toggle:hover,
 html[data-theme='dark'] .theme-toggle:focus-visible { background: var(--light-blue); border-color: var(--blue); }
+
+/* Keep both header controls together and fluid on compact screens. */
+@media (max-width: 768px) {
+  .nav-wrap {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .brand { grid-column: 1 / -1; grid-row: 1; }
+  .nav-toggle { grid-column: 1; grid-row: 2; margin: 0; }
+  .theme-toggle { grid-column: 2; grid-row: 2; }
+  #main-nav { grid-column: 1 / -1; grid-row: 3; }
+}
