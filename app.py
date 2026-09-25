@@ -1,14 +1,19 @@
+import fcntl
 import json
 import os
 import re
 import secrets
 import socket
 import sqlite3
+import subprocess
+import tempfile
+import threading
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
+
 import filetype
 
 from dotenv import load_dotenv
@@ -411,6 +416,160 @@ def photo_slots(site: Dict[str, Any]) -> List[Dict[str, str]]:
 
 # Keys the database manager shows as view-only; they are edited from their own sections.
 DB_PROTECTED_KEYS = frozenset({"admin_users", "users", "admin_account", "seed_version"})
+GIT_PRIVATE_KEYS = frozenset({"admin_users", "users", "admin_account"})
+GIT_CONTENT_COMMIT_LOCK = threading.Lock()
+GIT_CONTENT_LOCK_FILE = os.path.join(tempfile.gettempdir(), "ila-admin-git-content.lock")
+
+
+def _git_content_settings():
+    """Return opt-in Git publishing settings, with safe production defaults."""
+    config_value = os.environ.get("GIT_CONTENT_COMMIT", "").strip().lower()
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    return {
+        "enabled": config_value in {"1", "true", "yes", "on"} and bool(token),
+        "branch": os.environ.get("GIT_CONTENT_BRANCH", "main").strip() or "main",
+        "remote": os.environ.get("GIT_CONTENT_REMOTE", "origin").strip() or "origin",
+        "token": token,
+        "email": os.environ.get("GIT_CONTENT_EMAIL", "website@initiative4legalaid.org").strip(),
+    }
+
+
+def _changed_upload_paths(current: Dict[str, Any], previous: Dict[str, Any]) -> Tuple[List[str], List[str]]:
+    """Return upload paths referenced by changed content, validated under static/uploads."""
+    def values(value: Any) -> List[str]:
+        result: List[str] = []
+        if isinstance(value, str):
+            if value.startswith("/static/uploads/"):
+                result.append(value)
+        elif isinstance(value, dict):
+            for item in value.values():
+                result.extend(values(item))
+        elif isinstance(value, list):
+            for item in value:
+                result.extend(values(item))
+        return result
+
+    before = set(values(previous))
+    after = set(values(current))
+    added = sorted(after - before)
+    removed = sorted(before - after)
+    return added, removed
+
+
+def _git_content_diff(site: Dict[str, Any], previous: Dict[str, Any]) -> str:
+    labels = {
+        "hero": "homepage hero", "contact": "contact details", "services": "services",
+        "projects": "projects", "testimonials": "testimonials", "gallery": "gallery",
+        "leadership": "leadership", "partnerships": "partnerships", "pages": "custom pages",
+        "custom_sections": "custom sections", "impact": "impact information",
+        "accountability": "accountability information", "knowledge": "knowledge centre"
+    }
+    changed = [labels.get(key, key.replace("_", " ")) for key in site if site.get(key) != previous.get(key)]
+    return ", ".join(changed[:4]) or (", ".join(changed) if changed else "public site content")
+
+
+def git_content_commit(site: Dict[str, Any], actor: str = "admin") -> Optional[str]:
+    """Export public content and new public uploads, then commit/push when enabled."""
+    settings = _git_content_settings()
+    if not settings["enabled"]:
+        return None
+    repo_dir = os.path.dirname(SEED_FILE)
+    if not os.path.isdir(os.path.join(repo_dir, ".git")):
+        return "Content saved, but Git publishing is unavailable because the server repository is missing."
+
+    previous: Dict[str, Any] = {}
+    try:
+        with open(SEED_FILE, "r", encoding="utf-8") as handle:
+            previous = json.load(handle)
+    except (OSError, ValueError):
+        pass
+
+    # seed_version is safe and necessary in the tracked seed. Credentials and
+    # member accounts are never exported.
+    safe_site = {key: value for key, value in site.items() if key not in GIT_PRIVATE_KEYS}
+    added_uploads, _ = _changed_upload_paths(safe_site, previous)
+    upload_repo_paths: List[str] = []
+    upload_root = os.path.realpath(app.static_folder + "/uploads")
+    for url_path in added_uploads:
+        filename = os.path.basename(url_path)
+        absolute = os.path.realpath(os.path.join(upload_root, filename))
+        if os.path.commonpath([upload_root, absolute]) != upload_root or not os.path.isfile(absolute):
+            continue
+        upload_repo_paths.append("static/uploads/" + filename)
+
+    actor = re.sub(r"[\r\n]+", " ", actor or "admin").strip()[:80] or "admin"
+    commit_message = f"Content: update {_git_content_diff(safe_site, previous)}"
+    tracked_paths = [os.path.basename(SEED_FILE), *upload_repo_paths]
+
+    # Serialize within and across Gunicorn workers. SQLite has already been
+    # updated before this function is called, so Git failures never lose an edit.
+    with GIT_CONTENT_COMMIT_LOCK, open(GIT_CONTENT_LOCK_FILE, "a+", encoding="utf-8") as lock_file:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            temp_seed = SEED_FILE + ".admin.tmp"
+            with open(temp_seed, "w", encoding="utf-8") as handle:
+                json.dump(safe_site, handle, ensure_ascii=False, indent=2)
+                handle.write("\n")
+            os.replace(temp_seed, SEED_FILE)
+
+            def run_git(*args: str) -> subprocess.CompletedProcess:
+                return subprocess.run(
+                    ["git", *args], cwd=repo_dir, text=True, capture_output=True,
+                    timeout=30, check=False,
+                )
+
+            if run_git("add", "-f", "--", *tracked_paths).returncode != 0:
+                raise RuntimeError("could not stage the public content export")
+            staged = run_git("diff", "--cached", "--quiet", "--", *tracked_paths)
+            if staged.returncode not in (0, 1):
+                raise RuntimeError("could not inspect the public content export")
+
+            if staged.returncode == 1:
+                committed = run_git(
+                    "-c", f"user.name=ILA Admin ({actor})",
+                    "-c", f"user.email={settings['email']}",
+                    "commit", "--only", *tracked_paths, "-m", commit_message,
+                )
+                if committed.returncode != 0:
+                    detail = (committed.stderr or committed.stdout or "Git commit failed").strip()
+                    raise RuntimeError(detail[-300:])
+            commit_hash = run_git("rev-parse", "--short", "HEAD").stdout.strip()
+
+            push_env = os.environ.copy()
+            if settings["token"]:
+                # Keep the token out of command arguments and .git/config.
+                push_env["GIT_CONFIG_COUNT"] = "1"
+                push_env["GIT_CONFIG_KEY_0"] = "http.extraheader"
+                push_env["GIT_CONFIG_VALUE_0"] = "Authorization: Bearer " + settings["token"]
+            pushed = subprocess.run(
+                ["git", "push", "--porcelain", settings["remote"], f"HEAD:{settings['branch']}"],
+                cwd=repo_dir, env=push_env, text=True, capture_output=True,
+                timeout=45, check=False,
+            )
+            if pushed.returncode != 0:
+                detail = (pushed.stderr or pushed.stdout or "Git push failed").strip()
+                raise RuntimeError("content was committed locally, but not pushed: " + detail[-300:])
+            return f"Content saved and published in Git commit {commit_hash}."
+        except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+            return "Content saved, but Git publishing needs attention: " + str(exc)[:300]
+        finally:
+            try:
+                os.unlink(SEED_FILE + ".admin.tmp")
+            except OSError:
+                pass
+
+
+def publish_admin_content(data: Dict[str, Any], actor: str = "admin") -> Optional[str]:
+    """Persist a public admin edit, bump its seed version, then publish to Git."""
+    data["seed_version"] = int(data.get("seed_version", 0) or 0) + 1
+    save_data(data)
+    result = git_content_commit(data, actor)
+    if result:
+        flash(result)
+    return result
+
+
+
 
 # Sentinel for "key not present" (so a real null value is still editable).
 _MISSING = object()
@@ -597,7 +756,7 @@ def admin_database_update():
     except ValueError as exc:
         flash("Invalid JSON — nothing was saved. Error: %s" % exc)
         return redirect(url_for("admin_database", edit=key))
-    save_data(site)
+    publish_admin_content(site, session.get("username", "admin"))
     flash("Key '%s' has been updated." % key)
     return redirect(url_for("admin_database", edit=key))
 
@@ -619,7 +778,7 @@ def admin_database_add():
     except ValueError as exc:
         flash("Invalid JSON for the new key: %s" % exc)
         return redirect(url_for("admin_database"))
-    save_data(site)
+    publish_admin_content(site, session.get("username", "admin"))
     flash("Key '%s' has been added." % key)
     return redirect(url_for("admin_database", edit=key))
 
@@ -635,7 +794,7 @@ def admin_database_delete():
         flash("Key '%s' is protected and cannot be deleted." % key)
     else:
         del site[key]
-        save_data(site)
+        publish_admin_content(site, session.get("username", "admin"))
         flash("Key '%s' has been deleted." % key)
     return redirect(url_for("admin_database"))
 
@@ -675,7 +834,7 @@ def admin_database_import():
             continue
         site[key] = value
         applied += 1
-    save_data(site)
+    publish_admin_content(site, session.get("username", "admin"))
     flash("Import complete: %d keys applied. Accounts were preserved." % applied)
     return redirect(url_for("admin_database"))
 
@@ -692,7 +851,7 @@ def admin_database_reset():
         flash("Could not load the shipped defaults: %s" % exc)
         return redirect(url_for("admin_database"))
     seed_obj.update(kept)
-    save_data(seed_obj)
+    publish_admin_content(seed_obj, session.get("username", "admin"))
     flash("All content has been reset to the shipped defaults. Accounts were preserved.")
     return redirect(url_for("admin_database"))
 
@@ -1149,7 +1308,7 @@ def create_custom_section():
         return redirect(url_for("admin_dashboard", _anchor="custom-content"))
     image = handle_upload(request.files.get("image"), "")
     data.setdefault("custom_sections", []).append({"title": title, "text": text, "image": image})
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("Custom photo section created.")
     return redirect(url_for("admin_dashboard", _anchor="custom-content"))
 
@@ -1163,7 +1322,7 @@ def delete_custom_section(index: int):
     except IndexError:
         flash("That custom section could not be found.")
         return redirect(url_for("admin_dashboard", _anchor="custom-content"))
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("Custom section deleted.")
     return redirect(url_for("admin_dashboard", _anchor="custom-content"))
 
@@ -1179,7 +1338,7 @@ def create_page():
         return redirect(url_for("admin_dashboard", _anchor="custom-content"))
     image = handle_upload(request.files.get("image"), "")
     data.setdefault("pages", []).append({"title": title, "slug": unique_slug(data, title), "content": content, "image": image})
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("Page created successfully.")
     return redirect(url_for("admin_dashboard", _anchor="custom-content"))
 
@@ -1190,7 +1349,7 @@ def delete_page(slug: str):
     data = load_data()
     pages = data.setdefault("pages", [])
     data["pages"] = [page for page in pages if page.get("slug") != slug]
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("Page deleted.")
     return redirect(url_for("admin_dashboard", _anchor="custom-content"))
 
@@ -1210,7 +1369,7 @@ def update_photo(target: str):
     if not changed:
         flash("Choose a photo or enter a title before saving.")
         return redirect(url_for("admin_dashboard", _anchor="media"))
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("Photo details updated successfully.")
     return redirect(url_for("admin_dashboard", _anchor="media"))
 
@@ -1222,7 +1381,7 @@ def delete_photo(target: str):
     if not set_photo(data, target, ""):
         flash("That photo slot could not be found.")
         return redirect(url_for("admin_dashboard", _anchor="media"))
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("Photo removed successfully.")
     return redirect(url_for("admin_dashboard", _anchor="media"))
 
@@ -1307,7 +1466,7 @@ def update_site():
                     data.setdefault("gallery", [])
                     data["gallery"].append(image_path)
 
-    save_data(data)
+    publish_admin_content(data, session.get("username", "admin"))
     flash("The website content has been updated successfully.")
     return redirect(url_for("admin_dashboard"))
 

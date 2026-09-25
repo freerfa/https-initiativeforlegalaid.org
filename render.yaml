@@ -3,7 +3,8 @@ services:
     name: ila
     runtime: python
     buildCommand: pip install -r requirements.txt -r requirements-prod.txt
-    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app
+    # Git publishing can take longer than gunicorn's default 30-second timeout.
+    startCommand: gunicorn --timeout 120 -w 2 -b 0.0.0.0:$PORT app:app
     envVars:
       - key: FLASK_ENV
         value: production
@@ -17,6 +18,16 @@ services:
         sync: false
       - key: DATA_DIR
         value: /opt/render/project/src/data
+      # Requires GITHUB_TOKEN to be set in the Render dashboard; publishing stays
+      # inactive (without warnings) until that secret is configured.
+      - key: GIT_CONTENT_COMMIT
+        value: "1"
+      - key: GIT_CONTENT_BRANCH
+        value: main
+      - key: GIT_CONTENT_EMAIL
+        value: website@initiative4legalaid.org
+      - key: GITHUB_TOKEN
+        sync: false
       # Contact-form email notifications (optional — see deploy/EMAIL_SETUP.md).
       # sync: false = set the real value in the Render dashboard, never in git.
       - key: RESEND_API_KEY

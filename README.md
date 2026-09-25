@@ -26,5 +26,6 @@ Open http://127.0.0.1:5001/ · login http://127.0.0.1:5001/login · register htt
 
 - Set `SECRET_KEY` (≥32 random chars), real `ADMIN_*`, `FLASK_ENV=production`, never commit `.env`.
 - Serve with gunicorn/waitress behind Nginx/Apache + HTTPS for `https://initiativeforlegalaid.org/`, e.g. `gunicorn -w 3 -b 127.0.0.1:8000 app:app` proxied by Nginx.
+- To publish each public admin-panel content save to Git, set `GIT_CONTENT_COMMIT=1` and add a `GITHUB_TOKEN` secret in the Render service environment. The token needs **Contents: read and write** permission for this repository. Never put the token in Git or `.env`; without it, content saves remain database-only and no warning is shown.
 - Back up `site.db` (live data) regularly; see `PROJECT_HANDOFF.md` §7/§10.
 
