@@ -13,6 +13,7 @@ import urllib.request
 from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlsplit
 
 import filetype
 
@@ -410,6 +411,37 @@ def handle_upload(file, fallback_name: str) -> str:
 
     file.save(file_path)
     return f"/static/uploads/{filename}"
+
+
+def sanitize_image_src(value: str) -> str:
+    """Allow only safe <img> sources: site-absolute paths or http(s) URLs.
+
+    Admin-entered photo links are rendered into an img src, so anything that a
+    browser could treat as a script (javascript:, data:, vbscript:) or as a
+    protocol-relative/remote-relative host is rejected here rather than trusted.
+    """
+    text = (value or "").strip()
+    if not text or len(text) > 500:
+        return ""
+    parts = urlsplit(text)
+    if parts.scheme or parts.netloc:
+        if parts.scheme.lower() in {"http", "https"} and parts.netloc:
+            return text
+        return ""
+    # No scheme: must be a site-absolute path. "//host" is protocol-relative and
+    # is already rejected above, but keep the check explicit for clarity.
+    if not text.startswith("/") or text.startswith("//"):
+        return ""
+    if ".." in parts.path:
+        return ""
+    return text
+
+
+@app.template_filter("safe_image")
+def safe_image_filter(value: str) -> str:
+    """Sanitize at render time too, so values stored before this filter existed
+    (or written by any other path) cannot reach an <img src> unsanitized."""
+    return sanitize_image_src(value)
 
 
 def slugify(value: str) -> str:
@@ -1427,6 +1459,7 @@ def update_leadership():
     form = request.form
     existing = data.get("leadership_members") or []
     members = []
+    rows: List[Tuple[int, Dict[str, Any]]] = []
 
     # Collect every submitted row, including brand new ones added in the panel,
     # ordered by their index so the panel order is preserved.
@@ -1444,10 +1477,30 @@ def update_leadership():
                 entry[field] = form.get(key, "").strip()
         if entry.get("name"):
             members.append(entry)
+            rows.append((index, entry))
 
     if not members:
         flash("Leadership needs at least one member with a name.")
         return redirect(url_for("admin_dashboard", _anchor="leadership"))
+
+    # Photos may come from a file the admin chose or from a pasted link/path.
+    # The text is sanitized FIRST, so a rejected upload can only ever fall back
+    # to an already-safe value and never re-introduce raw admin input.
+    for index, member in rows:
+        requested = member.get("image", "")
+        member["image"] = sanitize_image_src(requested)
+        upload = request.files.get(f"member_{index}_photo")
+        if upload is not None and upload.filename:
+            # handle_upload flashes its own reason; an empty fallback means the
+            # file was refused, leaving the sanitized path/link in place.
+            saved = handle_upload(upload, "")
+            if saved:
+                member["image"] = saved
+        elif requested.strip() and not member["image"]:
+            flash(
+                f"That photo link for {member.get('name') or 'a team member'} was not a valid "
+                "image path or http(s) link, so it was not saved."
+            )
 
     data["leadership_members"] = members
     publish_admin_content(data, session.get("username", "admin"))

@@ -664,6 +664,49 @@ p {
   color: inherit;
 }
 
+.lead-photo-inputs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.lead-photo-inputs input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.lead-photo-preview {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  overflow: hidden;
+}
+
+.lead-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.leadership-editor-row .file-picker {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+
+.leadership-editor-row .file-picker input[type="file"] {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+}
+
 .media-preview-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

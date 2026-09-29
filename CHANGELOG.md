@@ -59,3 +59,14 @@
 2026-09-24 — Replaced the Executive Director’s leadership-page email with director@initiative4legalaid.org, including the mailto link. Files: templates/leadership.html. Verify: template render contains the new address; production /leadership serves the new address and no longer contains the old one.
 2026-09-24 — Leadership added to the admin panel: a new “Leadership” dashboard section and nav link let admins edit each leader’s name, role, credentials, email, and photo path. New POST /admin/leadership route is admin-only and CSRF-protected, saves through the existing database-first + optional Git-publishing flow, and rejects a submission with no named member. The public /leadership page now renders from the stored leadership_members list instead of hard-coded markup, keeping the same layout. Files: app.py, templates/admin_dashboard.html, templates/leadership.html, static/style.css, site_data.json (seed_version 8). Verify: Python compile and 16-template Jinja parse pass; isolated end-to-end test — public page renders seeded members, editor renders, save persists and removes a cleared member, CSRF-less POST 400, anonymous POST 400, empty-name validation message shown.
 2026-09-24 — Leadership editor can now add team members: an “Add team member” button inserts a blank row (client-side template clone) and the save route now collects every submitted member index instead of only the pre-existing rows, so brand new members persist and panel order is preserved. Row placeholders use %%INDEX%% so generated field names stay well-formed (member_<n>_name). Files: app.py, templates/admin_dashboard.html, static/style.css. Verify: Python compile + all templates parse; isolated test — added member saved in order and shown on /leadership, cleared name removes a member, empty submission rejected, CSRF-less POST 400, anonymous admin access 302; headless Chrome probe on the rendered dashboard — two clicks give 4 rows, labels 1-4, no duplicate field names.
+
+## 2026-09-29 - Leadership photo upload or link
+
+- Leadership editor now accepts a photo chosen from the admin's computer
+  (multipart upload) or a pasted path/URL, with a live preview for both.
+- Uploaded files reuse the existing validated image pipeline (extension
+  allow-list plus magic-byte sniffing, SVG rejected).
+- Photo values are sanitized on save and again at render time
+  (sanitize_image_src / safe_image filter) so only site-absolute paths or
+  http(s) URLs can reach an img src.
+- A rejected upload no longer falls back to the raw, unsanitized text field.

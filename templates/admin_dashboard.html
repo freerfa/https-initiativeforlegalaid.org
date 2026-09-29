@@ -220,7 +220,7 @@
           <div><span class="admin-kicker">10</span><h2>Leadership team</h2></div>
           <p>Manage the people shown on the public Leadership page. Use “Add team member” for a new person, or clear a name to remove a member.</p>
         </div>
-        <form method="post" action="/admin/leadership" id="leadership-form">
+        <form method="post" action="/admin/leadership" id="leadership-form" enctype="multipart/form-data">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="leadership-editor" id="leadership-rows">
             {% for member in site.leadership_members %}
@@ -231,7 +231,16 @@
                 <div class="form-group full-width"><label for="lead_role_{{ loop.index0 }}">Role</label><input id="lead_role_{{ loop.index0 }}" type="text" name="member_{{ loop.index0 }}_role" value="{{ member.role }}" /></div>
                 <div class="form-group"><label for="lead_cred_{{ loop.index0 }}">Credentials <small>optional</small></label><input id="lead_cred_{{ loop.index0 }}" type="text" name="member_{{ loop.index0 }}_credentials" value="{{ member.credentials }}" /></div>
                 <div class="form-group"><label for="lead_email_{{ loop.index0 }}">Email <small>optional</small></label><input id="lead_email_{{ loop.index0 }}" type="email" name="member_{{ loop.index0 }}_email" value="{{ member.email }}" /></div>
-                <div class="form-group full-width"><label for="lead_image_{{ loop.index0 }}">Photo path <small>file in static/uploads</small></label><input id="lead_image_{{ loop.index0 }}" type="text" name="member_{{ loop.index0 }}_image" value="{{ member.image }}" /></div>
+                <div class="form-group full-width">
+                  <label for="lead_image_{{ loop.index0 }}">Photo <small>choose a file or paste a link</small></label>
+                  <div class="lead-photo-inputs">
+                    <input id="lead_image_{{ loop.index0 }}" type="text" name="member_{{ loop.index0 }}_image" value="{{ member.image }}" placeholder="/static/uploads/photo.jpg or https://…" data-lead-photo-text />
+                    <span class="lead-photo-preview" data-lead-photo-preview>
+                      {% if member.image | safe_image %}<img src="{{ member.image | safe_image }}" alt="" />{% endif %}
+                    </span>
+                  </div>
+                  <label class="file-picker">Or choose a photo from your computer<input type="file" name="member_{{ loop.index0 }}_photo" accept="image/png,image/jpeg,image/gif,image/webp" data-lead-photo-file /></label>
+                </div>
               </div>
             </fieldset>
             {% endfor %}
@@ -244,7 +253,14 @@
                 <div class="form-group full-width"><label>Role</label><input type="text" name="member_%%INDEX%%_role" value="" /></div>
                 <div class="form-group"><label>Credentials <small>optional</small></label><input type="text" name="member_%%INDEX%%_credentials" value="" /></div>
                 <div class="form-group"><label>Email <small>optional</small></label><input type="email" name="member_%%INDEX%%_email" value="" /></div>
-                <div class="form-group full-width"><label>Photo path <small>file in static/uploads</small></label><input type="text" name="member_%%INDEX%%_image" value="" /></div>
+                <div class="form-group full-width">
+                  <label>Photo <small>choose a file or paste a link</small></label>
+                  <div class="lead-photo-inputs">
+                    <input type="text" name="member_%%INDEX%%_image" value="" placeholder="/static/uploads/photo.jpg or https://…" data-lead-photo-text />
+                    <span class="lead-photo-preview" data-lead-photo-preview></span>
+                  </div>
+                  <label class="file-picker">Or choose a photo from your computer<input type="file" name="member_%%INDEX%%_photo" accept="image/png,image/jpeg,image/gif,image/webp" data-lead-photo-file /></label>
+                </div>
               </div>
             </fieldset>
           </template>
@@ -320,6 +336,42 @@
         return max + 1;
       }
 
+      function bindPhotoPreview(row) {
+        var text = row.querySelector('[data-lead-photo-text]');
+        var file = row.querySelector('[data-lead-photo-file]');
+        var preview = row.querySelector('[data-lead-photo-preview]');
+        if (!text || !preview) { return; }
+        var objectUrl = '';
+
+        function render(src, isObjectUrl) {
+          preview.innerHTML = '';
+          if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = ''; }
+          if (!src) { return; }
+          var img = document.createElement('img');
+          img.src = src;
+          img.alt = '';
+          if (isObjectUrl) { objectUrl = src; }
+          img.onerror = function () { preview.innerHTML = ''; };
+          preview.appendChild(img);
+        }
+
+        text.addEventListener('input', function () { render(text.value.trim(), false); });
+
+        // A freshly picked file previews immediately; the real URL is only
+        // produced by the server after the form is submitted.
+        if (file) {
+          file.addEventListener('change', function () {
+            var chosen = file.files && file.files[0];
+            if (chosen) { render(URL.createObjectURL(chosen), true); }
+          });
+        }
+      }
+
+      function bindAllPhotoPreviews() {
+        var list = rows.querySelectorAll('.leadership-editor-row');
+        for (var i = 0; i < list.length; i++) { bindPhotoPreview(list[i]); }
+      }
+
       addButton.addEventListener('click', function () {
         var index = nextIndex();
         var html = rowTemplate.innerHTML.split('%%INDEX%%').join(String(index));
@@ -329,10 +381,12 @@
         if (!row) { return; }
         rows.appendChild(row);
         relabel();
-        var firstField = row.querySelector('input');
+        bindPhotoPreview(row);
+        var firstField = row.querySelector('input[type="text"]');
         if (firstField) { firstField.focus(); }
       });
 
+      bindAllPhotoPreviews();
       relabel();
     })();
   </script>

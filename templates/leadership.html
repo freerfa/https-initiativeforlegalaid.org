@@ -19,8 +19,9 @@
     <div class="team-grid">
       {% for member in site.leadership_members %}
       <article class="team-card">
-        {% if member.image %}
-        <img src="{{ member.image }}" alt="{{ member.name }}{% if member.role %}, {{ member.role }}{% endif %}" loading="lazy" />
+        {% set member_photo = member.image | safe_image %}
+        {% if member_photo %}
+        <img src="{{ member_photo }}" alt="{{ member.name }}{% if member.role %}, {{ member.role }}{% endif %}" loading="lazy" />
         {% endif %}
         <h3>{{ member.name }}</h3>
         {% if member.role %}<p class="team-role">{{ member.role }}</p>{% endif %}
