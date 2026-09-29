@@ -1900,6 +1900,34 @@ a.utility-item:hover { color: #fff; }
 /* Email and phone must never compress or wrap. */
 .utility-item:not(.utility-item-address) { flex: 0 0 auto; }
 .utility-item-address { display: none; flex: 1 1 auto; min-width: 0; }
+
+/* --- Address marquee: the full address scrolls instead of truncating --- */
+.utility-item .utility-marquee {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: clip; /* beats .utility-item > span; text scrolls, never ellipsis */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+}
+.utility-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: utility-marquee-scroll 34s linear infinite;
+  will-change: transform;
+}
+/* Equal padding on both copies keeps the -50% loop seamless. */
+.utility-marquee__text { padding-right: 3rem; white-space: nowrap; }
+@keyframes utility-marquee-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+/* WCAG 2.2.2: let visitors pause the motion by hovering or focusing. */
+.utility-item-address:hover .utility-marquee__track,
+.utility-item-address:focus-within .utility-marquee__track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .utility-marquee__track { animation: none; }
+}
 /* Socials stay rigid and hard-aligned to the right edge. */
 .utility-links {
   display: flex;

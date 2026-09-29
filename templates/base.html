@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260929a') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260929b') }}" />
     <script>
       /* Set theme before first paint to avoid a light/dark flash. */
       (function () {
@@ -33,7 +33,12 @@
           <div class="utility-contact">
             <span class="utility-item utility-item-address" title="{{ site.contact_address }}">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>{{ site.contact_address }}</span>
+              <span class="utility-marquee">
+                <span class="utility-marquee__track">
+                  <span class="utility-marquee__text">{{ site.contact_address }}</span>
+                  <span class="utility-marquee__text" aria-hidden="true">{{ site.contact_address }}</span>
+                </span>
+              </span>
             </span>
             <a class="utility-item" href="mailto:{{ site.contact_email }}">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>
