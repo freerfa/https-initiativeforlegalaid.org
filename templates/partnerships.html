@@ -22,51 +22,42 @@
     </div>
     <p class="lead">ILA builds and maintains strategic partnerships with national, regional and international stakeholders whose expertise and shared commitment strengthen South Sudan's justice and governance systems.</p>
 
+    {% for partner in site.partners %}
+    {% set partner_logo = partner.image | safe_image %}
     <div class="partner-card">
+      {% if partner_logo %}
       <div class="partner-card-media">
-        <img src="/static/uploads/partner-unfpa.jpeg?v=2" alt="UNFPA logo" loading="lazy" />
+        <img src="{{ partner_logo }}" alt="{{ partner.name }} logo" loading="lazy" />
       </div>
+      {% endif %}
       <div class="partner-card-body">
-        <span class="badge">Coordination partner</span>
-        <h3>UNFPA<span class="name-muted"> — GBV Workstream, South Sudan</span></h3>
-        <p>ILA works with UNFPA through the Gender-Based Violence (GBV) Workstream in South Sudan, part of the humanitarian Protection Cluster coordination system.</p>
-        <h4>Areas of engagement</h4>
-        <ul class="check-list">
-          <li>Gender-based violence (GBV) partner coordination</li>
-          <li>Protection Cluster partner training</li>
-          <li>Humanitarian activity reporting (5W)</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="partner-card">
-      <div class="partner-card-media">
-        <img src="/static/uploads/partner-cesyu.jpeg?v=2" alt="Central Equatoria State Youth Union logo" loading="lazy" />
-      </div>
-      <div class="partner-card-body">
-        <span class="badge">Partnership signing ceremony — 15 September 2026</span>
-        <h3>Central Equatoria State Youth Union<span class="name-muted"> (CESYU)</span></h3>
-        <p class="quote-line">&ldquo;Strengthening Youth Participation, Access to Justice, Human Rights and Inclusive Development&rdquo;</p>
+        {% if partner.badge %}<span class="badge">{{ partner.badge }}</span>{% endif %}
+        <h3>{{ partner.name }}{% if partner.name_note %}<span class="name-muted"> {{ partner.name_note }}</span>{% endif %}</h3>
+        {% if partner.description %}<p>{{ partner.description }}</p>{% endif %}
+        {% if partner.quote %}<p class="quote-line">&ldquo;{{ partner.quote }}&rdquo;</p>{% endif %}
+        {% if partner.meta %}
         <ul class="partner-meta">
+          {% for item in partner.meta %}
           <li>
+            {% if loop.first %}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 2v3"/><path d="M8 2v3"/><path d="M3 9h18"/><rect width="18" height="18" x="3" y="4" rx="2"/></svg>
-            <span>15 September 2026, 9:00 AM – 12:00 PM</span>
-          </li>
-          <li>
+            {% else %}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>Juba, South Sudan (venue to be confirmed)</span>
+            {% endif %}
+            <span>{{ item }}</span>
           </li>
+          {% endfor %}
         </ul>
-        <h4>Partnership focus areas</h4>
+        {% endif %}
+        {% if partner.focus %}
+        <h4>{{ partner.focus_heading or 'Areas of engagement' }}</h4>
         <ul class="check-list">
-          <li>Legal awareness and access to justice</li>
-          <li>Human rights protection</li>
-          <li>Youth empowerment and participation</li>
-          <li>Community engagement and peacebuilding</li>
-          <li>Referral mechanisms and support services</li>
+          {% for item in partner.focus %}<li>{{ item }}</li>{% endfor %}
         </ul>
+        {% endif %}
       </div>
     </div>
+    {% endfor %}
 
     <div class="duo-media">
       <figure>

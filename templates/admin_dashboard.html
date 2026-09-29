@@ -22,6 +22,7 @@
         <a href="#security">Security</a>
         <a href="#contact-details">Contact</a>
         <a href="#leadership">Leadership</a>
+        <a href="#partnerships">Partnerships</a>
       </nav>
       <a class="admin-logout" href="/admin/logout">Log out</a>
     </aside>
@@ -271,9 +272,75 @@
         </form>
       </section>
 
+      <section class="admin-card" id="partnerships">
+        <div class="admin-card-heading">
+          <div><span class="admin-kicker">11</span><h2>Partnerships</h2></div>
+          <p>Manage the partners shown on the public Partnerships page. Use &ldquo;Add partner&rdquo; for a new partner, or clear a name to remove one. List fields take one item per line.</p>
+        </div>
+        <form method="post" action="/admin/partners" id="partners-form" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div class="leadership-editor" id="partners-rows">
+            {% for partner in site.partners %}
+            <fieldset class="leadership-editor-row">
+              <legend>Partner <span class="leadership-row-label">{{ loop.index }}</span></legend>
+              <div class="admin-form-grid">
+                <div class="form-group"><label for="partner_name_{{ loop.index0 }}">Partner name</label><input id="partner_name_{{ loop.index0 }}" type="text" name="partner_{{ loop.index0 }}_name" value="{{ partner.name }}" /></div>
+                <div class="form-group"><label for="partner_note_{{ loop.index0 }}">Name note <small>optional, shown after the name</small></label><input id="partner_note_{{ loop.index0 }}" type="text" name="partner_{{ loop.index0 }}_name_note" value="{{ partner.name_note }}" /></div>
+                <div class="form-group full-width"><label for="partner_badge_{{ loop.index0 }}">Badge <small>optional, shown above the name</small></label><input id="partner_badge_{{ loop.index0 }}" type="text" name="partner_{{ loop.index0 }}_badge" value="{{ partner.badge }}" /></div>
+                <div class="form-group full-width"><label for="partner_desc_{{ loop.index0 }}">Description <small>optional</small></label><textarea id="partner_desc_{{ loop.index0 }}" name="partner_{{ loop.index0 }}_description" rows="3">{{ partner.description }}</textarea></div>
+                <div class="form-group full-width"><label for="partner_quote_{{ loop.index0 }}">Quote <small>optional, shown in italics with quote marks</small></label><textarea id="partner_quote_{{ loop.index0 }}" name="partner_{{ loop.index0 }}_quote" rows="2">{{ partner.quote }}</textarea></div>
+                <div class="form-group"><label for="partner_meta_{{ loop.index0 }}">Date and location <small>optional, one per line</small></label><textarea id="partner_meta_{{ loop.index0 }}" name="partner_{{ loop.index0 }}_meta" rows="3" placeholder="15 September 2026, 9:00 AM&#10;Juba, South Sudan">{% for item in partner.meta %}{{ item }}
+{% endfor %}</textarea></div>
+                <div class="form-group"><label for="partner_focus_heading_{{ loop.index0 }}">Focus heading <small>optional</small></label><input id="partner_focus_heading_{{ loop.index0 }}" type="text" name="partner_{{ loop.index0 }}_focus_heading" value="{{ partner.focus_heading }}" placeholder="Areas of engagement" /></div>
+                <div class="form-group full-width"><label for="partner_focus_{{ loop.index0 }}">Focus areas <small>one per line</small></label><textarea id="partner_focus_{{ loop.index0 }}" name="partner_{{ loop.index0 }}_focus" rows="4">{% for item in partner.focus %}{{ item }}
+{% endfor %}</textarea></div>
+                <div class="form-group full-width">
+                  <label for="partner_image_{{ loop.index0 }}">Logo <small>choose a file or paste a link</small></label>
+                  <div class="lead-photo-inputs">
+                    <input id="partner_image_{{ loop.index0 }}" type="text" name="partner_{{ loop.index0 }}_image" value="{{ partner.image }}" placeholder="/static/uploads/logo.jpg or https://…" data-lead-photo-text />
+                    <span class="lead-photo-preview" data-lead-photo-preview>
+                      {% if partner.image | safe_image %}<img src="{{ partner.image | safe_image }}" alt="" />{% endif %}
+                    </span>
+                  </div>
+                  <label class="file-picker">Or choose a logo from your computer<input type="file" name="partner_{{ loop.index0 }}_photo" accept="image/png,image/jpeg,image/gif,image/webp" data-lead-photo-file /></label>
+                </div>
+              </div>
+            </fieldset>
+            {% endfor %}
+          </div>
+          <template id="partner-row-template">
+            <fieldset class="leadership-editor-row">
+              <legend>Partner <span class="leadership-row-label"></span></legend>
+              <div class="admin-form-grid">
+                <div class="form-group"><label>Partner name</label><input type="text" name="partner_%%INDEX%%_name" value="" /></div>
+                <div class="form-group"><label>Name note <small>optional, shown after the name</small></label><input type="text" name="partner_%%INDEX%%_name_note" value="" /></div>
+                <div class="form-group full-width"><label>Badge <small>optional, shown above the name</small></label><input type="text" name="partner_%%INDEX%%_badge" value="" /></div>
+                <div class="form-group full-width"><label>Description <small>optional</small></label><textarea name="partner_%%INDEX%%_description" rows="3"></textarea></div>
+                <div class="form-group full-width"><label>Quote <small>optional, shown in italics with quote marks</small></label><textarea name="partner_%%INDEX%%_quote" rows="2"></textarea></div>
+                <div class="form-group"><label>Date and location <small>optional, one per line</small></label><textarea name="partner_%%INDEX%%_meta" rows="3" placeholder="15 September 2026, 9:00 AM&#10;Juba, South Sudan"></textarea></div>
+                <div class="form-group"><label>Focus heading <small>optional</small></label><input type="text" name="partner_%%INDEX%%_focus_heading" value="" placeholder="Areas of engagement" /></div>
+                <div class="form-group full-width"><label>Focus areas <small>one per line</small></label><textarea name="partner_%%INDEX%%_focus" rows="4"></textarea></div>
+                <div class="form-group full-width">
+                  <label>Logo <small>choose a file or paste a link</small></label>
+                  <div class="lead-photo-inputs">
+                    <input type="text" name="partner_%%INDEX%%_image" value="" placeholder="/static/uploads/logo.jpg or https://…" data-lead-photo-text />
+                    <span class="lead-photo-preview" data-lead-photo-preview></span>
+                  </div>
+                  <label class="file-picker">Or choose a logo from your computer<input type="file" name="partner_%%INDEX%%_photo" accept="image/png,image/jpeg,image/gif,image/webp" data-lead-photo-file /></label>
+                </div>
+              </div>
+            </fieldset>
+          </template>
+          <div class="leadership-editor-actions">
+            <button type="button" class="secondary-btn" id="partners-add">Add partner</button>
+            <button type="submit" class="primary-btn">Save partnerships</button>
+          </div>
+        </form>
+      </section>
+
       <section class="admin-card" id="security">
         <div class="admin-card-heading">
-          <div><span class="admin-kicker">11</span><h2>Admin account</h2></div>
+          <div><span class="admin-kicker">12</span><h2>Admin account</h2></div>
           <p>Change the username or password used to access this panel.</p>
         </div>
         <form method="post" action="/admin/account">
@@ -313,81 +380,103 @@
   </div>
   <script>
     (function () {
-      var addButton = document.getElementById('leadership-add');
-      var rowTemplate = document.getElementById('leadership-row-template');
-      var rows = document.getElementById('leadership-rows');
-      if (!addButton || !rowTemplate || !rows) { return; }
+      // Both the Leadership and Partnerships editors are the same repeating-row
+      // pattern, differing only in their field-name prefix, so one
+      // implementation drives them both.
+      function setupRowEditor(config) {
+        var addButton = document.getElementById(config.addButtonId);
+        var rowTemplate = document.getElementById(config.templateId);
+        var rows = document.getElementById(config.rowsId);
+        if (!addButton || !rowTemplate || !rows) { return; }
 
-      function relabel() {
-        var all = rows.querySelectorAll('.leadership-editor-row');
-        for (var i = 0; i < all.length; i++) {
-          var label = all[i].querySelector('.leadership-row-label');
-          if (label) { label.textContent = String(i + 1); }
-        }
-      }
+        var namePattern = new RegExp('^' + config.prefix + '(\\d+)_');
 
-      function nextIndex() {
-        var max = -1;
-        var inputs = rows.querySelectorAll('input[name^="member_"]');
-        for (var i = 0; i < inputs.length; i++) {
-          var match = /^member_(\d+)_/.exec(inputs[i].name);
-          if (match) { max = Math.max(max, parseInt(match[1], 10)); }
-        }
-        return max + 1;
-      }
-
-      function bindPhotoPreview(row) {
-        var text = row.querySelector('[data-lead-photo-text]');
-        var file = row.querySelector('[data-lead-photo-file]');
-        var preview = row.querySelector('[data-lead-photo-preview]');
-        if (!text || !preview) { return; }
-        var objectUrl = '';
-
-        function render(src, isObjectUrl) {
-          preview.innerHTML = '';
-          if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = ''; }
-          if (!src) { return; }
-          var img = document.createElement('img');
-          img.src = src;
-          img.alt = '';
-          if (isObjectUrl) { objectUrl = src; }
-          img.onerror = function () { preview.innerHTML = ''; };
-          preview.appendChild(img);
+        function relabel() {
+          var all = rows.querySelectorAll('.leadership-editor-row');
+          for (var i = 0; i < all.length; i++) {
+            var label = all[i].querySelector('.leadership-row-label');
+            if (label) { label.textContent = String(i + 1); }
+          }
         }
 
-        text.addEventListener('input', function () { render(text.value.trim(), false); });
-
-        // A freshly picked file previews immediately; the real URL is only
-        // produced by the server after the form is submitted.
-        if (file) {
-          file.addEventListener('change', function () {
-            var chosen = file.files && file.files[0];
-            if (chosen) { render(URL.createObjectURL(chosen), true); }
-          });
+        function nextIndex() {
+          var max = -1;
+          // Match any element carrying the prefix, not just inputs, so rows
+          // whose first field is a textarea (Partnerships) still count.
+          var fields = rows.querySelectorAll('[name^="' + config.prefix + '"]');
+          for (var i = 0; i < fields.length; i++) {
+            var match = namePattern.exec(fields[i].name);
+            if (match) { max = Math.max(max, parseInt(match[1], 10)); }
+          }
+          return max + 1;
         }
-      }
 
-      function bindAllPhotoPreviews() {
-        var list = rows.querySelectorAll('.leadership-editor-row');
-        for (var i = 0; i < list.length; i++) { bindPhotoPreview(list[i]); }
-      }
+        function bindPhotoPreview(row) {
+          var text = row.querySelector('[data-lead-photo-text]');
+          var file = row.querySelector('[data-lead-photo-file]');
+          var preview = row.querySelector('[data-lead-photo-preview]');
+          if (!text || !preview) { return; }
+          var objectUrl = '';
 
-      addButton.addEventListener('click', function () {
-        var index = nextIndex();
-        var html = rowTemplate.innerHTML.split('%%INDEX%%').join(String(index));
-        var holder = document.createElement('div');
-        holder.innerHTML = html.trim();
-        var row = holder.firstElementChild;
-        if (!row) { return; }
-        rows.appendChild(row);
+          function render(src, isObjectUrl) {
+            preview.innerHTML = '';
+            if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = ''; }
+            if (!src) { return; }
+            var img = document.createElement('img');
+            img.src = src;
+            img.alt = '';
+            if (isObjectUrl) { objectUrl = src; }
+            img.onerror = function () { preview.innerHTML = ''; };
+            preview.appendChild(img);
+          }
+
+          text.addEventListener('input', function () { render(text.value.trim(), false); });
+
+          // A freshly picked file previews immediately; the real URL is only
+          // produced by the server after the form is submitted.
+          if (file) {
+            file.addEventListener('change', function () {
+              var chosen = file.files && file.files[0];
+              if (chosen) { render(URL.createObjectURL(chosen), true); }
+            });
+          }
+        }
+
+        function bindAllPhotoPreviews() {
+          var list = rows.querySelectorAll('.leadership-editor-row');
+          for (var i = 0; i < list.length; i++) { bindPhotoPreview(list[i]); }
+        }
+
+        addButton.addEventListener('click', function () {
+          var index = nextIndex();
+          var html = rowTemplate.innerHTML.split('%%INDEX%%').join(String(index));
+          var holder = document.createElement('div');
+          holder.innerHTML = html.trim();
+          var row = holder.firstElementChild;
+          if (!row) { return; }
+          rows.appendChild(row);
+          relabel();
+          bindPhotoPreview(row);
+          var firstField = row.querySelector('input[type="text"]');
+          if (firstField) { firstField.focus(); }
+        });
+
+        bindAllPhotoPreviews();
         relabel();
-        bindPhotoPreview(row);
-        var firstField = row.querySelector('input[type="text"]');
-        if (firstField) { firstField.focus(); }
-      });
+      }
 
-      bindAllPhotoPreviews();
-      relabel();
+      setupRowEditor({
+        addButtonId: 'leadership-add',
+        templateId: 'leadership-row-template',
+        rowsId: 'leadership-rows',
+        prefix: 'member_'
+      });
+      setupRowEditor({
+        addButtonId: 'partners-add',
+        templateId: 'partner-row-template',
+        rowsId: 'partners-rows',
+        prefix: 'partner_'
+      });
     })();
   </script>
 </section>

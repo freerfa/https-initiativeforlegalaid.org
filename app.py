@@ -183,6 +183,9 @@ def load_data() -> Dict[str, Any]:
     for index, item in enumerate(defaults.get("projects", [])):
         if "image" not in item and len(gallery) > index + 3:
             item["image"] = gallery[index + 3]
+    # Partners may predate this key or be hand-edited, so normalize on read
+    # rather than trusting the stored shape.
+    defaults["partners"] = normalize_partners(defaults.get("partners"))
     return defaults
 
 
@@ -303,10 +306,78 @@ def default_site_data() -> Dict[str, Any]:
                 "image": "/static/uploads/leadership-protection.jpeg?v=3"
             }
         ],
+        "partners": [
+            {
+                "name": "UNFPA",
+                "name_note": "— GBV Workstream, South Sudan",
+                "badge": "Coordination partner",
+                "image": "/static/uploads/partner-unfpa.jpeg?v=2",
+                "description": "ILA works with UNFPA through the Gender-Based Violence (GBV) Workstream in South Sudan, part of the humanitarian Protection Cluster coordination system.",
+                "quote": "",
+                "meta": [],
+                "focus_heading": "Areas of engagement",
+                "focus": [
+                    "Gender-based violence (GBV) partner coordination",
+                    "Protection Cluster partner training",
+                    "Humanitarian activity reporting (5W)"
+                ]
+            },
+            {
+                "name": "Central Equatoria State Youth Union",
+                "name_note": "(CESYU)",
+                "badge": "Partnership signing ceremony — 15 September 2026",
+                "image": "/static/uploads/partner-cesyu.jpeg?v=2",
+                "description": "",
+                "quote": "Strengthening Youth Participation, Access to Justice, Human Rights and Inclusive Development",
+                "meta": [
+                    "15 September 2026, 9:00 AM – 12:00 PM",
+                    "Juba, South Sudan (venue to be confirmed)"
+                ],
+                "focus_heading": "Partnership focus areas",
+                "focus": [
+                    "Legal awareness and access to justice",
+                    "Human rights protection",
+                    "Youth empowerment and participation",
+                    "Community engagement and peacebuilding",
+                    "Referral mechanisms and support services"
+                ]
+            }
+        ],
         "admin_account": {},
         "admin_users": [],
         "users": []
     }
+
+
+PARTNER_FIELDS = ("name", "name_note", "badge", "image", "description", "quote", "focus_heading")
+PARTNER_LIST_FIELDS = ("meta", "focus")
+
+
+def normalize_partners(value: Any) -> List[Dict[str, Any]]:
+    """Coerce stored partner records into the full shape the template expects.
+
+    Partners are stored as a list of dicts, so a hand-edited or partially
+    written record could be missing keys or carry the wrong type. The public
+    template must be able to rely on every field existing.
+    """
+    if not isinstance(value, list):
+        return []
+    partners = []
+    for raw in value:
+        if not isinstance(raw, dict):
+            continue
+        partner = {field: str(raw.get(field, "") or "").strip() for field in PARTNER_FIELDS}
+        for field in PARTNER_LIST_FIELDS:
+            items = raw.get(field)
+            partner[field] = [str(item).strip() for item in items if str(item).strip()] if isinstance(items, list) else []
+        if partner["name"]:
+            partners.append(partner)
+    return partners
+
+
+def parse_lines(value: str) -> List[str]:
+    """Split an admin textarea into a clean list, one item per non-blank line."""
+    return [line.strip() for line in (value or "").splitlines() if line.strip()]
 
 
 def parse_entries(value: str) -> List[Dict[str, str]]:
@@ -1506,6 +1577,68 @@ def update_leadership():
     publish_admin_content(data, session.get("username", "admin"))
     flash("The leadership team has been updated successfully.")
     return redirect(url_for("admin_dashboard", _anchor="leadership"))
+
+
+@app.route("/admin/partners", methods=["POST"])
+@login_required
+def update_partners():
+    """Update the Partnerships page partner cards from the admin panel."""
+    data = load_data()
+    form = request.form
+    existing = data.get("partners") or []
+    partners = []
+    rows: List[Tuple[int, Dict[str, Any]]] = []
+
+    # Collect every submitted row, including brand new ones added in the panel,
+    # ordered by index so the panel order is preserved.
+    indices = set()
+    for key in form:
+        match = re.match(r"^partner_(\d+)_name$", key)
+        if match:
+            indices.add(int(match.group(1)))
+
+    for index in sorted(indices):
+        entry = dict(existing[index]) if index < len(existing) else {}
+        for field in PARTNER_FIELDS:
+            key = f"partner_{index}_{field}"
+            if key in form:
+                entry[field] = form.get(key, "").strip()
+        # Lists are edited as one item per line, matching the page's bullet lists.
+        for field in PARTNER_LIST_FIELDS:
+            key = f"partner_{index}_{field}"
+            if key in form:
+                entry[field] = parse_lines(form.get(key, ""))
+        if entry.get("name"):
+            partners.append(entry)
+            rows.append((index, entry))
+
+    if not partners:
+        flash("Partnerships needs at least one partner with a name.")
+        return redirect(url_for("admin_dashboard", _anchor="partnerships"))
+
+    # Photos may come from a file the admin chose or from a pasted link/path.
+    # The text is sanitized FIRST, so a rejected upload can only ever fall back
+    # to an already-safe value and never re-introduce raw admin input.
+    for index, partner in rows:
+        requested = partner.get("image", "")
+        partner["image"] = sanitize_image_src(requested)
+        upload = request.files.get(f"partner_{index}_photo")
+        if upload is not None and upload.filename:
+            # handle_upload flashes its own reason; an empty fallback means the
+            # file was refused, leaving the sanitized path/link in place.
+            saved = handle_upload(upload, "")
+            if saved:
+                partner["image"] = saved
+        elif requested.strip() and not partner["image"]:
+            flash(
+                f"That logo link for {partner.get('name') or 'a partner'} was not a valid "
+                "image path or http(s) link, so it was not saved."
+            )
+
+    data["partners"] = normalize_partners(partners)
+    publish_admin_content(data, session.get("username", "admin"))
+    flash("The partnerships list has been updated successfully.")
+    return redirect(url_for("admin_dashboard", _anchor="partnerships"))
 
 
 @app.route("/admin/update", methods=["POST"])

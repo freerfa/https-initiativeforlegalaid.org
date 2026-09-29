@@ -70,3 +70,17 @@
   (sanitize_image_src / safe_image filter) so only site-absolute paths or
   http(s) URLs can reach an img src.
 - A rejected upload no longer falls back to the raw, unsanitized text field.
+
+## 2026-09-24 — Partnerships managed from the admin panel
+
+Partner cards on the public Partnerships page are now editable in the admin
+panel (section 11, "Partnerships"), matching the Leadership editor:
+
+- Per partner: name, name note, badge, description, quote, date/location lines,
+  focus heading, focus areas, and a logo.
+- "Add partner" appends a row; clearing a name removes that partner.
+- Logos accept either a file chosen from the computer or a pasted path/URL.
+- Partners are normalized on read so templates can rely on every field existing.
+
+Notes: `partners` was added to the seed defaults, so the existing UNFPA and
+CESYU cards render unchanged on first load of the new build.
