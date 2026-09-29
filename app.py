@@ -272,6 +272,36 @@ def default_site_data() -> Dict[str, Any]:
         "cta_title": "Speak with our team today.",
         "custom_sections": [],
         "pages": [],
+        "leadership_members": [
+            {
+                "name": "Emmanuel Sumagule Benaih Swaka",
+                "role": "Executive Director | Advocate",
+                "credentials": "LL.M, L.P (RLA), LL.B",
+                "email": "director@initiative4legalaid.org",
+                "image": "/static/uploads/leadership-emmanuel.jpeg?v=3"
+            },
+            {
+                "name": "Nicodemus Arkangelo Philip",
+                "role": "Head of Legal Aid Services | Advocate",
+                "credentials": "LL.M in Human Rights — Pursuing",
+                "email": "nicodemus@initiativeforlegalaid.org",
+                "image": "/static/uploads/leadership-nicodemus.jpeg?v=3"
+            },
+            {
+                "name": "Modi Geofrey",
+                "role": "Programs Manager | Lawyer, Researcher & Corporate Legal Practitioner",
+                "credentials": "LL.B",
+                "email": "modi@initiativeforlegalaid.org",
+                "image": "/static/uploads/leadership-modi.jpeg?v=3"
+            },
+            {
+                "name": "Protection Coordinator",
+                "role": "Name to be confirmed",
+                "credentials": "",
+                "email": "",
+                "image": "/static/uploads/leadership-protection.jpeg?v=3"
+            }
+        ],
         "admin_account": {},
         "admin_users": [],
         "users": []
@@ -1384,6 +1414,37 @@ def delete_photo(target: str):
     publish_admin_content(data, session.get("username", "admin"))
     flash("Photo removed successfully.")
     return redirect(url_for("admin_dashboard", _anchor="media"))
+
+
+LEADERSHIP_FIELDS = ("name", "role", "credentials", "email", "image")
+
+
+@app.route("/admin/leadership", methods=["POST"])
+@login_required
+def update_leadership():
+    """Update the Leadership page team members from the admin panel."""
+    data = load_data()
+    form = request.form
+    existing = data.get("leadership_members") or []
+    members = []
+
+    for index in range(len(existing)):
+        entry = dict(existing[index])
+        for field in LEADERSHIP_FIELDS:
+            key = f"member_{index}_{field}"
+            if key in form:
+                entry[field] = form.get(key, "").strip()
+        if entry.get("name"):
+            members.append(entry)
+
+    if not members:
+        flash("Leadership needs at least one member with a name.")
+        return redirect(url_for("admin_dashboard", _anchor="leadership"))
+
+    data["leadership_members"] = members
+    publish_admin_content(data, session.get("username", "admin"))
+    flash("The leadership team has been updated successfully.")
+    return redirect(url_for("admin_dashboard", _anchor="leadership"))
 
 
 @app.route("/admin/update", methods=["POST"])

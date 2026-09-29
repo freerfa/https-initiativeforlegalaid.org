@@ -17,32 +17,19 @@
 <section class="section">
   <div class="container">
     <div class="team-grid">
+      {% for member in site.leadership_members %}
       <article class="team-card">
-        <img src="/static/uploads/leadership-emmanuel.jpeg?v=3" alt="Emmanuel Sumagule Benaih Swaka, Executive Director" loading="lazy" />
-        <h3>Emmanuel Sumagule Benaih Swaka</h3>
-        <p class="team-role">Executive Director | Advocate</p>
-        <p class="team-cred">LL.M, L.P (RLA), LL.B</p>
-        <a class="team-mail" href="mailto:director@initiative4legalaid.org">director@initiative4legalaid.org</a>
+        {% if member.image %}
+        <img src="{{ member.image }}" alt="{{ member.name }}{% if member.role %}, {{ member.role }}{% endif %}" loading="lazy" />
+        {% endif %}
+        <h3>{{ member.name }}</h3>
+        {% if member.role %}<p class="team-role">{{ member.role }}</p>{% endif %}
+        {% if member.credentials %}<p class="team-cred">{{ member.credentials }}</p>{% endif %}
+        {% if member.email %}
+        <a class="team-mail" href="mailto:{{ member.email }}">{{ member.email }}</a>
+        {% endif %}
       </article>
-      <article class="team-card">
-        <img src="/static/uploads/leadership-nicodemus.jpeg?v=3" alt="Nicodemus Arkangelo Philip, Head of Legal Aid Services" loading="lazy" />
-        <h3>Nicodemus Arkangelo Philip</h3>
-        <p class="team-role">Head of Legal Aid Services | Advocate</p>
-        <p class="team-cred">LL.M in Human Rights — Pursuing</p>
-        <a class="team-mail" href="mailto:nicodemus@initiativeforlegalaid.org">nicodemus@initiativeforlegalaid.org</a>
-      </article>
-      <article class="team-card">
-        <img src="/static/uploads/leadership-modi.jpeg?v=3" alt="Modi Geofrey, Programs Manager" loading="lazy" />
-        <h3>Modi Geofrey</h3>
-        <p class="team-role">Programs Manager | Lawyer, Researcher &amp; Corporate Legal Practitioner</p>
-        <p class="team-cred">LL.B</p>
-        <a class="team-mail" href="mailto:modi@initiativeforlegalaid.org">modi@initiativeforlegalaid.org</a>
-      </article>
-      <article class="team-card">
-        <img src="/static/uploads/leadership-protection.jpeg?v=3" alt="Protection Coordinator (position open)" loading="lazy" />
-        <h3>Protection Coordinator</h3>
-        <p class="team-role">Name to be confirmed</p>
-      </article>
+      {% endfor %}
     </div>
   </div>
 </section>

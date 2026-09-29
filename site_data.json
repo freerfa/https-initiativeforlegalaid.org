@@ -170,6 +170,36 @@
   "cta_title": "Speak with our team today.",
   "custom_sections": [],
   "pages": [],
+  "leadership_members": [
+    {
+      "name": "Emmanuel Sumagule Benaih Swaka",
+      "role": "Executive Director | Advocate",
+      "credentials": "LL.M, L.P (RLA), LL.B",
+      "email": "director@initiative4legalaid.org",
+      "image": "/static/uploads/leadership-emmanuel.jpeg?v=3"
+    },
+    {
+      "name": "Nicodemus Arkangelo Philip",
+      "role": "Head of Legal Aid Services | Advocate",
+      "credentials": "LL.M in Human Rights — Pursuing",
+      "email": "nicodemus@initiativeforlegalaid.org",
+      "image": "/static/uploads/leadership-nicodemus.jpeg?v=3"
+    },
+    {
+      "name": "Modi Geofrey",
+      "role": "Programs Manager | Lawyer, Researcher & Corporate Legal Practitioner",
+      "credentials": "LL.B",
+      "email": "modi@initiativeforlegalaid.org",
+      "image": "/static/uploads/leadership-modi.jpeg?v=3"
+    },
+    {
+      "name": "Protection Coordinator",
+      "role": "Name to be confirmed",
+      "credentials": "",
+      "email": "",
+      "image": "/static/uploads/leadership-protection.jpeg?v=3"
+    }
+  ],
   "admin_account": {},
   "admin_users": [
     {
@@ -186,7 +216,7 @@
       "role": "user"
     }
   ],
-  "seed_version": 7,
+  "seed_version": 8,
   "hero_motto": "Breaking Barriers. Building Justice.",
   "hero_status": "Independent National Non-Governmental Organization (NGO) \u00b7 Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",
