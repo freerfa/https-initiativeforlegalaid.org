@@ -1428,8 +1428,16 @@ def update_leadership():
     existing = data.get("leadership_members") or []
     members = []
 
-    for index in range(len(existing)):
-        entry = dict(existing[index])
+    # Collect every submitted row, including brand new ones added in the panel,
+    # ordered by their index so the panel order is preserved.
+    indices = set()
+    for key in form:
+        match = re.match(r"^member_(\d+)_name$", key)
+        if match:
+            indices.add(int(match.group(1)))
+
+    for index in sorted(indices):
+        entry = dict(existing[index]) if index < len(existing) else {}
         for field in LEADERSHIP_FIELDS:
             key = f"member_{index}_{field}"
             if key in form:

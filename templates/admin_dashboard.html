@@ -218,14 +218,14 @@
       <section class="admin-card" id="leadership">
         <div class="admin-card-heading">
           <div><span class="admin-kicker">10</span><h2>Leadership team</h2></div>
-          <p>Manage the people shown on the public Leadership page. Clear a name to remove a member.</p>
+          <p>Manage the people shown on the public Leadership page. Use “Add team member” for a new person, or clear a name to remove a member.</p>
         </div>
-        <form method="post" action="/admin/leadership">
+        <form method="post" action="/admin/leadership" id="leadership-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <div class="leadership-editor">
+          <div class="leadership-editor" id="leadership-rows">
             {% for member in site.leadership_members %}
             <fieldset class="leadership-editor-row">
-              <legend>Member {{ loop.index }}</legend>
+              <legend>Member <span class="leadership-row-label">{{ loop.index }}</span></legend>
               <div class="admin-form-grid">
                 <div class="form-group full-width"><label for="lead_name_{{ loop.index0 }}">Full name</label><input id="lead_name_{{ loop.index0 }}" type="text" name="member_{{ loop.index0 }}_name" value="{{ member.name }}" /></div>
                 <div class="form-group full-width"><label for="lead_role_{{ loop.index0 }}">Role</label><input id="lead_role_{{ loop.index0 }}" type="text" name="member_{{ loop.index0 }}_role" value="{{ member.role }}" /></div>
@@ -236,7 +236,22 @@
             </fieldset>
             {% endfor %}
           </div>
-          <button type="submit" class="primary-btn">Save leadership team</button>
+          <template id="leadership-row-template">
+            <fieldset class="leadership-editor-row">
+              <legend>Member <span class="leadership-row-label"></span></legend>
+              <div class="admin-form-grid">
+                <div class="form-group full-width"><label>Full name</label><input type="text" name="member_%%INDEX%%_name" value="" /></div>
+                <div class="form-group full-width"><label>Role</label><input type="text" name="member_%%INDEX%%_role" value="" /></div>
+                <div class="form-group"><label>Credentials <small>optional</small></label><input type="text" name="member_%%INDEX%%_credentials" value="" /></div>
+                <div class="form-group"><label>Email <small>optional</small></label><input type="email" name="member_%%INDEX%%_email" value="" /></div>
+                <div class="form-group full-width"><label>Photo path <small>file in static/uploads</small></label><input type="text" name="member_%%INDEX%%_image" value="" /></div>
+              </div>
+            </fieldset>
+          </template>
+          <div class="leadership-editor-actions">
+            <button type="button" class="secondary-btn" id="leadership-add">Add team member</button>
+            <button type="submit" class="primary-btn">Save leadership team</button>
+          </div>
         </form>
       </section>
 
@@ -280,5 +295,46 @@
       </section>
     </main>
   </div>
+  <script>
+    (function () {
+      var addButton = document.getElementById('leadership-add');
+      var rowTemplate = document.getElementById('leadership-row-template');
+      var rows = document.getElementById('leadership-rows');
+      if (!addButton || !rowTemplate || !rows) { return; }
+
+      function relabel() {
+        var all = rows.querySelectorAll('.leadership-editor-row');
+        for (var i = 0; i < all.length; i++) {
+          var label = all[i].querySelector('.leadership-row-label');
+          if (label) { label.textContent = String(i + 1); }
+        }
+      }
+
+      function nextIndex() {
+        var max = -1;
+        var inputs = rows.querySelectorAll('input[name^="member_"]');
+        for (var i = 0; i < inputs.length; i++) {
+          var match = /^member_(\d+)_/.exec(inputs[i].name);
+          if (match) { max = Math.max(max, parseInt(match[1], 10)); }
+        }
+        return max + 1;
+      }
+
+      addButton.addEventListener('click', function () {
+        var index = nextIndex();
+        var html = rowTemplate.innerHTML.split('%%INDEX%%').join(String(index));
+        var holder = document.createElement('div');
+        holder.innerHTML = html.trim();
+        var row = holder.firstElementChild;
+        if (!row) { return; }
+        rows.appendChild(row);
+        relabel();
+        var firstField = row.querySelector('input');
+        if (firstField) { firstField.focus(); }
+      });
+
+      relabel();
+    })();
+  </script>
 </section>
 {% endblock %}

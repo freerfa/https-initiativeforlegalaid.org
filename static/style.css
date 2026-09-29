@@ -653,6 +653,17 @@ p {
   padding: 0 6px;
 }
 
+.leadership-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.leadership-row-label {
+  color: inherit;
+}
+
 .media-preview-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
