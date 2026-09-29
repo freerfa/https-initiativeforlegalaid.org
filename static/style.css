@@ -1868,18 +1868,46 @@ h3 { font-size: 1.15rem; }
   gap: 20px;
   min-height: 40px;
   font-size: 0.8125rem;
+  line-height: 1.35;
+  white-space: nowrap;
 }
-.utility-contact { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+/* Left cluster stays on one line; the address absorbs the slack. */
+.utility-contact {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
 .utility-item {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   color: rgba(255, 255, 255, 0.78);
 }
 a.utility-item:hover { color: #fff; }
 .utility-item svg { color: var(--gold-soft); flex: none; }
-.utility-item-address { display: none; }
-.utility-links { display: flex; align-items: center; gap: 18px; }
+/* Text nodes clip instead of spilling; address is the only shrinker. */
+.utility-item > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Email and phone must never compress or wrap. */
+.utility-item:not(.utility-item-address) { flex: 0 0 auto; }
+.utility-item-address { display: none; flex: 1 1 auto; min-width: 0; }
+/* Socials stay rigid and hard-aligned to the right edge. */
+.utility-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
 .utility-links a { color: rgba(255, 255, 255, 0.78); font-weight: 600; font-size: 0.8125rem; }
 .utility-links a:hover { color: var(--gold-soft); }
 @media (min-width: 768px) { .utility-bar { display: block; } }
