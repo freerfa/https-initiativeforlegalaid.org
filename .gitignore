@@ -27,4 +27,6 @@ static/uploads/*
 # macOS / editor noise
 .DS_Store
 .vscode/
+# Microsoft Word lock files (created while a .docx is open)
+~$*
 update_seed.py
