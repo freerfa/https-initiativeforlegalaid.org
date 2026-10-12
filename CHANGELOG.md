@@ -84,3 +84,20 @@ panel (section 11, "Partnerships"), matching the Leadership editor:
 
 Notes: `partners` was added to the seed defaults, so the existing UNFPA and
 CESYU cards render unchanged on first load of the new build.
+
+2026-10-12 — Admin credentials + full sync pipeline audit and repair:
+- Re-created admin `partnerships@initiative4legalaid.org` on production via the dashboard's
+  Add-admin-user form (it had vanished from the Render DB's admin_users list); verified
+  login 302 -> /admin and dashboard 200. Local site.db already had the same account.
+- Verified content parity: production /admin/database/export matches local site_data.json
+  on all 53 keys (no admin-panel edit has been lost).
+- Diagnosed Render -> GitHub content publishing as INACTIVE: admin saves on production
+  produce no Git commit and no "published in Git" flash, because the GITHUB_TOKEN env var
+  is unset on Render (render.yaml sets GIT_CONTENT_COMMIT=1, but the token is sync:false and
+  must be added in the Render dashboard; README documents this). Until it is added, panel
+  edits stay database-only.
+- Added scripts/auto_sync_local.sh: fast-forward-only auto-pull of origin/main; skips when
+  the working tree is dirty, logs to ~/Library/Logs/ila-sync.log. Installed cron entry
+  `*/5 * * * *` so the local folder updates automatically whenever GitHub changes.
+  Files: scripts/auto_sync_local.sh, CHANGELOG.md. Verify: bash -n clean; manual run exits 0;
+  dirty-tree run logs SKIP; crontab -l shows the entry.
