@@ -152,12 +152,21 @@ def main() -> int:
         return 0  # nothing actually changed after writing
     if git("commit", "-m", f"Content: sync production panel edits ({labels})").returncode != 0:
         return fail("git commit failed")
-    if git("push", "--quiet", "@{u}").returncode != 0:
+    push = git("push", "@{u}")
+    if push.returncode != 0:
         # One retry after syncing with origin (e.g. a deploy or the auto-pull
-        # cron moved the branch between our fetch and push).
+        # cron moved the branch between our fetch and push). Push failures are
+        # transient (network/keychain), so back off briefly, then refresh before
+        # retrying so we never force a non-fast-forward push.
+        import time as _time
+
+        _time.sleep(20)
         git("pull", "--rebase", "--quiet", "@{u}")
-        if git("push", "--quiet", "@{u}").returncode != 0:
-            return fail("git push failed (commit kept locally; will retry next run)")
+        push = git("push", "@{u}")
+    if push.returncode != 0:
+        detail = ((push.stderr or "") + (push.stdout or "")).strip().splitlines()
+        detail = " | ".join(detail[-4:])
+        return fail(f"git push failed (commit kept locally; will retry next run): {detail}"[:300])
     message = f"synced production content: {labels} ({len(changed)} keys) -> {git('rev-parse', '--short', 'HEAD').stdout.strip()}"
     log(message)
     print(message)
