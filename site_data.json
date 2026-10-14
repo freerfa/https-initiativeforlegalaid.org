@@ -1,6 +1,6 @@
 {
   "site_name": "Initiative for Legal Aid South Sudan",
-  "tagline": "Empowering Access To Justice In South Sudan — TEST",
+  "tagline": "Empowering Access To Justice In South Sudan",
   "hero_eyebrow": "Legal support for communities in need",
   "hero_meta": [
     "Trusted legal guidance",
@@ -311,5 +311,5 @@
     }
   ],
   "admin_account": {},
-  "seed_version": 13
+  "seed_version": 14
 }
