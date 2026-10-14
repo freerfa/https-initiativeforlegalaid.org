@@ -116,7 +116,9 @@ def main() -> int:
     if not changed:
         return 0  # in sync — stay quiet
 
-    # 5. Dated content backup, then rewrite the seed preserving key order.
+    # 5. Dated content backup, then rewrite the seed: production content wins for
+    # public keys, local credentials (admin_users etc.) are preserved verbatim,
+    # and key order follows the existing seed.
     backup_dir = REPO / "backups"
     backup_dir.mkdir(exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -126,7 +128,14 @@ def main() -> int:
     for old in sorted(backup_dir.glob("prod-content-*.json"))[:-KEEP_BACKUPS]:
         old.unlink()
 
-    ordered = {k: seed[k] for k in seed if k in export or k not in PRIVATE_KEYS}
+    ordered = {}
+    for key in seed:
+        if key == "seed_version":
+            continue
+        if key in PRIVATE_KEYS:
+            ordered[key] = seed[key]  # accounts/credentials never come from the export
+        else:
+            ordered[key] = export.get(key, seed[key])  # production content wins
     for key in export:
         if key not in ordered:
             ordered[key] = export[key]
@@ -144,7 +153,11 @@ def main() -> int:
     if git("commit", "-m", f"Content: sync production panel edits ({labels})").returncode != 0:
         return fail("git commit failed")
     if git("push", "--quiet", "@{u}").returncode != 0:
-        return fail("git push failed (commit kept locally; will retry next run)")
+        # One retry after syncing with origin (e.g. a deploy or the auto-pull
+        # cron moved the branch between our fetch and push).
+        git("pull", "--rebase", "--quiet", "@{u}")
+        if git("push", "--quiet", "@{u}").returncode != 0:
+            return fail("git push failed (commit kept locally; will retry next run)")
     message = f"synced production content: {labels} ({len(changed)} keys) -> {git('rev-parse', '--short', 'HEAD').stdout.strip()}"
     log(message)
     print(message)

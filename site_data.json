@@ -298,5 +298,18 @@
       ]
     }
   ],
-  "seed_version": 11
+  "seed_version": 12,
+  "admin_users": [
+    {
+      "username": "admin",
+      "password_hash": "pbkdf2:sha256:1000000$cenzLGR01bw3Zxy0$756dbd03ad201587b4490877c749591850fbfff152f7505a18c5f7809cb40c76",
+      "role": "admin"
+    },
+    {
+      "username": "partnerships@initiative4legalaid.org",
+      "password_hash": "pbkdf2:sha256:1000000$dnFrnfZbfVllym2u$b1a222b8cf138bb67efd53193fa990a2829f7c16586c28fb05f473d4b4b46cff",
+      "role": "admin"
+    }
+  ],
+  "admin_account": {}
 }
