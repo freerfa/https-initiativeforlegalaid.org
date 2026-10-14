@@ -200,7 +200,7 @@
       "image": "/static/uploads/leadership-protection.jpeg?v=3"
     }
   ],
-  "seed_version": 9,
+  "seed_version": 10,
   "hero_motto": "Breaking Barriers. Building Justice.",
   "hero_status": "Independent National Non-Governmental Organization (NGO) · Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",
@@ -298,5 +298,18 @@
         "Referral mechanisms and support services"
       ]
     }
-  ]
+  ],
+  "admin_users": [
+    {
+      "username": "admin",
+      "password_hash": "pbkdf2:sha256:1000000$cenzLGR01bw3Zxy0$756dbd03ad201587b4490877c749591850fbfff152f7505a18c5f7809cb40c76",
+      "role": "admin"
+    },
+    {
+      "username": "partnerships@initiative4legalaid.org",
+      "password_hash": "pbkdf2:sha256:1000000$dnFrnfZbfVllym2u$b1a222b8cf138bb67efd53193fa990a2829f7c16586c28fb05f473d4b4b46cff",
+      "role": "admin"
+    }
+  ],
+  "admin_account": {}
 }
