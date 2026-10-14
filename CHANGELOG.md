@@ -134,3 +134,21 @@ DB keeps resetting; once the Render disk DB is stable and GITHUB_TOKEN is set
 - Docs: PROJECT_HANDOFF template list + production checklist updated (upload persistence,
   legacy templates, backups, content bridge marked done; GITHUB_TOKEN now optional).
   Files: PROJECT_HANDOFF.md. Verify: entries render, boxes correct.
+
+2026-10-14 — Bridge bug + second lockout, repaired and end-to-end tested:
+- The new content bridge's first live run hit a merge bug: it kept the seed's old values
+  for keys present in both files and dropped private credential keys, so commit 276d4f3
+  removed admin_users from the seed and production re-seeded from it -> second lockout
+  (all three logins failed; homepage tagline confirmed the DB held the buggy seed).
+- Fixed the bridge: production content now wins for every public key, credential keys are
+  preserved from the seed verbatim, push retry backs off 20s and re-pulls before retrying,
+  push failures are logged with the git error text. Files: scripts/sync_prod_content.py.
+- Account restore: put both admin accounts back into the seed from verified hashes
+  (admin/admin123 + partnerships/Admin123 each check_password_hash-confirmed before writing),
+  seed_version 8..9..10..11..12..13..14 across the repair. Files: site_data.json.
+  Restore helper scripts were removed after use (never committed).
+- End-to-end bridge proof: live panel tagline edit with TEST suffix -> bridge detected,
+  exported, made backup, preserved admin_users, committed "Content: sync production panel
+  edits (tagline)"; reverted on panel -> bridge synced the revert back. Both commits pushed.
+  Files: site_data.json, backups/ (gitignored). Verify: git log shows both Content commits;
+  log ~/Library/Logs/ila-content-sync.log records push failures with git's own error.
