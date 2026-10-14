@@ -200,32 +200,16 @@
       "image": "/static/uploads/leadership-protection.jpeg?v=3"
     }
   ],
-  "admin_account": {},
-  "admin_users": [
-    {
-      "username": "admin",
-      "password_hash": "pbkdf2:sha256:1000000$cenzLGR01bw3Zxy0$756dbd03ad201587b4490877c749591850fbfff152f7505a18c5f7809cb40c76",
-      "role": "admin"
-    }
-  ],
-  "users": [
-    {
-      "username": "test",
-      "email": "freerfa3@gmail.com",
-      "password_hash": "pbkdf2:sha256:1000000$bKXCL6tanZy4LdFK$7fce3070f47281e27e436928b89d3759faa76a318ea899b55c150a7b291fadf3",
-      "role": "user"
-    }
-  ],
-  "seed_version": 8,
+  "seed_version": 9,
   "hero_motto": "Breaking Barriers. Building Justice.",
-  "hero_status": "Independent National Non-Governmental Organization (NGO) \u00b7 Republic of South Sudan",
+  "hero_status": "Independent National Non-Governmental Organization (NGO) · Republic of South Sudan",
   "who_we_are_title": "An independent national organisation for justice in South Sudan",
   "who_we_are_p1": "The Initiative for Legal Aid (ILA) is an independent national civil society organization established to promote access to justice, protect and advance human rights, strengthen the rule of law, and contribute to good governance, peacebuilding, and sustainable development in the Republic of South Sudan.",
   "who_we_are_p2": "ILA serves as both a legal service provider and a development organization by combining legal aid, human rights advocacy, civic education, research, institutional development, policy engagement, peacebuilding, and community empowerment within an integrated programming framework.",
   "challenge_title": "Justice remains out of reach for many South Sudanese",
   "challenge_text": "Women, children, persons with disabilities, displaced people, detainees and low-income households face legal, financial, geographical and institutional barriers to justice. ILA was established as a response to these realities.",
   "challenge_quote": "Justice is not a privilege reserved for those with financial means or social influence, but a universal and fundamental human right guaranteed to every individual without discrimination.",
-  "services_intro": "ILA combines direct legal assistance with advocacy, research, institutional strengthening, civic education, peacebuilding and community engagement \u2014 addressing both immediate legal needs and the structural causes of injustice.",
+  "services_intro": "ILA combines direct legal assistance with advocacy, research, institutional strengthening, civic education, peacebuilding and community engagement — addressing both immediate legal needs and the structural causes of injustice.",
   "flagship": {
     "eyebrow": "Flagship programme",
     "title": "Access to Justice & Legal Aid",
@@ -277,5 +261,42 @@
   ],
   "gallery_note": "Captions describe only what is visible. ILA does not publish the identity, contact details or case information of any person who has received legal assistance.",
   "footer_motto": "Breaking Barriers. Building Justice.",
-  "footer_registration": "Registered in the Republic of South Sudan \u00b7 RRC Reg. No. 3561"
+  "footer_registration": "Registered in the Republic of South Sudan · RRC Reg. No. 3561",
+  "partners": [
+    {
+      "name": "UNFPA",
+      "name_note": "— GBV Workstream, South Sudan",
+      "badge": "Coordination partner",
+      "image": "/static/uploads/partner-unfpa.jpeg?v=2",
+      "description": "ILA works with UNFPA through the Gender-Based Violence (GBV) Workstream in South Sudan, part of the humanitarian Protection Cluster coordination system.",
+      "quote": "",
+      "focus_heading": "Areas of engagement",
+      "meta": [],
+      "focus": [
+        "Gender-based violence (GBV) partner coordination",
+        "Protection Cluster partner training",
+        "Humanitarian activity reporting (5W)"
+      ]
+    },
+    {
+      "name": "Central Equatoria State Youth Union",
+      "name_note": "(CESYU)",
+      "badge": "Partnership signing ceremony — 15 September 2026",
+      "image": "/static/uploads/partner-cesyu.jpeg?v=2",
+      "description": "",
+      "quote": "Strengthening Youth Participation, Access to Justice, Human Rights and Inclusive Development",
+      "focus_heading": "Partnership focus areas",
+      "meta": [
+        "15 September 2026, 9:00 AM – 12:00 PM",
+        "Juba, South Sudan (venue to be confirmed)"
+      ],
+      "focus": [
+        "Legal awareness and access to justice",
+        "Human rights protection",
+        "Youth empowerment and participation",
+        "Community engagement and peacebuilding",
+        "Referral mechanisms and support services"
+      ]
+    }
+  ]
 }
