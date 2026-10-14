@@ -513,11 +513,28 @@ p {
   top: 96px;
   display: flex;
   flex-direction: column;
-  min-height: 480px;
+  /* Fit the viewport: shrink to the space under the sticky header and scroll
+     internally, so every nav link + "Log out" stays reachable on short screens. */
+  min-height: min(480px, calc(100vh - 120px));
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 20px 14px;
   background: #102d3b;
   border-radius: 14px;
   color: white;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.admin-sidebar::-webkit-scrollbar { width: 8px; }
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+}
+.admin-sidebar::-webkit-scrollbar-track { background: transparent; }
+
+.admin-content {
+  min-width: 0;
 }
 
 .admin-sidebar-brand {
@@ -964,6 +981,8 @@ p {
   .admin-sidebar {
     position: static;
     min-height: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   .admin-nav {
@@ -1477,7 +1496,7 @@ img { overflow-wrap: anywhere; }
 
   .admin-layout { padding: 28px 0 60px; }
   .admin-shell { grid-template-columns: 1fr; }
-  .admin-sidebar { position: static; min-height: 0; }
+  .admin-sidebar { position: static; min-height: 0; max-height: none; overflow: visible; }
   .admin-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
   .admin-logout { margin-top: 12px; }
   .admin-page-heading { flex-direction: column; align-items: stretch; }

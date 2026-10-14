@@ -152,3 +152,19 @@ DB keeps resetting; once the Render disk DB is stable and GITHUB_TOKEN is set
   edits (tagline)"; reverted on panel -> bridge synced the revert back. Both commits pushed.
   Files: site_data.json, backups/ (gitignored). Verify: git log shows both Content commits;
   log ~/Library/Logs/ila-content-sync.log records push failures with git's own error.
+
+2026-10-14 — Admin panel: fit-to-viewport sidebar with internal scroll:
+- The desktop admin sidebar was sticky at top:96px with a hard min-height:480px and
+  no height cap, so on short laptop viewports the 13-link nav + "Log out" were
+  clipped and unreachable (sticky won't scroll to them).
+- Capped the sticky sidebar to the viewport (max-height: calc(100vh - 120px)) with
+  overflow-y:auto + overscroll-behavior:contain and a thin styled scrollbar, and made
+  min-height yield on short screens (min(480px, calc(100vh - 120px))). Every nav link
+  and Log out now stays reachable at any window height.
+- Added .admin-content { min-width: 0 } so grid children (wide tables) can't overflow.
+  Reset the cap (max-height:none; overflow:visible) at the <=900px and <=768px
+  breakpoints where the sidebar stacks, so mobile is unchanged.
+- Bumped the style.css cache-buster to v=20261014a so the live site fetches the fix.
+  Files: static/style.css, templates/base.html. Verify: CSS braces balanced (656/656),
+  app.py compiles, local /static/style.css serves the new max-height rule, /login 200.
+
