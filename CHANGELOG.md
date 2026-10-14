@@ -114,3 +114,23 @@ credential keys out of the export path otherwise. Verify: after deploy, admin lo
 Note: seed-based account restore is the standing recovery path while the production
 DB keeps resetting; once the Render disk DB is stable and GITHUB_TOKEN is set
 (for panel publishing), credentials should be rotated to stronger passwords.
+
+2026-10-14 — Pending-issues sweep (four fixes):
+- Upload persistence: UPLOAD_FOLDER now points at DATA_DIR/uploads when DATA_DIR is set
+  (Render disk; survives redeploys) and stays static/uploads for local dev. New route
+  /static/uploads/<file> serves from the disk first with repo-seed fallback; secure_filename
+  guard rejects traversal. Files: app.py. Verify: py_compile OK; local run (no DATA_DIR)
+  seed image 200 + traversal 404; DATA_DIR run disk-only file 200, seed fallback 200,
+  missing 404, site.db created in DATA_DIR.
+- Removed legacy unused templates admin_login.html and user_login.html (zero references).
+  Files: templates/ (14 remain). Verify: grep confirms no references in app/templates/static.
+- Local content bridge: new scripts/sync_prod_content.py (stdlib + python-dotenv only) logs
+  into the live admin panel, exports public content, and when it differs from site_data.json
+  commits+pushes "Content: sync production panel edits (...)" — replacing the missing Render
+  GITHUB_TOKEN publisher. Also writes dated JSON backups to backups/ (gitignored, last 30).
+  Refuses to run on a dirty/diverged repo; logs to ~/Library/Logs/ila-content-sync.log.
+  Files: scripts/sync_prod_content.py, .gitignore, .env.example. Verify: py_compile OK;
+  dirty-tree guard fires; in-sync run quiet.
+- Docs: PROJECT_HANDOFF template list + production checklist updated (upload persistence,
+  legacy templates, backups, content bridge marked done; GITHUB_TOKEN now optional).
+  Files: PROJECT_HANDOFF.md. Verify: entries render, boxes correct.

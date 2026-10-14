@@ -50,12 +50,13 @@ Clean as of 2026-09-15 (all work committed + pushed to `origin/main`, repo renam
   register.html          # member registration
   user_account.html      # member page
   admin_dashboard.html   # admin CMS
-  admin_login.html       # legacy/unused
-  user_login.html        # legacy/unused
+  admin_database.html    # site database manager (JSON editor, import/export/reset)
+  admin_messages.html    # contact-form inbox
   page.html 404.html
 /static/style.css        # styling incl. responsive breakpoints + partnerships/leadership styles
 /static/uploads/         # seed images committed to git (hero/gallery/testimonial/leadership/partners);
-                         # NEW admin uploads stay gitignored (§8 #10) and are EPHEMERAL on Render
+                         # NEW admin uploads are gitignored and go to the DATA_DIR disk on Render
+                         # (served via /static/uploads/<file> route with repo fallback)
 /PROJECT_HANDOFF.md      # this file — start here
 /CHANGELOG.md            # append every change
 
@@ -114,7 +115,9 @@ After any code or config change: append a row to CHANGELOG.md (date, what, files
 - [ ] **Replace placeholder content**: Protection Coordinator name+photo on /leadership; confirm CESYU ceremony venue; review impact-indicator "figures to be verified" wording with staff
 - [ ] **Rotate admin passwords** before real users (Free/Contact12 + admin/admin123 were shared in chat during dev)
 - [ ] **Render paid plan decision**: free tier sleeps ~15 min idle (~50s cold start) and had an unexplained ~1h outage; Starter ($7/mo) = always-on
-- [ ] **Upload persistence**: point UPLOAD_FOLDER at DATA_DIR disk so admin photo uploads survive redeploys (§8 #10)
-- [ ] Remove legacy unused templates admin_login.html and user_login.html (zero code references confirmed)
-- [ ] Back up site.db (Render shell or admin export) before bulk edits
+- [x] **Upload persistence** — DONE 2026-10-14: UPLOAD_FOLDER now points at the DATA_DIR disk when set (Render), served by a dedicated `/static/uploads/<file>` route with repo-seed fallback; local dev unchanged. Verify: disk-only file 200, seed fallback 200, traversal 404.
+- [x] **Remove legacy unused templates** — DONE 2026-10-14: admin_login.html + user_login.html deleted (zero references confirmed).
+- [x] **Content backups** — DONE 2026-10-14: scripts/sync_prod_content.py saves a dated JSON export to backups/ (gitignored, last 30 kept) on every detected change; full site.db snapshots still need Render shell or a scheduled export.
+- [ ] **Set GITHUB_TOKEN on Render** (optional now): enables the built-in admin-panel Git publisher. Until then, the local bridge below covers panel→GitHub syncing.
+- [x] **Local content bridge** — DONE 2026-10-14: scripts/sync_prod_content.py (cron every 15 min) logs into the live admin panel, exports public content, and commits/pushes site_data.json when it differs; credentials from .env (PROD_ADMIN_* or ADMIN_*), backups written to backups/. This replaces the missing Render GITHUB_TOKEN flow for panel edits.
 - [x] Post-cutover verification — DONE 2026-09-24: `dig @8.8.8.8 A initiative4legalaid.org` → 216.24.57.1; `dig @8.8.8.8 CNAME www.initiative4legalaid.org` → ...onrender.com; `curl -L https://initiative4legalaid.org/` → 200 on HTTP/2, final URL the apex; `<title>` = "Initiative for Legal Aid South Sudan"; TLS valid. `dig MX initiativeforlegalaid.org` untouched (its mail is separate, on OraWebHost).

@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 import filetype
 
 from dotenv import load_dotenv
-from flask import Flask, Response, flash, redirect, render_template, request, session, url_for
+from flask import Flask, Response, abort, flash, redirect, render_template, request, send_from_directory, session, url_for
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -32,12 +32,17 @@ if not secret_key or secret_key in {"change-me-to-a-long-random-string", "replac
         raise RuntimeError("SECRET_KEY must be set to a strong random value in production.")
     secret_key = secrets.token_hex(32)  # dev-only ephemeral key; sessions reset on restart
 app.secret_key = secret_key
-app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 # Persistent data lives outside the repo so redeploys/uploads survive.
 # Local dev: ./ (site.db next to app.py). Render: DATA_DIR=/opt/render/project/src/data (disk).
 DATA_DIR = os.environ.get("DATA_DIR", "")
 DB_FILE = os.path.join(DATA_DIR, "site.db") if DATA_DIR else "site.db"
+# Uploads go to the persistent disk when DATA_DIR is set so admin photo uploads
+# survive redeploys; locally they stay in static/uploads (gitignored except seeds).
+if DATA_DIR:
+    app.config["UPLOAD_FOLDER"] = os.path.join(DATA_DIR, "uploads")
+else:
+    app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
 SEED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site_data.json")
 # Persistent login: keep users logged in for 30 days (survives browser close)
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
@@ -141,6 +146,26 @@ def ensure_db() -> None:
 
 
 ensure_db()
+
+
+@app.route("/static/uploads/<path:filename>")
+def persistent_upload(filename: str):
+    """Serve admin uploads from the persistent disk, falling back to the repo's
+    seed images. On Render, UPLOAD_FOLDER lives on the mounted disk (survives
+    redeploys) while seed images ship in the repo's static/uploads folder.
+    """
+    safe = secure_filename(filename)
+    if not safe or safe != filename:
+        abort(404)
+    seen = set()
+    for folder in (app.config["UPLOAD_FOLDER"], os.path.join(app.static_folder, "uploads")):
+        if folder in seen:
+            continue
+        seen.add(folder)
+        if os.path.isfile(os.path.join(folder, safe)):
+            return send_from_directory(folder, safe)
+    abort(404)
+
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and \

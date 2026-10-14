@@ -6,6 +6,8 @@ __pycache__/
 
 # Live database (dev copy exists locally; prod uses a managed volume + backups)
 site.db
+# Local content backups taken by scripts/sync_prod_content.py
+backups/
 
 # Uploaded images (keep the folder, ignore contents)
 static/uploads/*
