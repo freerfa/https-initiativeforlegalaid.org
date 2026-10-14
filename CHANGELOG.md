@@ -101,3 +101,16 @@ CESYU cards render unchanged on first load of the new build.
   `*/5 * * * *` so the local folder updates automatically whenever GitHub changes.
   Files: scripts/auto_sync_local.sh, CHANGELOG.md. Verify: bash -n clean; manual run exits 0;
   dirty-tree run logs SKIP; crontab -l shows the entry.
+
+2026-10-12 — Lockout fix: restored admin accounts to the tracked seed. Commit 0c97dff
+had removed admin_users/users/admin_account from site_data.json (mirroring the Git
+publisher's export); production was then re-seeded from git, leaving no usable admin
+accounts and locking out admin/admin123 and partnerships@initiative4legalaid.org/Admin123.
+Commit 899a349 puts both admin accounts back into the seed as pbkdf2:sha256 hashes
+(hashes verified against both passwords before writing; no plaintext), bumps
+seed_version to 10 so the deploy merges them into the Render DB, and keeps the
+credential keys out of the export path otherwise. Verify: after deploy, admin login
+302 -> /admin, partnerships login 302 -> /admin, dashboard 200.
+Note: seed-based account restore is the standing recovery path while the production
+DB keeps resetting; once the Render disk DB is stable and GITHUB_TOKEN is set
+(for panel publishing), credentials should be rotated to stronger passwords.
