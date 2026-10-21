@@ -308,6 +308,11 @@
       "username": "partnerships@initiative4legalaid.org",
       "password_hash": "pbkdf2:sha256:1000000$dnFrnfZbfVllym2u$b1a222b8cf138bb67efd53193fa990a2829f7c16586c28fb05f473d4b4b46cff",
       "role": "admin"
+    },
+    {
+      "username": "elhag@initiative4legalaid.org",
+      "password_hash": "pbkdf2:sha256:1000000$gfJ99ExyjW7nrzhA$6ada6e64c19eaa7282578097d69685f45bcc36c9621fd9ff2c474dd19e273873",
+      "role": "admin"
     }
   ],
   "admin_account": {},
