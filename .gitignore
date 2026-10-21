@@ -5,7 +5,14 @@ __pycache__/
 .venv/
 
 # Live database (dev copy exists locally; prod uses a managed volume + backups)
+# WAL/SHM/JOURNAL sidecars must stay untracked too — panel edits sync
+# database-to-database (never through git).
 site.db
+site.db-wal
+site.db-shm
+site.db-journal
+*.db-wal
+*.db-shm
 # Local content backups taken by scripts/sync_prod_content.py
 backups/
 

@@ -168,3 +168,18 @@ DB keeps resetting; once the Render disk DB is stable and GITHUB_TOKEN is set
   Files: static/style.css, templates/base.html. Verify: CSS braces balanced (656/656),
   app.py compiles, local /static/style.css serves the new max-height rule, /login 200.
 
+2026-10-15 — Database-only sync: panel edits merge into local site.db (production wins):
+- site.db confirmed gitignored + untracked (plus -wal/-shm/-journal sidecars);
+  panel edits sync database-to-database, never through git.
+- scripts/sync_prod_content.py (cron, every 15 min) now three-way merges the live
+  /admin/database/export into the local site.db against backups/.last-prod-export.json:
+  production changes win every conflict, accounts/seed_version always stay local,
+  untouched keys deleted on production are removed locally, locally-edited keys
+  deleted on production are kept + flagged, local-only additions are pushed back
+  to production via the panel import (additive only, accounts excluded).
+- Seed flow unchanged: site_data.json still commits/pushes when production differs
+  (backup-gated, one backup per real change). Files: scripts/sync_prod_content.py,
+  scripts/test_db_merge.py, .gitignore, .env.example. Verify: py_compile OK;
+  offline merge suite 8/8 PASS (conflict->prod, private-stays-local, local-only
+  push-up, untouched-delete, edited-delete-kept, no-op quiet).
+
